@@ -1,0 +1,18 @@
+---
+import DefaultLayout from '@layouts/DefaultLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+// Get all entries from a collection.
+// Requires the name of the collection as an argument.
+const posts = await getCollection('posts');
+---
+
+<DefaultLayout title="covalt.dev">
+	<h1>My Astro Site</h1>
+	<h1>My Astro Learning Blog</h1>
+	<p>This is where I will post about my journey learning Astro.</p>
+
+	{posts.map(post => (
+    	<li><a href={`/posts/${post.id}`}>{post.data.title}</a></li>
+	))}
+</DefaultLayout>
