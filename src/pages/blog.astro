@@ -5,14 +5,19 @@ import { getCollection, getEntry } from 'astro:content';
 // Get all entries from a collection.
 // Requires the name of the collection as an argument.
 const posts = await getCollection('posts');
+
+function formatDate (dateString: string) {
+	let date = new Date(dateString);
+	const offset = date.getTimezoneOffset()
+	date = new Date(date.getTime() - (offset*60*1000))
+	return date.toISOString().split('T')[0]
+}
 ---
 
 <DefaultLayout title="covalt.dev">
-	<h1>My Astro Site</h1>
-	<h1>My Astro Learning Blog</h1>
-	<p>This is where I will post about my journey learning Astro.</p>
+	<h1>Posts</h1>
 
 	{posts.map(post => (
-    	<li><a href={`/posts/${post.id}`}>{post.data.title}</a></li>
+    	<li><a href={`/posts/${post.id}`}>{formatDate(post.data.date)} {post.data.title}</a></li>
 	))}
 </DefaultLayout>
