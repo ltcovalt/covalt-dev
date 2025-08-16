@@ -8,15 +8,16 @@ import "../styles/global.css";
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
 	<body>
 		<NavBar />
-		<div class="prose m-auto p-8">
+		<div class="prose xl:max-w-[80ch] xl:prose-lg m-auto p-8">
 			<!-- main content slot -->
 			<slot />	
 		</div>
 	</body>
+    <script src="../scripts/copy-code.js" type="module"></script>
 </html>
