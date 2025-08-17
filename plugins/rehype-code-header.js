@@ -1,36 +1,39 @@
+// plugins/rehype-code-header.js
 import { visit } from 'unist-util-visit';
 
 export default function rehypeCodeHeader() {
 	return (tree) => {
 		visit(tree, 'element', (node) => {
 			if (node.tagName !== 'pre') return;
+			if (!node.children?.some((c) => c.tagName === 'code')) return;
 
-			// flag processed <pre> tags so they are never injected twice
-			node.properties ||= {};
-			if (node.properties['data-has-header']) return;
-			node.properties['data-has-header'] = '1';
+			const props = (node.properties ??= {});
+			if (props['data-has-header']) return;
 
-			// only operate on real code blocks
-			if (!Array.isArray(node.children) || !node.children.some(c => c.tagName === 'code')) return;
-
-			const lang = node.properties['data-language'] || 'plain';
+			// prefer remark-added data-language, else fallback to 'text'
+			const lang = props['data-language'] ?? props.dataLanguage ?? 'text';
 
 			node.children.unshift({
 				type: 'element',
 				tagName: 'div',
-				properties: { className: ['code-header', 'flex', 'items-center'], style: 'position: relative;' },
+				properties: {
+					className: ['code-header', 'flex', 'items-center'],
+					style: 'position: relative;',
+				},
 				children: [
 					{
 						type: 'element',
 						tagName: 'span',
-						properties: { className: ['text-xs', 'text-gray-500', 'mr-2'] },
+						properties: {
+							className: ['code-label', 'text-xs', 'text-gray-500', 'mr-2'],
+						},
 						children: [{ type: 'text', value: lang }],
 					},
 					{
 						type: 'element',
 						tagName: 'button',
 						properties: {
-							className: ['btn', 'btn-soft', 'btn-xs', 'ml-auto', 'copy-code'],
+							className: ['btn', 'btn-soft', 'btn-xs', 'ml-auto', 'code-copy'],
 							type: 'button',
 							'aria-label': 'Copy code',
 						},
@@ -38,6 +41,8 @@ export default function rehypeCodeHeader() {
 					},
 				],
 			});
+
+			props['data-has-header'] = '1'; // mark as processed
 		});
 	};
 }
