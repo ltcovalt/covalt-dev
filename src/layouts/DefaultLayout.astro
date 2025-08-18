@@ -1,6 +1,6 @@
 ---
 const { title = "covalt.dev" } = Astro.props;
-import { NavBar } from "@components";
+import { Header } from "@components";
 import "../styles/global.css";
 import { defaultTheme } from "src/config";
 ---
@@ -21,7 +21,7 @@ import { defaultTheme } from "src/config";
 		</script>
 	</head>
 	<body>
-		<NavBar />
+		<Header />
 		<div class="prose xl:max-w-[80ch] xl:prose-lg m-auto p-8">
 			<slot>
 				<!-- main content slot -->

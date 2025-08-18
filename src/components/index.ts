@@ -1,2 +1,2 @@
-export { default as NavBar } from './NavBar.astro';
+export { default as Header } from './Header.astro';
 export { default as ThemeController } from './ThemeController.astro';
