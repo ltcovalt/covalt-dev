@@ -2,13 +2,13 @@
 title: 'Welcome to covalt.dev'
 description: 'Welcome to covalt.dev'
 author: 'Luke Covalt'
-draft: true,
-published: 2025-08-14
+date: 2025-08-14
 updated: 2025-08-16
+draft: false
 tags: ["astro", "blog"]
 ---
 
-Welcome to covalt.dev - the third (hopefully final) attempt at me launching a personal website where I plan to share all my technology focused ramblings.
+Welcome to covalt.dev - my third (and hopefully final) attempt at launching a personal website where I plan to share all my technology focused ramblings.
 
 ## Wait, the third attempt?
 
