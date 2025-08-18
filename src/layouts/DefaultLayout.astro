@@ -5,20 +5,30 @@ import "../styles/global.css";
 import { defaultTheme } from "src/config";
 ---
 
-<html lang="en" data-theme={defaultTheme}>
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/png" href="/favicon.png" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+
+		<script is:inline>
+			// choose stored theme if present, else use default
+			const storedTheme = localStorage.getItem("theme");
+			const theme =
+				storedTheme ||
+				document.documentElement.getAttribute("data-theme") ||
+				defaultTheme;
+			document.documentElement.setAttribute("data-theme", theme);
+		</script>
 	</head>
 	<body>
 		<NavBar />
 		<div class="prose xl:max-w-[80ch] xl:prose-lg m-auto p-8">
 			<!-- main content slot -->
-			<slot />	
+			<slot />
 		</div>
 	</body>
-    <script src="../scripts/copy-code.js" type="module"></script>
+	<script src="../scripts/copy-code.js" type="module"></script>
 </html>
