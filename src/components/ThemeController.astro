@@ -1,5 +1,6 @@
 ---
 import ThemeColors from "../../node_modules/daisyui/theme/object";
+import { defaultTheme } from "src/config";
 const themes = Object.keys(ThemeColors).sort();
 ---
 
@@ -72,9 +73,25 @@ const themes = Object.keys(ThemeColors).sort();
 									name="theme-dropdown"
 									value={theme}
 									aria-label={theme}
-									class="theme-controller sr-only"
+									class="theme-controller sr-only peer"
 								/>
 								<span class="ml-1 truncate">{theme}</span>
+								<span class="ml-auto hidden peer-checked:inline">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke-width="1.5"
+										stroke="currentColor"
+										class="size-6"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+										/>
+									</svg>
+								</span>
 							</label>
 						</li>
 					);
@@ -83,3 +100,39 @@ const themes = Object.keys(ThemeColors).sort();
 		</ul>
 	</div>
 </div>
+
+<script is:inline>
+	const defaultTheme = "{defaultTheme}";
+	const setTheme = (t) => {
+		document.documentElement.setAttribute('data-theme', t);
+		try {
+			localStorage.setItem('theme', t);
+		} catch (ex) {
+			console.log(ex);
+		}
+	};
+
+	const getTheme = () =>
+		document.documentElement.getAttribute('data-theme') ||
+		localStorage.getItem('theme') ||
+		defaultTheme;
+
+	// initialize data-theme if it does not yet exist
+	if (!document.documentElement.hasAttribute('data-theme'))
+		setTheme(getTheme());
+
+	// when a theme radio changes, set theme + refresh checks
+	document.addEventListener('change', (e) => {
+		const el = e.target;
+		if (el && el.matches('input.theme-controller[name="theme-dropdown"]')) {
+			setTheme(el.value);
+		}
+	});
+
+	// update theme if the stored value changes in another window/tab
+	window.addEventListener('storage', (e) => {
+		if (e.key === 'theme') {
+			setTheme(e.newValue || defaultTheme);
+		}
+	});
+</script>
