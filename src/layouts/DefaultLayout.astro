@@ -5,7 +5,7 @@ import "../styles/global.css";
 import { defaultTheme } from "src/config";
 ---
 
-<html lang="en">
+<html lang="en" data-theme-default={defaultTheme}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -14,20 +14,18 @@ import { defaultTheme } from "src/config";
 		<title>{title}</title>
 
 		<script is:inline>
-			// choose stored theme if present, else use default
-			const storedTheme = localStorage.getItem("theme");
-			const theme =
-				storedTheme ||
-				document.documentElement.getAttribute("data-theme") ||
-				defaultTheme;
+			const theme = localStorage.getItem("theme")
+				|| document.documentElement.getAttribute("data-theme")
+				|| document.documentElement.getAttribute("data-theme-default")
 			document.documentElement.setAttribute("data-theme", theme);
 		</script>
 	</head>
 	<body>
 		<NavBar />
 		<div class="prose xl:max-w-[80ch] xl:prose-lg m-auto p-8">
-			<!-- main content slot -->
-			<slot />
+			<slot>
+				<!-- main content slot -->
+			</slot>
 		</div>
 	</body>
 	<script src="../scripts/copy-code.js" type="module"></script>

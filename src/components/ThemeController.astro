@@ -1,6 +1,5 @@
 ---
 import ThemeColors from "../../node_modules/daisyui/theme/object";
-import { defaultTheme } from "src/config";
 const themes = Object.keys(ThemeColors).sort();
 ---
 
@@ -102,7 +101,6 @@ const themes = Object.keys(ThemeColors).sort();
 </div>
 
 <script is:inline>
-	const defaultTheme = "{defaultTheme}";
 	const setTheme = (t) => {
 		document.documentElement.setAttribute('data-theme', t);
 		try {
@@ -112,10 +110,12 @@ const themes = Object.keys(ThemeColors).sort();
 		}
 	};
 
-	const getTheme = () =>
-		document.documentElement.getAttribute('data-theme') ||
-		localStorage.getItem('theme') ||
-		defaultTheme;
+	const getTheme = () => {
+		const theme = document.documentElement.getAttribute('data-theme')
+			|| localStorage.getItem('theme')
+			|| document.documentElement.getAttribute('data-theme-default');
+		return theme;
+	}
 
 	// initialize data-theme if it does not yet exist
 	if (!document.documentElement.hasAttribute('data-theme'))
@@ -132,7 +132,7 @@ const themes = Object.keys(ThemeColors).sort();
 	// update theme if the stored value changes in another window/tab
 	window.addEventListener('storage', (e) => {
 		if (e.key === 'theme') {
-			setTheme(e.newValue || defaultTheme);
+			setTheme(e.newValue || document.documentElement.getAttribute('data-theme-default'));
 		}
 	});
 </script>
