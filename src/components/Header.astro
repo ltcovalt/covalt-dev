@@ -38,7 +38,7 @@ const isCurrentPage = (href: string) => {
 			</div>
 			<ul
 				tabindex="0"
-				class="menu dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+				class="menu dropdown-content bg-base-200 rounded-box z-1 mt-4 w-52 p-2 shadow"
 			>
 				{
 					headerLinks.map((link) => (
@@ -47,7 +47,7 @@ const isCurrentPage = (href: string) => {
 								href={link.href}
 								class={
 									isCurrentPage(link.href)
-										? "underline decoration-primary decoration-2 underline-offset-8"
+										? "underline decoration-accent decoration-2 underline-offset-8"
 										: ""
 								}
 							>
@@ -58,7 +58,7 @@ const isCurrentPage = (href: string) => {
 				}
 			</ul>
 		</div>
-		<a href="/" class="text-3xl text-primary">covalt.dev</a>
+		<a href="/" class="text-4xl text-primary">covalt.dev</a>
 	</div>
 
 	<!-- center navbar, hidden for small screens -->
@@ -71,7 +71,7 @@ const isCurrentPage = (href: string) => {
 							href={link.href}
 							class={
 								isCurrentPage(link.href)
-									? "underline decoration-primary decoration-2 underline-offset-8"
+									? "underline decoration-accent decoration-2 underline-offset-8"
 									: ""
 							}
 						>

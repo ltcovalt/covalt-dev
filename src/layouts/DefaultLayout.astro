@@ -14,19 +14,16 @@ import { defaultTheme } from "src/config";
 		<title>{title}</title>
 
 		<script is:inline>
-			const theme = localStorage.getItem("theme")
-				|| document.documentElement.getAttribute("data-theme")
-				|| document.documentElement.getAttribute("data-theme-default")
+			const theme =
+				localStorage.getItem("theme") ||
+				document.documentElement.getAttribute("data-theme") ||
+				document.documentElement.getAttribute("data-theme-default");
 			document.documentElement.setAttribute("data-theme", theme);
 		</script>
 	</head>
 	<body>
 		<Header />
-		<div class="prose xl:max-w-[80ch] xl:prose-lg m-auto p-8">
-			<slot>
-				<!-- main content slot -->
-			</slot>
-		</div>
+		<slot />
 	</body>
 	<script src="../scripts/copy-code.js" type="module"></script>
 </html>
