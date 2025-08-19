@@ -1,5 +1,12 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin 'daisyui' {
-	themes: 'all'
-};
+  themes: "all";
+}
 @plugin '@tailwindcss/typography';
+
+@layer utilities {
+  .prose-link {
+	@apply hover:text-secondary;
+    @apply text-accent no-underline transition duration-200;
+  }
+}

@@ -1,26 +1,28 @@
 ---
-import { ArticleLayout } from '@layouts';
-import { getCollection, getEntry } from 'astro:content';
+import { ArticleLayout } from "@layouts";
+import { getCollection, getEntry } from "astro:content";
 
-const posts = await getCollection('posts', ({ data }) => !data.draft);
+const posts = await getCollection("posts", ({ data }) => !data.draft);
 
-function formatDate (dateString) {
+function formatDate(dateString) {
 	let date = new Date(dateString);
-	const offset = date.getTimezoneOffset()
+	const offset = date.getTimezoneOffset();
 	// format date/time as YYYY-MM-DD
-	date = new Date(date.getTime() - (offset * 60 * 1000))
-	return date.toISOString().split('T')[0]
+	date = new Date(date.getTime() - offset * 60 * 1000);
+	return date.toISOString().split("T")[0];
 }
 ---
 
 <ArticleLayout title="covalt.dev">
 	<h1>Posts</h1>
 
-	{posts.map(post => (
-    	<li class="list-none">
-			<a href={`/posts/${post.id}`} class="link no-underline hover:text-primary">
-				{formatDate(post.data.date)} - {post.data.title}
-			</a>
-		</li>
-	))}
-</DefaultLayout>
+	{
+		posts.map((post) => (
+			<li class="list-none">
+				<a href={`/posts/${post.id}`} class="prose-link">
+					{formatDate(post.data.date)} - {post.data.title}
+				</a>
+			</li>
+		))
+	}
+</ArticleLayout>

@@ -11,8 +11,7 @@ const isCurrentPage = (href) => {
 	const base = href.replace(/\/+$/, "") || "/";
 	// exact match or prefix match for sub-pages
 	return (
-		currentPage === base ||
-		(base !== "/" && currentPage.startsWith(base + "/"))
+		currentPage === base || (base !== "/" && currentPage.startsWith(base + "/"))
 	);
 };
 ---
@@ -58,7 +57,7 @@ const isCurrentPage = (href) => {
 				}
 			</ul>
 		</div>
-		<a href="/" class="text-4xl text-primary">covalt.dev</a>
+		<a href="/" class="text-3xl">covalt.dev</a>
 	</div>
 
 	<!-- center navbar, hidden for small screens -->
