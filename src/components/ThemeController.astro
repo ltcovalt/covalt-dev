@@ -1,6 +1,12 @@
 ---
 import ThemeColors from "../../node_modules/daisyui/theme/object";
 const themes = Object.keys(ThemeColors).sort();
+const themeIndicatorColors = [
+	"--color-base-content",
+	"--color-primary",
+	"--color-secondary",
+	"--color-accent",
+];
 ---
 
 <div title="Change Theme" class="dropdown dropdown-end block">
@@ -49,22 +55,14 @@ const themes = Object.keys(ThemeColors).sort();
 										group-hover:border-base-content/20 transition-colors"
 									style={`background-color: ${ThemeColors[theme]["--color-base-100"]};`}
 								>
-									<span
-										class="size-2 rounded-full bg-base-content"
-										style={`background-color: ${ThemeColors[theme]["--color-base-content"]};`}
-									/>
-									<span
-										class="size-2 rounded-full bg-primary"
-										style={`background-color: ${ThemeColors[theme]["--color-primary"]};`}
-									/>
-									<span
-										class="size-2 rounded-full bg-secondary"
-										style={`background-color: ${ThemeColors[theme]["--color-secondary"]};`}
-									/>
-									<span
-										class="size-2 rounded-full bg-accent"
-										style={`background-color: ${ThemeColors[theme]["--color-accent"]};`}
-									/>
+									{themeIndicatorColors.map((color) => {
+										return (
+											<span
+												class="size-2 rounded-full bg-base-content"
+												style={`background-color: ${ThemeColors[theme][color]};`}
+											/>
+										);
+									})}
 								</div>
 
 								<input
@@ -101,28 +99,29 @@ const themes = Object.keys(ThemeColors).sort();
 </div>
 
 <script is:inline>
-	const setTheme = (t) => {
-		document.documentElement.setAttribute('data-theme', t);
+	const setTheme = (theme) => {
+		document.documentElement.setAttribute("data-theme", theme);
 		try {
-			localStorage.setItem('theme', t);
+			localStorage.setItem("theme", theme);
 		} catch (ex) {
 			console.log(ex);
 		}
 	};
 
 	const getTheme = () => {
-		const theme = document.documentElement.getAttribute('data-theme')
-			|| localStorage.getItem('theme')
-			|| document.documentElement.getAttribute('data-theme-default');
+		const theme =
+			document.documentElement.getAttribute("data-theme") ||
+			localStorage.getItem("theme") ||
+			document.documentElement.getAttribute("data-theme-default");
 		return theme;
-	}
+	};
 
-	// initialize data-theme if it does not yet exist
-	if (!document.documentElement.hasAttribute('data-theme'))
+	// initialize data-theme if not present
+	if (!document.documentElement.hasAttribute("data-theme"))
 		setTheme(getTheme());
 
 	// when a theme radio changes, set theme + refresh checks
-	document.addEventListener('change', (e) => {
+	document.addEventListener("change", (e) => {
 		const el = e.target;
 		if (el && el.matches('input.theme-controller[name="theme-dropdown"]')) {
 			setTheme(el.value);
@@ -130,9 +129,12 @@ const themes = Object.keys(ThemeColors).sort();
 	});
 
 	// update theme if the stored value changes in another window/tab
-	window.addEventListener('storage', (e) => {
-		if (e.key === 'theme') {
-			setTheme(e.newValue || document.documentElement.getAttribute('data-theme-default'));
+	window.addEventListener("storage", (e) => {
+		if (e.key === "theme") {
+			let theme =
+				e.newValue ||
+				document.documentElement.getAttribute("data-theme-default");
+			setTheme(theme);
 		}
 	});
 </script>
