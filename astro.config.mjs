@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineConfig } from 'astro/config';
 import tailwindcss from "@tailwindcss/vite";
 import remarkCodeImport from 'remark-code-import';

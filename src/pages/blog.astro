@@ -1,11 +1,10 @@
 ---
 import { ArticleLayout } from '@layouts';
-import DefaultLayout from '@layouts/DefaultLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
 
 const posts = await getCollection('posts', ({ data }) => !data.draft);
 
-function formatDate (dateString: string) {
+function formatDate (dateString) {
 	let date = new Date(dateString);
 	const offset = date.getTimezoneOffset()
 	// format date/time as YYYY-MM-DD

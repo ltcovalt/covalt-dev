@@ -7,7 +7,7 @@ const headerLinks = [
 ];
 
 const currentPage = Astro.url.pathname.replace(/\/+$/, "") || "/";
-const isCurrentPage = (href: string) => {
+const isCurrentPage = (href) => {
 	const base = href.replace(/\/+$/, "") || "/";
 	// exact match or prefix match for sub-pages
 	return (
