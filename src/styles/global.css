@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin 'daisyui' {
-  themes: "all";
+  themes: autumn, business, caramellatte, corporate, dim --prefersdark, dracula, emerald, forest, light, night, sunset, winter;
 }
 @plugin '@tailwindcss/typography';
 
