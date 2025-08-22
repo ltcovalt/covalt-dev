@@ -1,12 +1,21 @@
 @import "tailwindcss";
 @plugin 'daisyui' {
-  themes: autumn, business, caramellatte, corporate, dim --prefersdark, dracula, emerald, forest, light, night, sunset, winter;
+	themes: autumn, business, caramellatte, corporate, dim --prefersdark, dracula, emerald, forest, light, night, sunset,
+		winter;
 }
 @plugin '@tailwindcss/typography';
 
 @layer utilities {
-  .prose-link {
-	@apply hover:text-secondary;
-    @apply text-accent no-underline transition duration-200;
-  }
+	.prose-link {
+		@apply hover:text-secondary;
+		@apply text-accent no-underline transition duration-200;
+	}
+
+	html[data-theme="dim"] {
+		--radius-box: 0.5rem;
+	}
+
+	html[data-theme="dracula"] {
+		--radius-box: 0.5rem;
+	}
 }
