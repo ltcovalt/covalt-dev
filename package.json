@@ -16,6 +16,8 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
     "remark-code-import": "^1.2.0"
   }
 }
