@@ -8,7 +8,7 @@ const themeIndicatorColors = ["--color-base-content", "--color-primary", "--colo
 	<!-- menu button/active theme indicatos -->
 	<div tabindex="0" role="button" class="btn btn-ghost" aria-label="Change Theme">
 		<div
-			class="bg-base-100 group-hover:border-base-content/20 border-base-content/10 grid grid-flow-row shrink-0 grid-cols-2 gap-0.5 rounded-md border p-1 transition-colors"
+			class="bg-base-100 group-hover:border-base-content/20 border-base-content/10 grid grid-flow-row shrink-0 grid-cols-2 gap-0.5 rounded-sm border p-1 transition-colors"
 		>
 			<span class="bg-base-content size-2 rounded-full"></span>
 			<span class="bg-primary size-2 rounded-full"></span>
@@ -60,6 +60,7 @@ const themeIndicatorColors = ["--color-base-content", "--color-primary", "--colo
 									class="theme-controller sr-only peer"
 								/>
 								<span class="ml-1 truncate">{theme}</span>
+								{/* show checkmark if theme is active, hidden otherwise*/}
 								<span class="ml-auto hidden peer-checked:inline">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -103,8 +104,14 @@ const themeIndicatorColors = ["--color-base-content", "--color-primary", "--colo
 		return theme;
 	};
 
+	let currentTheme = getTheme();
 	// initialize data-theme if not present
-	if (!document.documentElement.hasAttribute("data-theme")) setTheme(getTheme());
+	if (!document.documentElement.hasAttribute("data-theme")) setTheme(currentTheme);
+	// set theme radio button to checked
+	document.querySelectorAll('input.theme-controller[name=theme-dropdown]').forEach((element) => {
+		element.checked = element.value === currentTheme; 
+	});
+
 
 	// when a theme radio changes, set theme + refresh checks
 	document.addEventListener("change", (e) => {
