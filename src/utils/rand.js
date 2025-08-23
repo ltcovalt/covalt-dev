@@ -1,0 +1,1 @@
+export const shortId = () => crypto.randomUUID().slice(0,8);
