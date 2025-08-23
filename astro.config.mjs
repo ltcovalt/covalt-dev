@@ -5,8 +5,10 @@ import remarkCodeImport from 'remark-code-import';
 import remarkCodeLang from './plugins/remark-code-lang.js';
 import rehypeCodeHeader from "./plugins/rehype-code-header.js";
 import path from 'node:path';
+import mdx from '@astrojs/mdx';
 
 export default defineConfig({
+	integrations: [mdx()],
 	vite: {
 		plugins: [
 			tailwindcss()
