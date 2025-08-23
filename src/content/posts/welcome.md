@@ -1,7 +1,8 @@
 ---
-title: 'Welcome to covalt.dev'
-description: 'Welcome to covalt.dev'
-author: 'Luke Covalt'
+title: Welcome to covalt.dev
+slug: hello-world
+description: Welcome to covalt.dev
+author: Luke Covalt
 date: 2025-08-14
 updated: 2025-08-16
 draft: false
