@@ -1,10 +1,12 @@
 ---
-import ThemeColors from "../../node_modules/daisyui/theme/object";
-import { enabledThemes as themes } from "src/config";
-const themeIndicatorColors = ["--color-base-content", "--color-primary", "--color-secondary", "--color-accent"];
+import ThemeColors from '../../node_modules/daisyui/theme/object';
+import { enabledThemes as themes } from 'src/config';
+import { shortId } from '@utils/rand';
+const themeIndicatorColors = ['--color-base-content', '--color-primary', '--color-secondary', '--color-accent'];
+const componentId = `theme-controller-${shortId()}`;
 ---
 
-<div title="Change Theme" class="dropdown dropdown-end block">
+<div title="Change Theme" class="dropdown dropdown-end block theme-controller" id={componentId}>
 	<!-- menu button/active theme indicatos -->
 	<div tabindex="0" role="button" class="btn btn-ghost" aria-label="Change Theme">
 		<div
@@ -37,10 +39,8 @@ const themeIndicatorColors = ["--color-base-content", "--color-primary", "--colo
 						<li class="p-0">
 							<label class="flex items-center justify-start gap-1 w-full p-1.5 border-none outline-none rounded-none">
 								<div
-									class="inline-grid grid-cols-2 grid-flow-row gap-0.5 w-fit flex-none
-										bg-base-100 border border-base-content/10 rounded-md p-1
-										group-hover:border-base-content/20 transition-colors"
-									style={`background-color: ${ThemeColors[theme]["--color-base-100"]};`}
+									class="inline-grid grid-cols-2 grid-flow-row gap-0.5 w-fit flex-none border border-base-content/10 rounded-md p-1 group-hover:border-base-content/20 transition-colors"
+									style={`background-color: ${ThemeColors[theme]['--color-base-100']};`}
 								>
 									{themeIndicatorColors.map((color) => {
 										return (
@@ -54,10 +54,10 @@ const themeIndicatorColors = ["--color-base-content", "--color-primary", "--colo
 
 								<input
 									type="radio"
-									name="theme-dropdown"
+									name={componentId}
 									value={theme}
 									aria-label={theme}
-									class="theme-controller sr-only peer"
+									class="theme-controller-input sr-only peer"
 								/>
 								<span class="ml-1 truncate">{theme}</span>
 								{/* show checkmark if theme is active, hidden otherwise*/}
@@ -84,48 +84,33 @@ const themeIndicatorColors = ["--color-base-content", "--color-primary", "--colo
 			}
 		</ul>
 	</div>
+
+	<script>
+		// @ts-nocheck
+		import { getTheme, setTheme } from '@utils/theme';
+		let currentTheme = getTheme();
+
+		// initialize data-theme if not present
+		if (!document.documentElement.hasAttribute('data-theme')) setTheme(currentTheme);
+		// set theme radio button to checked
+		document.querySelectorAll(`input.theme-controller-input`).forEach((element) => {
+			element.checked = element.value === currentTheme;
+		});
+
+		// when a theme radio input changes, set theme
+		document.addEventListener('change', (e) => {
+			const el = e.target;
+			if (el && el.matches('input.theme-controller-input')) {
+				setTheme(el.value);
+			}
+		});
+
+		// update theme if the stored value changes in another window/tab
+		window.addEventListener('storage', (e) => {
+			if (e.key === 'theme') {
+				let theme = e.newValue || document.documentElement.getAttribute('data-theme-default');
+				setTheme(theme);
+			}
+		});
+	</script>
 </div>
-
-<script is:inline>
-	const setTheme = (theme) => {
-		document.documentElement.setAttribute("data-theme", theme);
-		try {
-			localStorage.setItem("theme", theme);
-		} catch (ex) {
-			console.log(ex);
-		}
-	};
-
-	const getTheme = () => {
-		const theme =
-			document.documentElement.getAttribute("data-theme") ||
-			localStorage.getItem("theme") ||
-			document.documentElement.getAttribute("data-theme-default");
-		return theme;
-	};
-
-	let currentTheme = getTheme();
-	// initialize data-theme if not present
-	if (!document.documentElement.hasAttribute("data-theme")) setTheme(currentTheme);
-	// set theme radio button to checked
-	document.querySelectorAll('input.theme-controller[name=theme-dropdown]').forEach((element) => {
-		element.checked = element.value === currentTheme; 
-	});
-
-
-	// when a theme radio changes, set theme + refresh checks
-	document.addEventListener("change", (e) => {
-		const el = e.target;
-		if (el && el.matches('input.theme-controller[name="theme-dropdown"]')) {
-			setTheme(el.value);
-		}
-	});
-
-	// update theme if the stored value changes in another window/tab
-	window.addEventListener("storage", (e) => {
-		if (e.key === "theme") {
-			let theme = e.newValue || document.documentElement.getAttribute("data-theme-default");
-			setTheme(theme);
-		}
-	});
-</script>
