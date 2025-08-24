@@ -1,0 +1,31 @@
+---
+import ThemeColors from '../../../node_modules/daisyui/theme/object';
+import ActiveIndicator from './ActiveIndicator.astro'
+const themeIndicatorColors = ['--color-base-content', '--color-primary', '--color-secondary', '--color-accent'];
+const { name, theme } = Astro.props;
+---
+
+<li class="p-0">
+	<label class="flex items-center justify-start gap-1 w-full p-1.5 border-none outline-none rounded-none">
+		<div
+			class="inline-grid grid-cols-2 grid-flow-row gap-0.5 w-fit flex-none border border-base-content/10 rounded-md p-1 group-hover:border-base-content/20 transition-colors"
+			style={`background-color: ${ThemeColors[theme]['--color-base-100']};`}
+		>
+			{
+				themeIndicatorColors.map((color) => {
+					return (
+						<span
+							class="size-2 rounded-full bg-base-content"
+							style={`background-color: ${ThemeColors[theme][color]};`}
+						/>
+					);
+				})
+			}
+		</div>
+		{/* <ThemeRadio /> */}
+		<input type="radio" name={name} value={theme} aria-label={theme} class="theme-controller sr-only peer" />
+		<span class="ml-1 truncate">{theme}</span>
+		{/* show checkmark if theme is active, hidden otherwise*/}
+		<ActiveIndicator />
+	</label>
+</li>

@@ -1,0 +1,54 @@
+---
+import { enabledThemes as themes } from 'src/config';
+import { shortId } from '@utils/random';
+import MainButton from './MainButton.astro';
+import ThemeRadioInput from './ThemeRadioInput.astro';
+const componentId = `theme-controller-${shortId()}`;
+---
+
+<div title="Change Theme" class="dropdown dropdown-end block theme-controller" id={componentId}>
+	<!-- header menu button/active theme preview -->
+	<MainButton />
+
+	<!-- dropdown theme selector -->
+	<div
+		tabindex="0"
+		class="dropdown-content bg-base-200 text-base-content rounded-box h-auto max-h-[calc(100vh-8.6rem)] overflow-y-auto border border-white/5 shadow-lg outline-1 outline-black/5 mt-4"
+	>
+		<ul class="menu w-52 px-0">
+			<li class="menu-title text-xs">Theme</li>
+			{
+				themes.map((theme) => {
+					return <ThemeRadioInput name={componentId} {theme} />
+				})
+			}
+		</ul>
+	</div>
+
+	<script>
+		// @ts-nocheck
+		import { getTheme, setTheme, syncRadios } from '@utils/theme';
+
+		const theme = getTheme();
+		const controllerEl = document.querySelectorAll('div.theme-controller');
+
+		// intialize component(s)
+		if (!document.documentElement.hasAttribute('data-theme')) setTheme(theme);
+		syncRadios();
+
+		// set theme when a theme-controller input changes
+		controllerEl.forEach((controller) => {
+			controller.addEventListener('change', (e) => {
+				if (e.target?.matches('input.theme-controller')) setTheme(e.target.value);
+			});
+		});
+
+		// keep ThemeController state in sync if multiple component instances exist
+		window.addEventListener('theme:change', (e) => syncRadios(e.detail));
+
+		// if theme storage is updated from another tab, resync radio inputs
+		window.addEventListener('storage', (e) => {
+			if (e.key === 'theme') syncRadios(e.newValue);
+		});
+	</script>
+</div>
