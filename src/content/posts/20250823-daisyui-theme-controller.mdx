@@ -1,0 +1,25 @@
+---
+title: daisyUI Theme Controller
+slug: daisyui-theme-controller
+description: Building a theme controller component using Astro and daisyUI
+author: 'Luke Covalt'
+date: 2025-08-23
+updated: 2025-08-23
+draft: false
+tags: [astro, blog, daisyui, theme]
+---
+
+import ThemeController from '@components/ThemeController/ThemeController.astro';
+
+As an avid dark mode user, the first thing I do when visiting a website for the first time is look for a dark mode toggle.
+If I can't find a toggle or theme selector within about 10 seconds, there is a non-insignificant chance that I will leave
+the site and look for an alternative. For my personal projects, dark mode or theme support is among the very first things
+I implement to prevent the unnecessary searing of my eyeballs. In this post, I'm going to detail how I (over?) engineered
+the theme controller for this site. The finished product is below.
+
+<div class="not-prose w-fit block mx-auto">
+	<ThemeController />
+</div>
+
+## Component Overview
+

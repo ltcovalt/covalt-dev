@@ -1,7 +1,7 @@
 ---
 title: Welcome to covalt.dev
 slug: hello-world
-description: Welcome to covalt.dev
+description: Hello world! Welcome to covalt.dev
 author: Luke Covalt
 date: 2025-08-14
 updated: 2025-08-16
