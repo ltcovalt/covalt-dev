@@ -17,17 +17,20 @@
 @plugin '@tailwindcss/typography';
 
 @layer utilities {
-	
-	div[data-callout-type] {
-		@apply m-4;
+	div.callout {
+		@apply m-4 px-4 py-2 rounded-box text-base-content/80 leading-6;
 	}
 
-	div[data-callout-type] p {
+	div.callout p {
 		@apply m-0 p-0;
 	}
 
-	div[data-callout-type="info"] {
-		@apply bg-info/10 text-base-content/75 border border-info/10 rounded-box px-4 py-2;
+	div.callout-info {
+		@apply bg-info/20 border border-info/20;
+	}
+
+	div.callout-warning {
+		@apply bg-warning text-warning-content border border-warning;
 	}
 
 	pre.astro-code {

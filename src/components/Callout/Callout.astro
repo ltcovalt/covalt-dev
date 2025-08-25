@@ -2,7 +2,7 @@
 import InfoIcon from './InfoIcon.svg';
 import AnnounceIcon from './AnnounceIcon.svg';
 import WarningIcon from './WarningIcon.svg'
-const { type='info', title } = Astro.props;
+const { type='info', style="fill", title=type } = Astro.props;
 const iconMap = {
 	'announcement': AnnounceIcon,
 	'info': InfoIcon,
@@ -10,13 +10,13 @@ const iconMap = {
 };
 const Icon = iconMap[type];
 ---
-<div data-callout-type={type}>
+<div class={`callout callout-${type}`}>
 	{
 		() => {
 			if (!title) return;
 			return (
-				<span class="font-extrabold flex items-center gap-2">
-					<Icon class="size-4"/>
+				<span class="font-extrabold flex items-center gap-2 callout-title">
+					<Icon class="size-5 inline-block align-middle relative top-0.5"/>
 					{ title }
 				</span> 
 			);
