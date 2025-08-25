@@ -13,13 +13,15 @@ const componentId = `theme-controller-${shortId()}`;
 	<!-- dropdown theme selector -->
 	<div
 		tabindex="0"
-		class="dropdown-content bg-base-200 text-base-content rounded-box h-auto max-h-[calc(100vh-8.6rem)] overflow-y-auto border border-white/5 shadow-lg outline-1 outline-black/5 mt-4"
+		class="dropdown-content bg-base-200 text-base-content rounded-box h-auto
+			max-h-[calc(100vh-8.6rem)] overflow-y-auto border border-white/5
+			shadow-lg outline-1 outline-black/5 mt-4"
 	>
 		<ul class="menu w-52 px-0">
 			<li class="menu-title text-xs">Theme</li>
 			{
 				themes.map((theme) => {
-					return <ThemeRadioInput name={componentId} {theme} />
+					return <ThemeRadioInput name={componentId} {theme} />;
 				})
 			}
 		</ul>

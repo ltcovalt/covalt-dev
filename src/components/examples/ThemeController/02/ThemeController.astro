@@ -1,0 +1,27 @@
+---
+import MainButton from "./MainButton.astro";
+import ThemeRadioInput from "./ThemeRadioInput.astro";
+const themes = ['dim', 'dracula', 'night', 'light'];
+---
+
+<div title="Change Theme" class="dropdown dropdown-end block theme-controller">
+	<!-- header menu button/active theme preview -->
+	<MainButton />
+
+	<!-- dropdown theme selector -->
+	<div
+		tabindex="0"
+		class="dropdown-content bg-base-200 text-base-content rounded-box h-auto
+			max-h-[calc(100vh-8.6rem)] overflow-y-auto border border-white/5
+			shadow-lg outline-1 outline-black/5 mt-4"
+	>
+		<ul class="menu w-52 px-0">
+			<li class="menu-title text-xs">Theme</li>
+			{
+				themes.map((theme) => {
+					return <ThemeRadioInput name="theme-controller"} {theme} />;
+				})
+			}
+		</ul>
+	</div>
+</div>

@@ -1,5 +1,5 @@
 ---
-import themeColors from '../../../node_modules/daisyui/theme/object';
+import themeColors from '../../../../../node_modules/daisyui/theme/object';
 import ActiveIndicator from './ActiveIndicator.astro';
 const themeIndicatorColors = ['--color-base-content', '--color-primary', '--color-secondary', '--color-accent'];
 const { name, theme } = Astro.props;
@@ -23,10 +23,8 @@ const { name, theme } = Astro.props;
 				})
 			}
 		</div>
-		{/* <ThemeRadio /> */}
 		<input type="radio" name={name} value={theme} aria-label={theme} class="theme-controller sr-only peer" />
 		<span class="ml-1 truncate">{theme}</span>
-		{/* show checkmark if theme is active, hidden otherwise*/}
 		<ActiveIndicator />
 	</label>
 </li>

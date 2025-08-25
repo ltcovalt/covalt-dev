@@ -23,9 +23,6 @@ I hope so! My goals have changed and I'm motivated to share my experience with o
 
 I've been working in the technology sector for around twenty years in a variety of roles. I have always had a passion for continuous learning and I enjoy sharing what I learn to help others. I decided it is time to branch out beyond my immediate team members and share my experience with a broader community, just like so many others that have helped me.
 
-```js file=../scripts/snippet.js
-```
-
 ## What's next?
 
 Now that I actually have my site published and stable, it's time to start making some content! I'll probably start by going into more detail about this site's tech stack compared to my previous sites and explain the rationale behind my decisions. I'll also likely post about any major features I build along the way, assuming they are interesting. Eventually, I would love to host a documentation site for the various modules, classes, and utilities that I build. Stay tuned!
