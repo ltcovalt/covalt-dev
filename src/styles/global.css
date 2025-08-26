@@ -17,31 +17,60 @@
 @plugin '@tailwindcss/typography';
 
 @layer utilities {
-	div.callout {
-		@apply m-4 px-4 py-2 rounded-box text-base-content/80 leading-6;
+	.callout {
+		@apply border-l-6 m-4 px-4 py-2 bg-base-content/5 rounded-md;
 	}
 
-	div.callout p {
+	.callout p {
 		@apply m-0 p-0;
 	}
 
-	div.callout-info {
-		@apply bg-info/20 border border-info/20;
+	.callout-info,
+	.callout-idea {
+		@apply border-l-info bg-info/5;
 	}
 
-	div.callout-warning {
-		@apply bg-warning text-warning-content border border-warning;
+	.callout-info .callout-title svg 
+	.callout-idea .callout-idea svg {
+		@apply text-info stroke-2;
 	}
 
+	.callout-warning {
+		@apply border-l-warning bg-warning/5;
+	}
+
+	.callout-warning .callout-title svg {
+		@apply text-warning stroke-2;
+	}
+
+	.callout-error,
+	.callout-critical {
+		@apply border-l-error bg-error/5;
+	}
+
+	.callout-error .callout-title svg, 
+	.callout-critical .callout-title svg {
+		@apply text-error stroke-2;
+	}
+
+	/*
+	 * code block styles
+	 */
 	pre.astro-code {
 		line-height: 1.3;
 	}
 
+	/*
+	 * prose styles
+	 */
 	.prose-link {
 		@apply hover:text-secondary;
 		@apply text-accent no-underline transition duration-200;
 	}
 
+	/*
+	 * theme overrides
+	 */
 	html[data-theme='dim'] {
 		--radius-box: 0.5rem;
 	}

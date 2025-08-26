@@ -1,22 +1,31 @@
 ---
 import InfoIcon from './InfoIcon.svg';
 import AnnounceIcon from './AnnounceIcon.svg';
-import WarningIcon from './WarningIcon.svg'
-const { type='info', style="fill", title=type } = Astro.props;
+import WarningIcon from './WarningIcon.svg';
+import ErrorIcon from './ErrorIcon.svg';
+import CriticalIcon from './CriticalIcon.svg';
+
+const { sev='info', type="minimal", title=sev } = Astro.props;
 const iconMap = {
 	'announcement': AnnounceIcon,
 	'info': InfoIcon,
-	'warning': WarningIcon
+	'caution': WarningIcon,
+	'warning': WarningIcon,
+	'error': ErrorIcon,
+	'critical': CriticalIcon
 };
-const Icon = iconMap[type];
+const Icon = iconMap[sev] ?? InfoIcon;
+const styles = {
+	solid: ''
+}
 ---
-<div class={`callout callout-${type}`}>
+<div class={`callout callout-${sev} callout-${type}`}>
 	{
 		() => {
 			if (!title) return;
 			return (
 				<span class="font-extrabold flex items-center gap-2 callout-title">
-					<Icon class="size-5 inline-block align-middle relative top-0.5"/>
+					<Icon class="size-5 inline-block align-middle relative top-px"/>
 					{ title }
 				</span> 
 			);

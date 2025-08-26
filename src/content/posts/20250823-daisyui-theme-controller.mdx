@@ -245,7 +245,7 @@ const themes = ['dim', 'dracula', 'night', 'light']; // list all themes you want
 			<li class="menu-title text-xs">Theme</li>
 			{
 				themes.map((theme) => {
-					return <ThemeRadioInput name="theme-controller"} {theme} />;
+					return <ThemeRadioInput name="theme-controller" {theme} />;
 				})
 			}
 		</ul>
@@ -260,7 +260,7 @@ all goes well, your component should look like then one below.
 	<ThemeController02 />
 </div>
 
-<Callout type="warning" title="Warning">
+<Callout sev="info">
 your component won't yet update the theme, even though it's working in the above example. It works here
 because the main component in this site's header contains the scripts needed to make it work.
 </Callout>
