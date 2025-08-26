@@ -1,25 +1,29 @@
 ---
-import InfoIcon from './InfoIcon.svg';
 import AnnounceIcon from './AnnounceIcon.svg';
+import IdeaIcon from './IdeaIcon.svg';
+import InfoIcon from './InfoIcon.svg';
+import SuccessIcon from './SuccessIcon.svg';
 import WarningIcon from './WarningIcon.svg';
 import ErrorIcon from './ErrorIcon.svg';
 import CriticalIcon from './CriticalIcon.svg';
 
-const { sev='info', type="minimal", title=sev } = Astro.props;
+const { sev='info', icon=sev, title=sev } = Astro.props;
 const iconMap = {
 	'announcement': AnnounceIcon,
+	'idea': IdeaIcon,
 	'info': InfoIcon,
+	'success': SuccessIcon,
 	'caution': WarningIcon,
 	'warning': WarningIcon,
 	'error': ErrorIcon,
 	'critical': CriticalIcon
 };
-const Icon = iconMap[sev] ?? InfoIcon;
+const Icon = iconMap[icon] ?? InfoIcon;
 const styles = {
 	solid: ''
 }
 ---
-<div class={`callout callout-${sev} callout-${type}`}>
+<div class={`callout callout-${sev}`}>
 	{
 		() => {
 			if (!title) return;

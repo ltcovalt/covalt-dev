@@ -18,7 +18,7 @@
 
 @layer utilities {
 	.callout {
-		@apply border-l-6 m-4 px-4 py-2 bg-base-content/5 rounded-md;
+		@apply border-l-4 m-4 px-4 py-2 bg-base-content/10 rounded-r-md;
 	}
 
 	.callout p {
@@ -27,7 +27,7 @@
 
 	.callout-info,
 	.callout-idea {
-		@apply border-l-info bg-info/5;
+		@apply border-l-info bg-info/10;
 	}
 
 	.callout-info .callout-title svg 
@@ -35,8 +35,16 @@
 		@apply text-info stroke-2;
 	}
 
+	.callout-success {
+		@apply border-l-success bg-success/10;
+	}
+
+	.callout-success .callout-title svg {
+		@apply text-success stroke-2;
+	}
+
 	.callout-warning {
-		@apply border-l-warning bg-warning/5;
+		@apply border-l-warning bg-warning/10;
 	}
 
 	.callout-warning .callout-title svg {
@@ -45,7 +53,7 @@
 
 	.callout-error,
 	.callout-critical {
-		@apply border-l-error bg-error/5;
+		@apply border-l-error bg-error/10;
 	}
 
 	.callout-error .callout-title svg, 

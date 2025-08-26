@@ -1,0 +1,25 @@
+---
+import { ArticleLayout } from '@layouts';
+import { Callout as Callout_ } from '@components';
+const calloutText =
+	'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+const sev = ['plain', 'info', 'idea', 'success', 'warning', 'error', 'critical'];
+---
+
+<ArticleLayout>
+
+	{
+		sev.map((sev) => {
+			return <Callout_ {sev}>{calloutText}</Callout_>
+		})
+	}
+
+	<Callout_ title="Default style, overridden title">
+		{calloutText}
+	</Callout_>
+
+	<Callout_ title="Default style, overridden title & icon" icon="warning">
+		{calloutText}
+	</Callout_>
+
+</ArticleLayout>
