@@ -1,25 +1,23 @@
 ---
-const { title = "covalt.dev" } = Astro.props;
-import { Header } from "@components";
-import "../styles/global.css";
-import { defaultTheme } from "src/config";
+const { title = 'covalt.dev' } = Astro.props;
+import { Header } from '@components';
+import '../styles/global.css';
+import { defaultTheme } from 'src/config';
 ---
 
 <html lang="en" data-theme-default={defaultTheme}>
 	<head>
+		<script is:inline>
+			const theme = localStorage.getItem('theme') || document.documentElement.getAttribute('data-theme-default');
+			if (theme && theme !== document.documentElement.getAttribute('data-theme')) {
+				document.documentElement.setAttribute('data-theme', theme);
+			}
+		</script>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/png" href="/favicon.png" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-
-		<script is:inline>
-			const theme =
-				localStorage.getItem("theme") ||
-				document.documentElement.getAttribute("data-theme") ||
-				document.documentElement.getAttribute("data-theme-default");
-			document.documentElement.setAttribute("data-theme", theme);
-		</script>
 	</head>
 	<body>
 		<Header />
