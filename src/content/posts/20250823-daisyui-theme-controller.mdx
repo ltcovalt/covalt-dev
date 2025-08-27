@@ -9,7 +9,7 @@ draft: false
 tags: [astro, blog, daisyui, tailwindcss, theme]
 ---
 
-import Callout from '@components/Callout/Callout.astro';
+import Alert from '@components/Alert.astro';
 import ThemeController from '@components/ThemeController/ThemeController.astro';
 import ThemeController01 from '@components/examples/ThemeController/01/ThemeController.astro';
 import ThemeController02 from '@components/examples/ThemeController/02/ThemeController.astro';
@@ -260,10 +260,10 @@ all goes well, your component should look like then one below.
 	<ThemeController02 />
 </div>
 
-<Callout sev="info">
+<Alert type="note" title="Note">
 your component won't yet update the theme, even though it's working in the above example. It works here
 because the main component in this site's header contains the scripts needed to make it work.
-</Callout>
+</Alert>
 
 ## Wrapping Up
 This post has become quite lengthy, so I think that's enough for now. Our component is fully styled and is ready to be

@@ -17,50 +17,6 @@
 @plugin '@tailwindcss/typography';
 
 @layer utilities {
-	.callout {
-		@apply border-l-4 m-4 px-4 py-2 bg-base-content/10 rounded-r-md;
-	}
-
-	.callout p {
-		@apply m-0 p-0;
-	}
-
-	.callout-info,
-	.callout-idea {
-		@apply border-l-info bg-info/10;
-	}
-
-	.callout-info .callout-title svg 
-	.callout-idea .callout-idea svg {
-		@apply text-info stroke-2;
-	}
-
-	.callout-success {
-		@apply border-l-success bg-success/10;
-	}
-
-	.callout-success .callout-title svg {
-		@apply text-success stroke-2;
-	}
-
-	.callout-warning {
-		@apply border-l-warning bg-warning/10;
-	}
-
-	.callout-warning .callout-title svg {
-		@apply text-warning stroke-2;
-	}
-
-	.callout-error,
-	.callout-critical {
-		@apply border-l-error bg-error/10;
-	}
-
-	.callout-error .callout-title svg, 
-	.callout-critical .callout-title svg {
-		@apply text-error stroke-2;
-	}
-
 	/*
 	 * code block styles
 	 */

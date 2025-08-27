@@ -10,7 +10,9 @@
 			"@layouts": ["src/layouts/index.js"],
 			"@layouts/*": ["src/layouts/*"],
 			"@utils": ["src/utils/index.js"],
-			"@utils/*": ["src/utils/*"]
+			"@utils/*": ["src/utils/*"],
+			"@icons": ["src/icons/index.js"],
+			"@icons/*": ["src/icons/*"]
 		},
 		"allowJs": true,
 		"checkJs": false,

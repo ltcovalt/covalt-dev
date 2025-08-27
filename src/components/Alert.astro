@@ -1,0 +1,49 @@
+---
+import AnnounceIcon from '@icons/megaphone.svg';
+import IdeaIcon from '@icons/light-bulb.svg';
+import InfoIcon from '@icons/information-circle.svg';
+import NoteIcon from '@icons/document-text.svg';
+import SuccessIcon from '@icons/check-circle.svg';
+import WarningIcon from '@icons/exclamation-triangle.svg';
+import ErrorIcon from '@icons/exclamation-circle.svg';
+import CriticalIcon from '@icons/x-circle.svg';
+
+const { type = 'info', icon = type, title = '', notitle = title ? false : true } = Astro.props;
+const iconMap = {
+	announce: AnnounceIcon,
+	announcement: AnnounceIcon,
+	idea: IdeaIcon,
+	info: InfoIcon,
+	note: NoteIcon,
+	success: SuccessIcon,
+	caution: WarningIcon,
+	warning: WarningIcon,
+	error: ErrorIcon,
+	critical: CriticalIcon,
+};
+
+const typeClassMap = {
+	announce: '',
+	announcement: '',
+	note: 'alert-info',
+	idea: 'alert-info',
+	info: 'alert-info',
+	success: 'alert-success',
+	warning: 'alert-warning',
+	caution: 'alert-warning',
+	error: 'alert-error',
+	critical: 'alert-error',
+};
+const typeClass = typeClassMap[type] ?? '';
+const alertClass = `alert alert-vertical sm:alert-horizontal ${typeClass} alert-soft not-prose m-2`;
+const Icon = iconMap[icon] ?? null;
+const iconClass = 'size-5 inline-block align-middle relative top-px';
+---
+
+<div class={alertClass}>
+	{Icon ? <Icon class={iconClass} /> : ''}
+	<div>
+		{notitle ? '' : <h3 class="font-bold not-prose">{title}</h3>}
+		<div class="text-sm"><slot /></div>
+	</div>
+</div>
