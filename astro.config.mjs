@@ -20,7 +20,8 @@ export default defineConfig({
 				'@utils': path.resolve('./src/utils'),
 				'@icons': path.resolve('./src/icons')
 			}
-		}
+		},
+		build: { cssCodeSplit: false, sourcemap: true }
 	},
 	markdown: {
 		extendDefaultPlugins: true,
