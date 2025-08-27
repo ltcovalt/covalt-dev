@@ -21,8 +21,9 @@ export default defineConfig({
 				'@icons': path.resolve('./src/icons')
 			}
 		},
-		build: { cssCodeSplit: false, sourcemap: true }
+		build: { cssCodeSplit: false }
 	},
+	build: { inlineStylesheets: 'always' },
 	markdown: {
 		extendDefaultPlugins: true,
 		remarkPlugins: [remarkCodeImport, remarkCodeLang],
