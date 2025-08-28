@@ -7,7 +7,7 @@
 		dracula --prefersdark,
 		emerald,
 		light,
-		night,
+		night;
 }
 @plugin '@tailwindcss/typography';
 
