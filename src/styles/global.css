@@ -3,16 +3,11 @@
 	themes:
 		autumn,
 		business,
-		caramellatte,
-		corporate,
 		dim,
 		dracula --prefersdark,
 		emerald,
-		forest,
 		light,
-		night,
-		sunset,
-		winter;
+		night;
 }
 @plugin '@tailwindcss/typography';
 
@@ -27,6 +22,7 @@
 	/*
 	 * prose styles
 	 */
+
 	.prose-link {
 		@apply hover:text-secondary;
 		@apply text-accent no-underline transition duration-200;
