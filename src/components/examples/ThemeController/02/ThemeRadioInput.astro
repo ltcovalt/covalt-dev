@@ -1,6 +1,6 @@
 ---
 import themeColors from '../../../../../node_modules/daisyui/theme/object';
-import ActiveIndicator from './ActiveIndicator.astro';
+import ActiveIcon from './check-circle.svg';
 const themeIndicatorColors = ['--color-base-content', '--color-primary', '--color-secondary', '--color-accent'];
 const { name, theme } = Astro.props;
 ---
@@ -25,6 +25,6 @@ const { name, theme } = Astro.props;
 		</div>
 		<input type="radio" name={name} value={theme} aria-label={theme} class="theme-controller sr-only peer" />
 		<span class="ml-1 truncate">{theme}</span>
-		<ActiveIndicator />
+		<ActiveIcon class="size-6 ml-auto hidden peer-checked:inline" />
 	</label>
 </li>
