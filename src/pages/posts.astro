@@ -3,24 +3,17 @@ import { Link } from "@components";
 import { ArticleLayout } from "@layouts";
 import { getCollection, getEntry } from "astro:content";
 
-const posts = await getCollection("posts", ({ data }) => !data.draft);
-
-function formatDate(dateString) {
-	let date = new Date(dateString);
-	const offset = date.getTimezoneOffset();
-	// format date/time as YYYY-MM-DD
-	date = new Date(date.getTime() - offset * 60 * 1000);
-	return date.toISOString().split("T")[0];
-}
+let posts = await getCollection("posts", ({ data }) => !data.draft);
+// sort newest → oldest
+posts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 ---
 
 <ArticleLayout title="covalt.dev">
 	<h1>Posts</h1>
-
 	{
 		posts.map((post) => (
 			<li class="list-none">
-				{formatDate(post.data.date)} - 
+				{post.data.date.toISOString().split('T')[0]} - 
 				<Link href={`/posts/${post.id}`}>
 					{post.data.title}
 				</Link>
