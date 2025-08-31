@@ -26,31 +26,29 @@ const componentId = `theme-controller-${shortId()}`;
 			}
 		</ul>
 	</div>
-
-	<script>
-		// @ts-nocheck
-		import { getTheme, setTheme, syncRadios } from '@utils/theme';
-
-		const theme = getTheme();
-		const controllerEl = document.querySelectorAll('div.theme-controller');
-
-		// intialize component(s)
-		// if (!document.documentElement.hasAttribute('data-theme')) setTheme(theme);
-		syncRadios();
-
-		// set theme when a theme-controller input changes
-		controllerEl.forEach((controller) => {
-			controller.addEventListener('change', (e) => {
-				if (e.target?.matches('input.theme-controller')) setTheme(e.target.value);
-			});
-		});
-
-		// keep ThemeController state in sync if multiple component instances exist
-		window.addEventListener('theme:change', (e) => syncRadios(e.detail));
-
-		// if theme storage is updated from another tab, resync radio inputs
-		window.addEventListener('storage', (e) => {
-			if (e.key === 'theme') syncRadios(e.newValue);
-		});
-	</script>
 </div>
+
+<script>
+	// @ts-nocheck
+	import { getTheme, setTheme, syncRadios } from '@utils/theme';
+
+	// intialize component(s)
+	const theme = getTheme();
+	const controllerEl = document.querySelectorAll('div.theme-controller');
+	syncRadios(theme);
+
+	// set theme when a theme-controller input changes
+	controllerEl.forEach((controller) => {
+		controller.addEventListener('change', (e) => {
+			if (e.target?.matches('input.theme-controller')) setTheme(e.target.value);
+		});
+	});
+
+	// keep ThemeController state in sync if multiple component instances exist
+	window.addEventListener('theme:change', (e) => syncRadios(e.detail));
+
+	// if theme storage is updated from another tab, resync radio inputs
+	window.addEventListener('storage', (e) => {
+		if (e.key === 'theme') syncRadios(e.newValue);
+	});
+</script>

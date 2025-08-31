@@ -1,0 +1,265 @@
+---
+title: daisyUI Theme Controller Part 2
+slug: daisyui-theme-controller-p2
+description: Building a theme controller component using Astro and daisyUI
+author: 'Luke Covalt'
+date: 2025-08-30
+updated: 2025-08-30
+draft: false
+tags: [astro, blog, daisyui, tailwindcss, theme]
+---
+
+import Alert from '@components/Alert.astro';
+import Link from '@components/Link.astro';
+import ThemeController from '@components/ThemeController/ThemeController.astro';
+
+In part one, we created a great looking, but still functionally useless, ThemeController component. Next, we'll write
+the client side scripts to wrap up our component and make it fully functional.
+
+<Alert type="note">
+	This post picks up where [part one](/posts/daisyui-theme-controller) left off. Be sure to read through the first post
+	before trying to work through this one.
+</Alert>
+
+## Overview
+
+The ThemeController component needs a bit of JavaScript to implement the following logic
+
+- Get the current theme from the `data-theme` attribute, local storage, or `data-theme-default`
+- Set the current theme by updating `data-theme` and save to local storage
+- Handle theme changes from other tabs and windows
+- Account for multiple component instances on a page
+
+As a reminder, the component directory structure is setup like below.
+
+```
+src
+└─ components
+	└─ ThemeController
+		├─ ThemeController.astro
+		├─ MainButton.astro
+		├─ ThemeRadioInput.astro
+		└─ check-circle.svg
+```
+
+To keep this post simple, I'll be adding all the needed logic in a single `<script>` tag at the bottom of the
+`ThemeController.astro` component. This can easily be extracted into a separate script file if you prefer, which is what
+I did for this site.
+
+## Main Page/Layout setup
+
+Before setting up our scripts to get and set the theme, let's do a tiny bit of setup by setting a default theme in our
+`<html>` element. We use a tiny inline script immediate after the `<head>` element to get the current theme from local
+storage if it exists, or from the `data-default-theme` attribute otherwise. Finally, if the `theme` value is different
+from what is already in the `data-theme` attribute, we update it.
+
+```html
+<html lang="en" data-theme-default="dracula">
+	<head>
+		<script is:inline>
+			const theme = localStorage.getItem('theme') || document.documentElement.getAttribute('data-theme-default');
+			if (theme && theme !== document.documentElement.getAttribute('data-theme')) {
+				document.documentElement.setAttribute('data-theme', theme);
+			}
+		</script>
+	</head>
+</html>
+```
+
+It's important to do this initialization as soon as possible during load and to only set the `data-theme` when there is
+an actual change to prevent the annoying Flash of Unstyled Content (FOUC) when initially loading a page.
+
+## Setting the Theme
+
+At it's most basic, we just need a `setTheme` function to set the `data-theme` attribute on the root `<html>` element to
+the name of a daisyUI theme.
+
+#### ThemeController.astro
+
+```js
+const setTheme = (theme) => {
+	document.documentElement.setAttribute('data-theme', theme);
+};
+```
+
+Though this is the bare minimum required for basic functionality, we should also persist the current theme to local
+storage so it is maintained across user sessions. The `ThemeController` should also fire an event to notify other
+components when the theme changed. Finally, we should make the function idempotent, only triggering actions when the new
+value differs from the previous value.
+
+```js
+const setTheme = (theme) => {
+	// get the current theme value
+	const currentTheme = document.documentElement.getAttribute('data-theme');
+	// return immediately the theme is the same
+	if (currentTheme === theme) return;
+
+	document.documentElement.setAttribute('data-theme', theme);
+	// persist the change to local storage
+	try {
+		localStorage.setItem('theme', theme);
+	} catch {}
+	// dispatch a new event to notify other components
+	const themeChange = new CustomEvent('theme:change', { detail: theme });
+	window.dispatchEvent(themeChange);
+};
+```
+
+In the example above, a new CustomEvent named `theme:change` is dispatched on the window object with the new `theme`
+value passed into `event.detail`. This will be used to keep multiple component instances in sync and may have other uses
+in the future.
+
+## Get Current Theme
+
+To get the current theme, we'll check the following locations in order: the `data-theme` attribute, the `theme` key in
+local storage, and finally the `data-theme-default` attribute. The first value found is returned by the `setTheme`
+function.
+
+```js
+const getTheme = () => {
+	let theme = document.documentElement.getAttribute('data-theme');
+	theme ??= localStorage.getItem('theme');
+	theme ??= document.documentElement.getAttribute('data-theme-default');
+	return theme;
+};
+```
+
+## Synchronize Active Radio Inputs
+
+The `ThemeController` component dropdown list uses radio button inputs for selecting the current theme. If the active
+theme is changed by another component or in another tab, we want the `ThemeController` component to reflect the change.
+
+```js
+const syncRadios = (theme = getTheme()) => {
+	document.querySelectorAll('input.theme-controller').forEach((el) => {
+		el.checked = el.value === theme;
+	});
+};
+```
+
+This simple helper function takes a theme parameter, queries for all `input.theme-controller` elements and sets the
+input to checked if element matches the theme. This will update all `input.theme-controller` elements, even if there are
+multiple component instances. This function will be used to initialize the component and to keep things in sync across
+tabs.
+
+## Tying it all Together
+
+With the helper functions created it's time to update `ThemeController` component's `<script>` tag. The first thing we
+should do is initialize the component by getting the current theme and synchronizing the theme input elements.
+
+```html
+<script>
+	// @ts-nocheck
+	const setTheme (theme) => { /* omitted */ };
+	const getTheme () => { /* omitted */ };
+	const syncRadios (theme = getTheme()) => { /* omitted */ };
+
+	const theme = getTheme(); // gets theme from data-theme, localStorage, or data-theme-default
+	syncRadios(); // ensures all component instances insync
+</script>
+```
+
+The only thing remaining is to add event listeners to set the theme when an input changes and to keep everything in
+sync. We'll need three separate listeners: one to listen for changes on any `ThemeController` input, one to listen for
+changes to local storage, and finally a listener for the custom `theme:change` event to keep multiple instances
+synchronized.
+
+```html
+<script>
+	// @ts-nocheck
+	import { getTheme, setTheme, syncRadios } from '@utils/theme';
+
+	// intialize component(s)
+	const theme = getTheme();
+	const controllerEl = document.querySelectorAll('div.theme-controller');
+	syncRadios(theme);
+
+	// set theme when a theme-controller input changes
+	controllerEl.forEach((controller) => {
+		controller.addEventListener('change', (e) => {
+			if (e.target?.matches('input.theme-controller')) setTheme(e.target.value);
+		});
+	});
+
+	// keep ThemeController state in sync if multiple component instances exist
+	window.addEventListener('theme:change', (e) => syncRadios(e.detail));
+
+	// if theme storage is updated from another tab, resync radio inputs
+	window.addEventListener('storage', (e) => {
+		if (e.key === 'theme') syncRadios(e.newValue);
+	});
+</script>
+```
+
+With any luck, you should have a fully functional `ThemeController` component now that looks and functions like the one
+below. We can test that everything synchronizes correctly by setting the theme below, setting the theme using the
+component in the header, and by opening a new tab and changing the theme. If everything is working, all
+`ThemeController` components and tabs should accurately reflect the active theme.
+
+<div class="not-prose w-fit block mx-auto">
+	<ThemeController />
+</div>
+
+Finally, here's the consolidated, complete `ThemeController` script for reference. You can also check out the exact
+ThemeController component used for this site on my
+[Github](https://github.com/ltcovalt/covalt-dev/tree/main/src/components/ThemeController).
+
+#### ThemeController.astro
+
+```astro
+---
+import { enabledThemes as themes } from 'src/config';
+import { shortId } from '@utils/random';
+import MainButton from './MainButton.astro';
+import ThemeRadioInput from './ThemeRadioInput.astro';
+const componentId = `theme-controller-${shortId()}`;
+---
+
+<div title="Change Theme" class="dropdown dropdown-end block theme-controller" id={componentId}>
+	<!-- header menu button/active theme preview -->
+	<MainButton />
+
+	<!-- dropdown theme selector -->
+	<div
+		tabindex="0"
+		class="dropdown-content bg-base-200 text-base-content rounded-box h-auto
+			max-h-[calc(100vh-8.6rem)] overflow-y-auto border border-white/5
+			shadow-lg outline-1 outline-black/5 mt-4"
+	>
+		<ul class="menu w-52 px-0">
+			<li class="menu-title text-xs">Theme</li>
+			{
+				themes.map((theme) => {
+					return <ThemeRadioInput name={componentId} {theme} />;
+				})
+			}
+		</ul>
+	</div>
+</div>
+
+<script>
+	// @ts-nocheck
+	import { getTheme, setTheme, syncRadios } from '@utils/theme';
+
+	// intialize component(s)
+	const theme = getTheme();
+	const controllerEl = document.querySelectorAll('div.theme-controller');
+	syncRadios(theme);
+
+	// set theme when a theme-controller input changes
+	controllerEl.forEach((controller) => {
+		controller.addEventListener('change', (e) => {
+			if (e.target?.matches('input.theme-controller')) setTheme(e.target.value);
+		});
+	});
+
+	// keep ThemeController state in sync if multiple component instances exist
+	window.addEventListener('theme:change', (e) => syncRadios(e.detail));
+
+	// if theme storage is updated from another tab, resync radio inputs
+	window.addEventListener('storage', (e) => {
+		if (e.key === 'theme') syncRadios(e.newValue);
+	});
+</script>
+
+```

@@ -1,4 +1,5 @@
 ---
+import { Link } from "@components";
 import { ArticleLayout } from "@layouts";
 import { getCollection, getEntry } from "astro:content";
 
@@ -19,9 +20,10 @@ function formatDate(dateString) {
 	{
 		posts.map((post) => (
 			<li class="list-none">
-				<a href={`/posts/${post.id}`} class="prose-link">
-					{formatDate(post.data.date)} - {post.data.title}
-				</a>
+				{formatDate(post.data.date)} - 
+				<Link href={`/posts/${post.id}`}>
+					{post.data.title}
+				</Link>
 			</li>
 		))
 	}

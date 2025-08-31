@@ -1,13 +1,15 @@
 // @ts-nocheck
 import { defineConfig } from 'astro/config';
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 import remarkCodeImport from 'remark-code-import';
 import remarkCodeLang from './plugins/remark-code-lang.js';
-import rehypeCodeHeader from "./plugins/rehype-code-header.js";
+import remarkLinkComponent from './plugins/remark-link-component.js';
+import rehypeCodeHeader from './plugins/rehype-code-header.js';
 import path from 'node:path';
 import mdx from '@astrojs/mdx';
 
 export default defineConfig({
+	site: 'https://covalt.dev',
 	integrations: [mdx()],
 	vite: {
 		plugins: [
@@ -26,7 +28,7 @@ export default defineConfig({
 	build: { inlineStylesheets: 'always' },
 	markdown: {
 		extendDefaultPlugins: true,
-		remarkPlugins: [remarkCodeImport, remarkCodeLang],
+		remarkPlugins: [remarkCodeImport, remarkCodeLang, remarkLinkComponent],
 		rehypePlugins: [rehypeCodeHeader]
 	},
 });

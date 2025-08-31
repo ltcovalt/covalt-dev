@@ -1,0 +1,61 @@
+---
+import ExternalIcon from '@icons/arrow-top-right-on-square.svg';
+let { href, icon, class: classes, ['no-icon']: noIcon, style, target } = Astro.props;
+
+const styleMap = {
+	accent: 'link-accent',
+	primary: 'link-primary',
+	secondary: 'link-secondary',
+	neutral: 'link-neutral',
+	info: 'link-info',
+	success: 'link-success',
+	warning: 'link-warning',
+	error: 'link-error',
+};
+
+style = styleMap[style] ?? 'link-accent';
+
+const classNames = `link link-hover ${style} inline-flex items-baseline gap-0.5 ${classes ?? ''}`;
+
+let isExternal = true;
+try {
+	const base = Astro.site ?? Astro.url ?? 'http://localhost';
+	const linkUrl = new URL(href, base);
+	const originUrl = new URL(base).origin;
+	const isHttp = linkUrl.protocol === 'http:' || linkUrl.protocol === 'https:';
+	isExternal = isHttp && linkUrl.origin !== originUrl;
+} catch {
+	isExternal = true;
+}
+
+const isNewTab = target === '_blank' || isExternal;
+const Icon = icon ?? (isNewTab ? ExternalIcon : null);
+
+let isCurrent = false;
+try {
+	if (!isExternal) {
+		const base = Astro.site ?? Astro.url ?? 'http://localhost';
+		const linkUrl = new URL(String(href ?? ''), base);
+		const currentUrl = new URL(base);
+		isCurrent = linkUrl.pathname === currentUrl.pathname;
+	}
+} catch {}
+
+target = target ?? (isExternal ? '_blank' : undefined);
+
+let relValues = [];
+if (isNewTab) relValues.push('noopener');
+if (isExternal) relValues.push('noreferrer');
+---
+
+<a
+	{href}
+	class={classNames}
+	aria-current={isCurrent ? 'page' : undefined}
+	rel={relValues.join(' ')}
+	{target}
+>
+	<slot />
+	{noIcon || !Icon ? '' : <Icon class="size-[1em] shrink-0" aria-hidden="true" focusable="false" />}
+	{isNewTab ? <span class="sr-only">(opens in a new tab)</span> : ''}
+</a>

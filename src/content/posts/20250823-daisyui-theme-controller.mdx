@@ -42,18 +42,18 @@ but as the this component has quite a few elements, inline SVG icons, and a few 
 broken into subcomponents. My final component structure is below.
 
 ```
-scr
+src
 └─ components
 	└─ ThemeController
 		├─ ThemeController.astro
 		├─ MainButton.astro
 		├─ ThemeRadioInput.astro
-		└─ ActiveIndicator.astro
+		└─ check-circle.svg
 ```
 
 ThemeController is the complete component exposed for use. The main button is exactly what it sounds like - the first
 button users interact with to invoke the theme selection dropdown. ThemeRadioInput represents a single theme selection
-in the dropdown menu and the ActiveIndicator is the checkmark beside the currently selected theme.
+in the dropdown menu and the check-circle.svg is the checkmark beside the currently selected theme.
 
 ## Main button
 
@@ -109,30 +109,27 @@ should look like this:
 
 ## Building the Radio Input List Items
 
-Next up, we need a way to display a list of available themes to users, so let's build out the dropdown selection list.
-Before getting into that, I'm going to create a very simple component for the active theme indicator. This could be
-inlined if you prefer, but I prefer to keep the formatted svg code separate, as it doesn't provide value to me to have
-it in the main file.
+Next up, we need a way to display a list of available themes to users, so let's build out the dropdown selection list. I
+separated the SVG icon into it's own file, but this could be easily inlined if you prefer. I prefer to keep the
+formatted svg code separate to reduce clutter in the component file.
 
-#### ActiveIndicator.astro
+#### check-circle.svg
 
-```astro
-<span class="ml-auto hidden peer-checked:inline">
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke-width="1.5"
-		stroke="currentColor"
-		class="size-6"
-	>
-		<path
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-		></path>
-	</svg>
-</span>
+```xml
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	fill="none"
+	viewBox="0 0 24 24"
+	stroke-width="1.5"
+	stroke="currentColor"
+	class="size-6 ml-auto hidden peer-checked:inline"
+>
+	<path
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+	></path>
+</svg>
 ```
 
 The only thing interesting here are the classes on the span. `ml-auto` pushes the button to the right, `hidden` ensures
@@ -148,7 +145,7 @@ plays nice with markdown formatting, but this belongs right at the top of the as
 ```astro
 ---
 import themeColors from '../../../node_modules/daisyui/theme/object';
-import ActiveIndicator from './ActiveIndicator.astro';
+import ActiveIcon from './check-circle.svg';
 const themeIndicatorColors = [
 	'--color-base-content',
 	'--color-primary',
@@ -162,14 +159,14 @@ const { name, theme } = Astro.props;
 		<!-- TODO - add theme preview indicator -->
 		<input type="radio" name="{name}" value="{theme}" aria-label="{theme}" class="theme-controller sr-only peer" />
 		<span class="ml-1 truncate">{theme}</span>
-		<ActiveIndicator />
+		<ActiveIcon />
 	</label>
 </li>
 ```
 
 Since we need the colors from multiple themes, not just the currently active theme, we import `themeColors` from the
-daisyUI `node_modules` directory. Import the `ActiveIndicator` component we just built and create an array of colors to
-be used for the theme preview indicators. Finally, we configure the component to take a name and theme input property.
+daisyUI `node_modules` directory. Next, we create an array of colors to be used for the theme preview indicators. 
+Finally, add our `ActiveIcon` and configure the component to take a name and theme input property.
 
 This gives us the shell of our reusable list item component. Now let's update the component to use the input `theme`
 parameter to generate the four color preview circles.
@@ -179,7 +176,7 @@ parameter to generate the four color preview circles.
 ```astro
 ---
 import themeColors from '../../../node_modules/daisyui/theme/object';
-import ActiveIndicator from './ActiveIndicator.astro';
+import ActiveIcon from './check-circle.svg';
 const themeIndicatorColors = [
 	'--color-base-content',
 	'--color-primary',
@@ -208,7 +205,7 @@ const { name, theme } = Astro.props;
 		</div>
 		<input type="radio" name="{name}" value="{theme}" aria-label="{theme}" class="theme-controller sr-only peer" />
 		<span class="ml-1 truncate">{theme}</span>
-		<ActiveIndicator />
+		<ActiveIcon class="size-6 ml-auto hidden peer-checked:inline"/>
 	</label>
 </li>
 ```
@@ -261,11 +258,12 @@ all goes well, your component should look like then one below.
 </div>
 
 <Alert type="note" title="Note">
-your component won't yet update the theme, even though it's working in the above example. It works here
-because the main component in this site's header contains the scripts needed to make it work.
+	your component won't yet update the theme, even though it's working in the above example. It works here because the
+	main component in this site's header contains the scripts needed to make it work.
 </Alert>
 
 ## Wrapping Up
+
 This post has become quite lengthy, so I think that's enough for now. Our component is fully styled and is ready to be
 completed with a little bit of JavaScript. In the next post, we'll go over the scripts required to make the component
 fully functional, as well as address some interesting edge cases that popped up while drafting this guide.

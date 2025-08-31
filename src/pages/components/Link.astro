@@ -1,0 +1,23 @@
+---
+import { Link as Link_} from '@components';
+import LightBulbIcon from '@icons/light-bulb.svg';
+import { ArticleLayout } from '@layouts';
+---
+
+<ArticleLayout>
+	<div class="flex flex-col gap-4">
+		<Link_>Link with no attributes</Link_>
+		<Link_ style="primary">Primary</Link_>
+		<Link_ style="secondary">Secondary</Link_>
+		<Link_ style="accent">Accent</Link_>
+		<Link_ style="info">Info</Link_>
+		<Link_ style="success">Success</Link_>
+		<Link_ style="warning">Warning</Link_>
+		<Link_ style="error">Error</Link_>
+		<Link_ style="neutral">Neutral</Link_>
+		<Link_ href="/">Default Internal</Link_>
+		<Link_ href="/" target="_blank">Default Internal target="_blank"</Link_>
+		<Link_ href="https://www.google.com">Default External</Link_>
+		<Link_ _href="/" icon={LightBulbIcon}>Internal with custom icon</Link_>
+	</div>
+</ArticleLayout>

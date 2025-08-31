@@ -17,10 +17,7 @@ export const setTheme = (theme) => {
  */
 export const getTheme = () => {
 	let theme = document.documentElement.getAttribute('data-theme');
-	theme ??= (() => {
-		try { return localStorage.getItem('theme'); }
-		catch { return null; }
-	})();
+	theme ??= localStorage.getItem('theme');
 	theme ??= document.documentElement.getAttribute('data-theme-default');
 	return theme;
 };
