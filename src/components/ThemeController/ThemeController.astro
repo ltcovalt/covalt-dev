@@ -32,11 +32,10 @@ const componentId = `theme-controller-${shortId()}`;
 	// @ts-nocheck
 	import { getTheme, setTheme, syncRadios } from '@utils/theme';
 
+	// intialize component(s)
 	const theme = getTheme();
 	const controllerEl = document.querySelectorAll('div.theme-controller');
-
-	// intialize component(s)
-	syncRadios();
+	syncRadios(theme);
 
 	// set theme when a theme-controller input changes
 	controllerEl.forEach((controller) => {
