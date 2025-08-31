@@ -22,10 +22,12 @@
 	/*
 	 * prose styles
 	 */
+	.prose ul > li + li {
+		margin-top: 0.25em;
+	}
 
-	.prose-link {
-		@apply hover:text-secondary;
-		@apply text-accent no-underline transition duration-200;
+	.prose :is(h1, h2, h3, h4, h5, h6) {
+		text-wrap: balance;
 	}
 
 	/*
