@@ -19,6 +19,32 @@
 		line-height: 1.3;
 	}
 
+	div.code-header + pre.astro-code {
+		margin-top: 0;
+	}
+
+	div.code-block {
+		position: relative;
+	}
+
+	div.code-header {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 2rem; /* header height */
+		padding: 0 0.75rem;
+		background: transparent; /* show the pre’s bg through */
+		color: var(--tw-prose-pre-code, #e1e4e8);
+		z-index: 1;
+	}
+
+	.code-block pre {
+		margin: 0;
+		padding-top: 2rem; /* match header height */
+		/* keep Tailwind Typography’s overflow-x on pre */
+	}
+
 	/*
 	 * prose styles
 	 */
