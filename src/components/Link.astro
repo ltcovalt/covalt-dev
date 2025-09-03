@@ -11,11 +11,12 @@ const styleMap = {
 	success: 'link-success',
 	warning: 'link-warning',
 	error: 'link-error',
+	plain: 'link-content'
 };
 
 style = styleMap[style] ?? 'link-accent';
 
-const classNames = `link link-hover ${style} inline-flex items-baseline gap-0.5 ${classes ?? ''}`;
+const classNames = `link link-hover ${style} inline-flex w-fit items-baseline gap-0.5 ${classes ?? ''}`;
 
 let isExternal = true;
 try {
