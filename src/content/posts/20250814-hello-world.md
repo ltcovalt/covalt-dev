@@ -1,5 +1,5 @@
 ---
-title: Welcome to covalt.dev
+title: Hello World!
 slug: hello-world
 description: Hello world! Welcome to covalt.dev
 author: Luke Covalt
