@@ -1,0 +1,315 @@
+---
+title: daisyUI Theme Controller Part 1
+slug: daisyui-theme-controller-p1
+description: Building a theme controller component using Astro and daisyUI
+author: "Luke Covalt"
+date: 2025-08-23
+updated: 2025-08-23
+draft: false
+tags: [astro, blog, daisyui, tailwindcss, theme]
+---
+
+import Alert from "@components/Alert.astro";
+import ThemeController from "@components/ThemeController/ThemeController.astro";
+import ThemeController01 from "./component-examples/ThemeController/01/ThemeController.astro";
+import ThemeController02 from "./component-examples/ThemeController/02/ThemeController.astro";
+
+As an avid dark mode user, the first thing I do when visiting a website for the
+first time is look for a dark mode toggle. If I can't find a toggle or theme
+selector within about 10 seconds, there is a non-insignificant chance that I
+will leave the site and look for an alternative. For my personal projects, dark
+mode or theme support is among the very first things I implement to prevent the
+unnecessary searing of my eyeballs. In this post, I'm going to detail how I
+(over?) engineered the theme controller for this site. The finished product is
+below.
+
+<div class="not-prose mx-auto block w-fit">
+  <ThemeController />
+</div>
+
+Although it looks simple, and daisyUI made it much simpler to implement, there's
+still a lot more to it than you might think! Even when I thought I was complete,
+I realized I had a few more edge cases to iron out. When I tried to embed the
+component in this page as an example, I realized I didn't account for the
+possibility of more than one component instance existing on a page, so I had to
+build a solution to keep them in sync.
+
+## Getting Started
+
+As I build out the new component, I'm only going to explain the things in detail
+that I think are most relevant or interesting. If you are unsure how a
+TailwindCSS class or daisyUI component functions that I don't explain here, be
+sure to check out the official docs for details. It would be helpful to be
+slightly familiar with how Tailwind works first.
+
+## Component Structure
+
+I broke my ThemeController component down into 4 components. I tend to prefer a
+single file for most smaller components, but as the this component has quite a
+few elements, inline SVG icons, and a few scripts, I found it easier to work
+with broken into subcomponents. My final component structure is below.
+
+```
+src
+└─ components
+	└─ ThemeController
+		├─ ThemeController.astro
+		├─ MainButton.astro
+		├─ ThemeRadioInput.astro
+		└─ check-circle.svg
+```
+
+ThemeController is the complete component exposed for use. The main button is
+exactly what it sounds like - the first button users interact with to invoke the
+theme selection dropdown. ThemeRadioInput represents a single theme selection in
+the dropdown menu and the check-circle.svg is the checkmark beside the currently
+selected theme.
+
+## Main button
+
+We'll get started by creating the main container, `ThemeController.astro`, and
+the `MainButton.astro`.
+
+#### ThemeController.astro
+
+```astro
+---
+import MainButton from "./MainButton.astro";
+---
+
+<div title="Change Theme" class="dropdown dropdown-end theme-controller block">
+  <MainButton />
+</div>
+```
+
+#### MainButton.astro
+
+```astro
+<div tabindex="0" role="button" class="btn btn-ghost" aria-label="Change Theme">
+  <div
+    class="bg-base-100 border-base-content/25 grid shrink-0 grid-flow-row grid-cols-2 gap-0.5 rounded-sm border p-1 transition-colors"
+  >
+    <span class="bg-base-content size-2 rounded-full"></span>
+    <span class="bg-primary size-2 rounded-full"></span>
+    <span class="bg-secondary size-2 rounded-full"></span>
+    <span class="bg-accent size-2 rounded-full"></span>
+  </div>
+  <svg
+    width="12px"
+    height="12px"
+    class="mt-px hidden size-2 fill-current opacity-60 sm:inline-block"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 2048 2048"
+  >
+    <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+  </svg>
+</div>
+```
+
+Not too much interesting going on here just yet - most of this can be found from
+examples on the official daisyUI site. We create container `div` for the button,
+followed by a div containing four `span` that acts as a theme preview. Each span
+has it's background color set to one of daisyUI's semantic theme color names and
+uses the TailwindCSS `rounded-full` utility class to give us a nice little
+circle indicator of the colors contained in the active theme. Finally, we add a
+basic `svg` icon to indicate that there is a dropdown menu beneath the button.
+Your component so far should look like this:
+
+<div class="not-prose mx-auto block w-fit">
+  <ThemeController01 />
+</div>
+
+## Building the Radio Input List Items
+
+Next up, we need a way to display a list of available themes to users, so let's
+build out the dropdown selection list. I separated the SVG icon into it's own
+file, but this could be easily inlined if you prefer. I prefer to keep the
+formatted svg code separate to reduce clutter in the component file.
+
+#### check-circle.svg
+
+```xml
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	fill="none"
+	viewBox="0 0 24 24"
+	stroke-width="1.5"
+	stroke="currentColor"
+	class="size-6 ml-auto hidden peer-checked:inline"
+>
+	<path
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+	></path>
+</svg>
+```
+
+The only thing interesting here are the classes on the span. `ml-auto` pushes
+the button to the right, `hidden` ensures the icon is hidden by default, and
+`peer-checked:inline` renders the icon inline when a peer element (The theme
+radio input) is checked.
+
+The dropdown menu containing the radio buttons to select a theme is where things
+start to get a bit more interesting. Let's start by building out a shell of one
+of our list items. Frontmatter is separated in the code blocks below so it plays
+nice with markdown formatting, but this belongs right at the top of the astro
+component file.
+
+#### ThemeRadioInput.astro
+
+```astro
+---
+import themeColors from "../../../node_modules/daisyui/theme/object";
+import ActiveIcon from "./check-circle.svg";
+const themeIndicatorColors = [
+  "--color-base-content",
+  "--color-primary",
+  "--color-secondary",
+  "--color-accent",
+];
+const { name, theme } = Astro.props;
+---
+
+<li class="p-0">
+  <label
+    class="flex w-full items-center justify-start gap-1 rounded-none border-none p-1.5 outline-none"
+  >
+    <!-- TODO - add theme preview indicator -->
+    <input
+      type="radio"
+      name="{name}"
+      value="{theme}"
+      aria-label="{theme}"
+      class="theme-controller peer sr-only"
+    />
+    <span class="ml-1 truncate">{theme}</span>
+    <ActiveIcon />
+  </label>
+</li>
+```
+
+<Alert type="warning">
+  While the above works, it would have been much simpler to get the colors from the relevant
+  `data-theme` attribute. I'm leaving it as is so others can learn from my folly :)
+</Alert>
+
+Since we need the colors from multiple themes, not just the currently active
+theme, we import `themeColors` from the daisyUI `node_modules` directory. Next,
+we create an array of colors to be used for the theme preview indicators.
+Finally, add our `ActiveIcon` and configure the component to take a name and
+theme input property.
+
+This gives us the shell of our reusable list item component. Now let's update
+the component to use the input `theme` parameter to generate the four color
+preview circles.
+
+#### ThemeRadioInput.astro
+
+```astro
+---
+import themeColors from "../../../node_modules/daisyui/theme/object";
+import ActiveIcon from "./check-circle.svg";
+const themeIndicatorColors = [
+  "--color-base-content",
+  "--color-primary",
+  "--color-secondary",
+  "--color-accent",
+];
+const { name, theme } = Astro.props;
+---
+
+<li class="p-0">
+  <label
+    class="flex w-full items-center justify-start gap-1 rounded-none border-none p-1.5 outline-none"
+  >
+    <div
+      class="border-base-content/25 inline-grid w-fit flex-none grid-flow-row grid-cols-2 gap-0.5 rounded-md border p-1 transition-colors"
+      style={`background-color: ${themeColors[theme]["--color-base-100"]};`}
+    >
+      {
+        themeIndicatorColors.map((color) => {
+          return (
+            <span
+              class="bg-base-content size-2 rounded-full"
+              style={`background-color: ${themeColors[theme][color]};`}
+            />
+          );
+        })
+      }
+    </div>
+    <input
+      type="radio"
+      name="{name}"
+      value="{theme}"
+      aria-label="{theme}"
+      class="theme-controller peer sr-only"
+    />
+    <span class="ml-1 truncate">{theme}</span>
+    <ActiveIcon class="ml-auto hidden size-6 peer-checked:inline" />
+  </label>
+</li>
+```
+
+Above, we create a new div to contain each of our circular color indicators and
+set the background color of each to `--color-base-100` of the passed in theme
+name. We can then make use of Astro's support for JavaScript expressions within
+our HTML to map each of the `themeIndicatorColors` to a new circular `<span>`
+element that is styled to match the color.
+
+## Adding the List to ThemeController.astro
+
+Finally, it is time to update the main `ThemeController.astro` component
+dropdown list to contain an entry for each of our enabled themes. Create a
+wrapper `<div>` and an unordered list `<ul>`. It's inside of this list that we
+can iterate over our enabled themes and add a new `<ThemeRadioInput />`
+component for each.
+
+```astro
+---
+import MainButton from "./MainButton.astro";
+import ThemeRadioInput from "./ThemeRadioInput.astro";
+const themes = ["dim", "dracula", "night", "light"]; // list all themes you want to use
+---
+
+<div title="Change Theme" class="dropdown dropdown-end theme-controller block">
+  <MainButton />
+
+  <!-- dropdown theme selector -->
+  <div
+    tabindex="0"
+    class="dropdown-content bg-base-200 text-base-content rounded-box mt-4 h-auto max-h-[calc(100vh-8.6rem)] overflow-y-auto border border-white/5 shadow-lg outline-1 outline-black/5"
+  >
+    <ul class="menu w-52 px-0">
+      <li class="menu-title text-xs">Theme</li>
+      {
+        themes.map((theme) => {
+          return <ThemeRadioInput name="theme-controller" {theme} />;
+        })
+      }
+    </ul>
+  </div>
+</div>
+```
+
+For each of the enabled themes, we insert a new `ThemeRadioInput` component and
+pass in the `name` and `theme` props. If all goes well, your component should
+look like then one below.
+
+<div class="not-prose mx-auto block w-fit">
+  <ThemeController02 />
+</div>
+
+<Alert type="note" title="Note">
+  your component won't yet update the theme, even though it's working in the
+  above example. It works here because the main component in this site's header
+  contains the scripts needed to make it work.
+</Alert>
+
+## Wrapping Up
+
+This post has become quite lengthy, so I think that's enough for now. Our
+component is fully styled and is ready to be completed with a little bit of
+JavaScript. In the next post, we'll go over the scripts required to make the
+component fully functional, as well as address some interesting edge cases that
+popped up while drafting this guide.
