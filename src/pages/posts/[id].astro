@@ -1,6 +1,7 @@
 ---
 import { ArticleLayout } from '@layouts';
 import { getCollection, render } from 'astro:content';
+import { PostFooter } from '@components';
 
 // generate a new path for every collection entry
 export async function getStaticPaths() {
@@ -13,9 +14,19 @@ export async function getStaticPaths() {
 // 2. For your template, you can get the entry directly from the prop
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+
+// Sort ascending (oldest → newest). Change sign to flip.
+allPosts.sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime());
+
+const i = allPosts.findIndex((p) => p.id === post.id);
+const prev = i > 0 ? allPosts[i - 1] : null;                      // older
+const next = i < allPosts.length - 1 ? allPosts[i + 1] : null;    // newer
 ---
 
 <ArticleLayout title={"covalt.dev - " + post.data.title}>
 	<h1>{post.data.title}</h1>
 	<Content />
+	<PostFooter {prev} {next} />
 </ArticleLayout>

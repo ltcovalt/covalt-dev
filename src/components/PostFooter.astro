@@ -1,0 +1,11 @@
+---
+import { PostPreview } from '@components';
+import ArrowLeft from '@icons/arrow-left.svg';
+import ArrowRight from '@icons/arrow-right.svg';
+const { prev, next } = Astro.props;
+---
+
+<div class="flex flex-row justify-between py-4">
+		{prev && <PostPreview IconStart={ArrowLeft} post={prev} class="min-w-0 max-w-[33%]"/>}
+		{next && <PostPreview IconEnd={ArrowRight} post={next} class="min-w-0 max-w-[33%]"/>}
+</div>

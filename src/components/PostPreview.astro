@@ -1,6 +1,20 @@
-<div class="card card-border bg-base-200">
-	<div class="card-body">
-		<h2 class="card-title"><slot name="title" /></h2>
-		<slot />
+---
+const { post, class: userClass, IconStart, IconEnd } = Astro.props;
+const href = post.data.slug;
+const baseClass = 'card card-border bg-base-200 transition-colors not-prose';
+const hoverClass = 'hover:bg-base-200/40 hover:border-base-content/10';
+---
+
+<div class={`${baseClass} ${href ? hoverClass : ''} ${userClass}`}>
+	{href && <a {href} class="absolute inset-0 z-10" aria-label="Open card" />}
+	<div class="card-body p-4">
+		<h2 class="card-title text-sm font-extrabold">
+			{IconStart && <IconStart class="size-8 stroke-3"/>}
+			{post.data.title}
+			{IconEnd && <IconEnd class="size-8 stroke-3"/>}
+		</h2>
+		<p class="text-xs text-base-content/50">
+			{post.data.description}
+		</p>
 	</div>
 </div>
