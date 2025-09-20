@@ -1,6 +1,6 @@
 ---
-const { post, class: userClass, IconStart, IconEnd } = Astro.props;
-const href = post.data.slug;
+const { title, href, class: userClass, IconStart, IconEnd } = Astro.props;
+// const href = post?.data?.slug ?? null;
 const baseClass = 'card card-border bg-base-200 transition-colors not-prose';
 const hoverClass = 'hover:bg-base-200/40 hover:border-base-content/10';
 ---
@@ -10,11 +10,12 @@ const hoverClass = 'hover:bg-base-200/40 hover:border-base-content/10';
 	<div class="card-body p-4">
 		<h2 class="card-title text-sm font-extrabold">
 			{IconStart && <IconStart class="size-8 stroke-3"/>}
-			{post.data.title}
+			{title}
+			<slot name="title" />
 			{IconEnd && <IconEnd class="size-8 stroke-3"/>}
 		</h2>
 		<p class="text-xs text-base-content/50">
-			{post.data.description}
+			<slot />
 		</p>
 	</div>
 </div>

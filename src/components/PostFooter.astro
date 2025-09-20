@@ -6,6 +6,18 @@ const { prev, next } = Astro.props;
 ---
 
 <div class="flex flex-row justify-between py-4">
-		{prev && <PostPreview IconStart={ArrowLeft} post={prev} class="min-w-0 max-w-[33%]"/>}
-		{next && <PostPreview IconEnd={ArrowRight} post={next} class="min-w-0 max-w-[33%]"/>}
+	{
+		prev && (
+			<PostPreview IconStart={ArrowLeft} title={prev.data.title} class="max-w-[33%] min-w-0" href={prev.data.slug}>
+				{prev.data.description}
+			</PostPreview>
+		)
+	}
+	{
+		next && (
+			<PostPreview IconEnd={ArrowRight} title={next.data.title} class="max-w-[33%] min-w-0" href={next.data.slug}>
+				{next.data.description}
+			</PostPreview>
+		)
+	}
 </div>
