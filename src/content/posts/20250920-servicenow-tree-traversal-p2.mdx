@@ -11,6 +11,9 @@ draft: false
 tags: [blog, servicenow, tree, algorithm, recursion]
 ---
 
+import Alert from "@components/Alert.astro";
+import Link from "@components/Link.astro";
+
 I'm going to start off with a simple funciton to get the root node from a child
 node. I plan to expose all these functions under a script include namespace
 called "Tree", so let's get our namespace created first.
@@ -79,10 +82,12 @@ best to make them as generic and robust as possible.
 ## Preventing endless recursion
 
 We can use a standard array to track the call stack/visited nodes of the current
-branch. Each time we call our function, we push that node to the stack. When the
-function completes, we remove the node from our stack. This allows the same node
-to appear multiple times in the tree, but not multiple times in the same branch,
-which would cause endless recursinon.
+branch. Each time we call our function, we push that node to the stack. When
+traversing multiple branches in a tree, we would also want to remove the element
+from the stack just before we return. This allows the same node to appear
+multiple times in the tree, but not multiple times in the same branch, which
+would cause endless recursinon. Since we're only traversing a single branch, we
+don't need to worry about that yet, but we will for our DFS and BFS algorithms.
 
 As an example, depending on the schema design, we might have a valid scenario
 where the same node (`Leaf01` in this case) appears multiple times in the tree
@@ -101,10 +106,9 @@ infinitely. We will throw an `Error` if we encounter branch with a reference
 loop.
 
 ```
-Leaf
-└── Root
-	└── Intermediate
-		└── Leaf
+Root ────────────────┐
+ └── Intermediate    │
+	  └── Leaf◀─────┘
 ```
 
 Here is the code that will maintain the stack path to prevent endless recursion.
@@ -174,3 +178,7 @@ Getting the root node from a leaf can be useful, but there's many cases where we
 want to perform some action on each node visited. To accomplish this, we'll
 create a funcion to traverse to the root node, executing a callback on each node
 visited.
+
+<Alert type="note">
+The full up to date Tree namespace script include can be found [Tree.js](../scripts/Tree.js)
+</Alert>
