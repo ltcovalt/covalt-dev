@@ -49,12 +49,5 @@ export default function remarkLinkToComponent(opts = {}) {
 			};
 			changed = true;
 		});
-
-		if (changed) {
-			tree.children.unshift({
-				type: 'mdxjsEsm',
-				value: `import Link from '${importPath}';`
-			});
-		}
 	};
 }
