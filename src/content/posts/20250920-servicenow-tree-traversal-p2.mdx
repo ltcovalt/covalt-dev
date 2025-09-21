@@ -1,12 +1,12 @@
 ---
-title: ServiceNow Tree Traversal Part 2 - Get Root Node
+title: ServiceNow Tree Traversal Part 2 - Walk to Root Node
 slug: servicenow-tree-traversal-p2
 description:
-  Creating a Tree traversal namespace in ServiceNow and adding a function to get
-  the root node from a leaf node
+  Creating a Tree traversal namespace in ServiceNow and add functions to
+  traverse to the root node
 author: "Luke Covalt"
 date: 2025-09-20
-updated: 2025-09-20
+updated: 2025-09-21
 draft: false
 tags: [blog, servicenow, tree, algorithm, recursion]
 ---
@@ -52,19 +52,19 @@ literally named parent.
 const Tree = {};
 (() => {
   /**
-   * returns the root node of a given node
+   * traverses from a lead to root node
    * @param {object} params - named function parameters
    * @param {GlideRecord} params.node - the current node being processed
    * @param {string} [params.parentField=parent] - name of the parent reference field
    */
-  Tree.getRootNode = ({ node, parentField = "parent" }) => {
+  Tree.walkToRoot = ({ node, parentField = "parent" }) => {
     if (!node || !node.isValidRecord())
       throw Error("missing or invalid parameter: node");
     // no more parent fields - this is our root node
     if (!node[parentField]) return node;
     // get the parent node, then call the function again using the parent node
     let parentNode = node[parentField].getRefRecord();
-    let root = Tree.getRootNode({ node: parentNode, parentField });
+    let root = Tree.walkToRoot({ node: parentNode, parentField });
     return root;
   };
 })();
@@ -121,7 +121,7 @@ const Tree = {};
    * @param {GlideRecord} params.node - the current node being processed
    * @param {string} [params.parentField=parent] - name of the parent reference field
    */
-  Tree.getRootNode = ({ node, parentField = "parent", stackPath = [] }) => {
+  Tree.walkToRoot = ({ node, parentField = "parent", stackPath = [] }) => {
     if (!node) throw Error("missing required parameter: node");
     if (!node.isValidRecord())
       throw Error("node parameter must be a valid GlideRecord");
@@ -140,7 +140,7 @@ const Tree = {};
 
     // get the parent node, then call the function again using the parent node
     let parentNode = node[parentField].getRefRecord();
-    return Tree.getRootNode({ node: parentNode, parentField, stackPath });
+    return Tree.walkToRoot({ node: parentNode, parentField, stackPath });
   };
 })();
 ```
@@ -149,11 +149,13 @@ For a simple test, I created three User Groups, related them as below, and ran a
 background script to invoke the newly created function.
 ![User Group Records](./images/20250920-user-groups.png)
 
+#### Background script
+
 ```js
 let node = new GlideRecord("sys_user_group");
 node.get("0119112e2b04ba907f83fedba291bf8d");
 
-let root = Tree.getRootNode({ node });
+let root = Tree.walkToRoot({ node });
 gs.info(root.getDisplayValue());
 // output: Root Group
 ```
@@ -169,13 +171,91 @@ Running the same background script as our previous test should now throw an
 recursive reference found in path: 0119112e2b04ba907f83fedba291bf8d-->4509ddea2b04ba907f83fedba291bf7c-->9ef89dea2b04ba907f83fedba291bf14-->0119112e2b04ba907f83fedba291bf8d
 ```
 
-## Up Next
+## Executing a callback function
 
 Getting the root node from a leaf can be useful, but there's many cases where we
-want to perform some action on each node visited. To accomplish this, we'll
-create a funcion to traverse to the root node, executing a callback on each node
-visited.
+want to perform some action on each node visited. To accomplish this, the
+`Tree.walkToRoot` method can be updated to accept a callback function that we'll
+pass the node into. Be sure to also pass the callback into the recursive
+function call as well.
+
+#### Tree.walkToRoot
+
+```js
+Tree.walkToRoot = ({
+  node,
+  parentField = "parent",
+  stackPath = [],
+  callback,
+}) => {
+  if (!node) throw Error("missing required parameter: node");
+  if (!node.isValidRecord())
+    throw Error("node parameter must be a valid GlideRecord");
+
+  // ensure the current node is not already in the path
+  let nodeId = node.getUniqueValue();
+  if (stackPath.includes(nodeId))
+    throw Error(
+      "recursive reference found in path: " +
+        stackPath.concat(nodeId).join("-->"),
+    );
+  stackPath.push(nodeId);
+
+  // execute the callback function for the current node
+  if (callback && typeof callback === "function") {
+    callback(node);
+  }
+
+  // no more parent fields, return the root node
+  if (!node[parentField]) return node;
+
+  // get the parent node, then call the function again using the parent node
+  let parentNode = node[parentField].getRefRecord();
+  return Tree.walkToRoot({
+    node: parentNode,
+    parentField,
+    stackPath,
+    callback,
+  });
+};
+```
+
+We can write a simple test background script that prints the display value of
+each visited node.
+
+#### Background script
+
+```js
+let node = new GlideRecord("sys_user_group");
+node.get("0119112e2b04ba907f83fedba291bf8d");
+let root = Tree.walkToRoot({
+  node,
+  callback: (node) => gs.info(node.getDisplayValue()),
+});
+
+/** output:
+ * Leaf Group
+ * Intermediate Group
+ * Root Group
+ */
+```
+
+Finally, I added a simple wrapper method called `Tree.getRootNode`. Behind the
+scenes, it will use the `Tree.walkToRoot` method, but this helps more clearly
+indicate the intent when we call these methods in our code.
+
+```js
+/**
+ * returns the root node of a given node
+ * @param {object} params - named function parameters
+ * @param {GlideRecord} params.node - the current node being processed
+ * @param {string} [params.parentField=parent] - name of the parent reference field
+ * @returns {GlideRecord} the root node of the tree
+ */
+Tree.getRootNode = (params) => Tree.walkToRoot(params);
+```
 
 <Alert type="note">
-The full up to date Tree namespace script include can be found [Tree.js](/scripts/Tree.js)
+  The full up to date Tree namespace script include can be found
+  [Tree.js](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
 </Alert>
