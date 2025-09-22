@@ -41,4 +41,53 @@ const Tree = {};
 		let parentNode = node[parentField].getRefRecord();
 		return Tree.walkToRoot({ node: parentNode, parentField, stackPath, callback });
 	};
+
+	/**
+	 * traverses an n-ary tree using a pre-order depth first search
+	 * @param {object} params - named function parameters
+	 * @param {GlideRecord} params.node - the current node being processed
+	 * @param {string} [params.parentField=parent] - name of the parent reference field
+	 * @param {function} params.callback - function to call for each node visited
+	 * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
+	 */
+	Tree.traversePreOrder = ({
+		node,
+		parentField = "parent",
+		stackPath = [],
+		callback,
+	}) => {
+		if (!node) throw Error("missing required parameter: node");
+		if (!node.isValidRecord()) throw Error("node parameter must be a valid GlideRecord");
+
+		// ensure the current node is not already in the path
+		let nodeId = node.getUniqueValue();
+		let tableName = node.getTableName();
+		if (stackPath.includes(nodeId))
+			throw Error(
+				"recursive reference found in path: " +
+				stackPath.concat(nodeId).join("-->"),
+			);
+		stackPath.push(nodeId);
+
+		// execute the callback function for the current node
+		if (callback && typeof callback === "function") callback(node);
+
+		// execute this funciton recursively for each child node
+		let children = new GlideRecord(tableName);
+		children.addQuery(parentField, nodeId);
+		children.query();
+		while (children.next()) {
+			let child = new GlideRecord(tableName);
+			child.get(children.getUniqueValue());
+			Tree.traversePreOrder({
+				node: child,
+				parentField,
+				stackPath,
+				callback,
+			});
+		}
+
+		stackPath.pop();
+	};
+
 })();

@@ -1,0 +1,226 @@
+---
+title: ServiceNow Tree Traversal - Depth First Search
+slug: servicenow-tree-traversal-p3
+description:
+  Implementing a depth first search algorithm to traverse an n-ary tree
+author: "Luke Covalt"
+date: 2025-12-31
+updated: 2025-12-31
+draft: true
+tags: [blog, servicenow, tree, algorithm, recursion]
+---
+
+Depth first search (DFS) is one of the most useful and common strategies when
+traversing a tree. Compared to breadth first search (BFS), DFS algorithms are
+simpler to implement, perform better, and have more use cases. DFS can be
+implemented using in order, post-order, and pre-order traversal. For this post,
+I'll just be implementing a pre-order DFS method.
+
+<Alert type="info">
+  Check out the [Depth-first
+  search](https://en.wikipedia.org/wiki/Depth-first_search) and [Tree
+  traversal](https://en.wikipedia.org/wiki/Tree_traversal) wiki pages for more
+  info on the various types of traversal
+</Alert>
+
+A pre-order DFS algorithm traverses nodes starting at the root, recursively
+traversing the left sub-tree, followed by recursively traversing the right
+sub-tree. In practice, this means branches are processed left to right, fully
+traversing a branch from root to leaf before moving to the next branch.
+
+## Scaffolding the traversePreOrder method
+
+To get started, we can use the basic function structure previously created for
+the `Tree.traverseToRoot` function. Input parameters, input validation, infinite
+recursion prevention, and callback execution for each node will be handled in
+the same way as the existing traverseToRoot function. Since we may include
+additional search strategies in the future, like post-order or BFS level order,
+I'll name the new method `traversePreOrder`. This will keep things clear and
+consistent on exactly which traversal type is being used if we add
+`traversePostOrder` or `traverseLevelOrder` in the future.
+
+#### Tree.traversePreOrder
+
+```js
+/**
+ * traverses an n-ary tree using a pre-order depth first search
+ * @param {object} params - named function parameters
+ * @param {GlideRecord} params.node - the current node being processed
+ * @param {string} [params.parentField=parent] - name of the parent reference field
+ * @param {function} params.callback - function to call for each node visited
+ * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
+ */
+Tree.traversePreOrder = ({
+  node,
+  parentField = "parent",
+  stackPath = [],
+  callback,
+}) => {
+  if (!node) throw Error("missing required parameter: node");
+  if (!node.isValidRecord())
+    throw Error("node parameter must be a valid GlideRecord");
+
+  // ensure the current node is not already in the path
+  let nodeId = node.getUniqueValue();
+  if (stackPath.includes(nodeId))
+    throw Error(
+      "recursive reference found in path: " +
+        stackPath.concat(nodeId).join("-->"),
+    );
+  stackPath.push(nodeId);
+
+  // execute the callback function for the current node
+  if (callback && typeof callback === "function") callback(node);
+
+  /**
+   * TODO: implement pre-order depth first search logic
+   * 1. get all child nodes of the current node
+   * 2. call traversePreOrder for each child node
+   * 3. return when all child nodes have been processed
+   */
+  stackPath.pop();
+};
+```
+
+## Tracking the stack path
+
+We need a minor change to the logic tracking the current stack path. In our
+previous methods, we were only traversing a single path, from leaf to root, so
+it was not needed. Since we have multiple branches now, we will need to pop each
+node off the stack after it has been processed. This will allow for a node to
+exist in multiple branches, but still allow us to catch cyclic references in the
+current branch.
+
+## Making the recursive call
+
+Now we need to get all of the child records and call the function recursively
+for each child. This code can be dropped in just below the callback function.
+
+```js
+// execute this funciton recursively for each child node
+let children = new GlideRecord(tableName);
+children.addQuery(parentField, nodeId);
+children.query();
+while (children.next()) {
+  Tree.traversePreOrder({
+    node: children,
+    parentField,
+    stackPath,
+    callback,
+  });
+}
+```
+
+## Preventing unwanted node mutations
+
+At this point, our function is basically complete. Something to be aware of is
+that a GlideRecord object is a cursor containing multiple records, with a
+pointer to the current record. In the example above, the `children` GlideRecord
+is passed into the recursive call as the `node` parameter. Recall that the
+`node` is also passed to the callback function - so it's possible that users of
+our API could mutate the children object, thinking they are only impacting that
+one node. For example, if a callback uses `node.next()`, our traversal would end
+up skipping a node. We can solve for this by getting a new GlideRecord for each
+node before making the recursive call. The final script is below.
+
+#### Tree.traversePreOrder
+
+```js
+/**
+ * traverses an n-ary tree using a pre-order depth first search
+ * @param {object} params - named function parameters
+ * @param {GlideRecord} params.node - the current node being processed
+ * @param {string} [params.parentField=parent] - name of the parent reference field
+ * @param {function} params.callback - function to call for each node visited
+ * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
+ */
+Tree.traversePreOrder = ({
+  node,
+  parentField = "parent",
+  stackPath = [],
+  callback,
+}) => {
+  if (!node) throw Error("missing required parameter: node");
+  if (!node.isValidRecord())
+    throw Error("node parameter must be a valid GlideRecord");
+
+  // ensure the current node is not already in the path
+  let nodeId = node.getUniqueValue();
+  let tableName = node.getTableName();
+  if (stackPath.includes(nodeId))
+    throw Error(
+      "recursive reference found in path: " +
+        stackPath.concat(nodeId).join("-->"),
+    );
+  stackPath.push(nodeId);
+
+  // execute the callback function for the current node
+  if (callback && typeof callback === "function") callback(node);
+
+  // execute this funciton recursively for each child node
+  let children = new GlideRecord(tableName);
+  children.addQuery(parentField, nodeId);
+  children.query();
+  while (children.next()) {
+    let child = new GlideRecord(tableName);
+    child.get(children.getUniqueValue());
+    Tree.traversePreOrder({
+      node: child,
+      parentField,
+      stackPath,
+      callback,
+    });
+  }
+
+  stackPath.pop();
+};
+```
+
+I was on the fence about whether this was a problem I even wanted to solve. The
+scenario is unlikely to occur and could largely be mitigated with proper
+training and documentation. The fix introduces an extra query per node
+traversed, so performace will take a slight hit, particularly in extremely large
+data sets. Since this is an indexed query for a single record, the performance
+hit is negligible. Still, this is something you should keep in mind if you plan
+to traverse a tree containing thousands of nodes. Ultimately, I decided to avoid
+premature optimization and err on the side of caution, preventing the mutation.
+
+## Final testing
+
+To make sure everything works as expected, I mocked up a few more user groups
+and called out function. If all went well, you should see output similar to the
+background script shown below, which prints the display value of each node in
+the order it was visited.
+
+#### User groups
+
+```
+Root Group
+├── Intermediate Group 1
+│	└── Leaf Group 1
+└── Intermediate Group 2
+	└── Leaf Group 2
+```
+
+#### Background script
+
+```js
+let root = new GlideRecord("sys_user_group");
+root.get("9ef89dea2b04ba907f83fedba291bf14");
+Tree.traversePreOrder({
+  node: root,
+  callback: (node) => gs.info(node.getDisplayValue()),
+});
+/** output:
+ * Root Group
+ * Intermediate Group 1
+ * Leaf Group 1
+ * Intermediate Group 2
+ * Leaf Group 2
+ */
+```
+
+<Alert type="note">
+  The full Tree namespace script include can be found on github at
+  [Tree.js](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
+</Alert>

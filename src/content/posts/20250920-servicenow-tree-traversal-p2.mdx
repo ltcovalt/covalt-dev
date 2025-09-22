@@ -57,14 +57,14 @@ const Tree = {};
    * @param {GlideRecord} params.node - the current node being processed
    * @param {string} [params.parentField=parent] - name of the parent reference field
    */
-  Tree.walkToRoot = ({ node, parentField = "parent" }) => {
+  Tree.traverseToRoot = ({ node, parentField = "parent" }) => {
     if (!node || !node.isValidRecord())
       throw Error("missing or invalid parameter: node");
     // no more parent fields - this is our root node
     if (!node[parentField]) return node;
     // get the parent node, then call the function again using the parent node
     let parentNode = node[parentField].getRefRecord();
-    let root = Tree.walkToRoot({ node: parentNode, parentField });
+    let root = Tree.traverseToRoot({ node: parentNode, parentField });
     return root;
   };
 })();
@@ -121,7 +121,7 @@ const Tree = {};
    * @param {GlideRecord} params.node - the current node being processed
    * @param {string} [params.parentField=parent] - name of the parent reference field
    */
-  Tree.walkToRoot = ({ node, parentField = "parent", stackPath = [] }) => {
+  Tree.traverseToRoot = ({ node, parentField = "parent", stackPath = [] }) => {
     if (!node) throw Error("missing required parameter: node");
     if (!node.isValidRecord())
       throw Error("node parameter must be a valid GlideRecord");
@@ -140,7 +140,7 @@ const Tree = {};
 
     // get the parent node, then call the function again using the parent node
     let parentNode = node[parentField].getRefRecord();
-    return Tree.walkToRoot({ node: parentNode, parentField, stackPath });
+    return Tree.traverseToRoot({ node: parentNode, parentField, stackPath });
   };
 })();
 ```
@@ -155,7 +155,7 @@ background script to invoke the newly created function.
 let node = new GlideRecord("sys_user_group");
 node.get("0119112e2b04ba907f83fedba291bf8d");
 
-let root = Tree.walkToRoot({ node });
+let root = Tree.traverseToRoot({ node });
 gs.info(root.getDisplayValue());
 // output: Root Group
 ```
@@ -175,14 +175,14 @@ recursive reference found in path: 0119112e2b04ba907f83fedba291bf8d-->4509ddea2b
 
 Getting the root node from a leaf can be useful, but there's many cases where we
 want to perform some action on each node visited. To accomplish this, the
-`Tree.walkToRoot` method can be updated to accept a callback function that we'll
-pass the node into. Be sure to also pass the callback into the recursive
+`Tree.traverseToRoot` method can be updated to accept a callback function that
+we'll pass the node into. Be sure to also pass the callback into the recursive
 function call as well.
 
-#### Tree.walkToRoot
+#### Tree.traverseToRoot
 
 ```js
-Tree.walkToRoot = ({
+Tree.traverseToRoot = ({
   node,
   parentField = "parent",
   stackPath = [],
@@ -211,7 +211,7 @@ Tree.walkToRoot = ({
 
   // get the parent node, then call the function again using the parent node
   let parentNode = node[parentField].getRefRecord();
-  return Tree.walkToRoot({
+  return Tree.traverseToRoot({
     node: parentNode,
     parentField,
     stackPath,
@@ -228,7 +228,7 @@ each visited node.
 ```js
 let node = new GlideRecord("sys_user_group");
 node.get("0119112e2b04ba907f83fedba291bf8d");
-let root = Tree.walkToRoot({
+let root = Tree.traverseToRoot({
   node,
   callback: (node) => gs.info(node.getDisplayValue()),
 });
@@ -240,9 +240,9 @@ let root = Tree.walkToRoot({
  */
 ```
 
-Finally, I added a simple wrapper method called `Tree.getRootNode`. Behind the
-scenes, it will use the `Tree.walkToRoot` method, but this helps more clearly
-indicate the intent when we call these methods in our code.
+Finally, I added a simple wrapper method called `Tree.getRoot`. Behind the
+scenes, it will use the `Tree.traverseToRoot` method, but this helps more
+clearly indicate the intent when we call these methods in our code.
 
 ```js
 /**
@@ -252,7 +252,7 @@ indicate the intent when we call these methods in our code.
  * @param {string} [params.parentField=parent] - name of the parent reference field
  * @returns {GlideRecord} the root node of the tree
  */
-Tree.getRootNode = (params) => Tree.walkToRoot(params);
+Tree.getRoot = (params) => Tree.traverseToRoot(params);
 ```
 
 <Alert type="note">
