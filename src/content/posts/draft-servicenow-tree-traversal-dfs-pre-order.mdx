@@ -1,8 +1,8 @@
 ---
-title: ServiceNow Tree Traversal - Depth First Search
-slug: servicenow-tree-traversal-p3
+title: "ServiceNow Tree Traversal: Pre-Order Depth-First Search"
+slug: servicenow-tree-traversal-pre-order-depth-first-search
 description:
-  Implementing a depth first search algorithm to traverse an n-ary tree
+  Implementing a pre order depth first search algorithm to traverse an n-ary/generic tree
 author: "Luke Covalt"
 date: 2025-12-31
 updated: 2025-12-31
@@ -10,18 +10,19 @@ draft: true
 tags: [blog, servicenow, tree, algorithm, recursion]
 ---
 
+<Alert type="info">
+	This post is part of a multi-part series on Tree Traversal  
+	
+	Previous: [Traverse to the Root](/posts/servicenow-tree-traversal-to-root-node)
+
+	View the complete code on GitHub: [Tree.js](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
+</Alert>
+
 Depth first search (DFS) is one of the most useful and common strategies when
 traversing a tree. Compared to breadth first search (BFS), DFS algorithms are
 simpler to implement, perform better, and have more use cases. DFS can be
 implemented using in order, post-order, and pre-order traversal. For this post,
 I'll just be implementing a pre-order DFS method.
-
-<Alert type="info">
-  Check out the [Depth-first
-  search](https://en.wikipedia.org/wiki/Depth-first_search) and [Tree
-  traversal](https://en.wikipedia.org/wiki/Tree_traversal) wiki pages for more
-  info on the various types of traversal
-</Alert>
 
 A pre-order DFS algorithm traverses nodes starting at the root, recursively
 traversing the left sub-tree, followed by recursively traversing the right
