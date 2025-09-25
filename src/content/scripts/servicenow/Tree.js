@@ -18,7 +18,7 @@ const Tree = {};
 	 * @param {object} params - named function parameters
 	 * @param {GlideRecord} params.node - the current node being processed
 	 * @param {string} [params.parentField=parent] - name of the parent reference field
-	 * @param {function} params.callback - function to call for each node visited
+	 * @param {function} [params.callback] - function to call for each node visited
 	 * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
 	 * @returns {GlideRecord} the root node of the tree
 	 */
@@ -47,7 +47,7 @@ const Tree = {};
 	 * @param {object} params - named function parameters
 	 * @param {GlideRecord} params.node - the current node being processed
 	 * @param {string} [params.parentField=parent] - name of the parent reference field
-	 * @param {function} params.callback - function to call for each node visited
+	 * @param {function} [params.callback] - function to call for each node visited
 	 * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
 	 */
 	Tree.traversePreOrder = ({
