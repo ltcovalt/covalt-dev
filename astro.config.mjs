@@ -1,16 +1,19 @@
 // @ts-nocheck
 import { defineConfig } from 'astro/config';
-import tailwindcss from '@tailwindcss/vite';
+import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
+
 import remarkCodeImport from 'remark-code-import';
 import remarkCodeLang from './plugins/remark-code-lang.js';
 import remarkLinkComponent from './plugins/remark-link-component.js';
 import rehypeCodeHeader from './plugins/rehype-code-header.js';
+
+import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
-import mdx from '@astrojs/mdx';
 
 export default defineConfig({
 	site: 'https://covalt.dev',
-	integrations: [mdx()],
+	integrations: [mdx(), sitemap()],
 	vite: {
 		plugins: [
 			tailwindcss()
