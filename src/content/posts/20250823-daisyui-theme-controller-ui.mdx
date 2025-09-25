@@ -1,12 +1,12 @@
 ---
-title: daisyUI Theme Controller
-slug: daisyui-theme-controller-p1
+title: "daisyUI Theme Controller: Building the UI"
+slug: daisyui-theme-controller-ui
 description: Building a theme controller component using Astro and daisyUI
 author: "Luke Covalt"
 date: 2025-08-23
 updated: 2025-08-23
 draft: false
-tags: [astro, blog, daisyui, tailwindcss, theme]
+tags: [astro, blog, daisyui, tailwindcss, theme, dark-mode]
 ---
 
 import ThemeController from "@components/ThemeController/ThemeController.astro";
@@ -189,8 +189,9 @@ const { name, theme } = Astro.props;
 ```
 
 <Alert type="warning">
-  While the above works, it would have been much simpler to get the colors from the relevant
-  `data-theme` attribute. I'm leaving it as is so others can learn from my folly :)
+  While the above works, it would have been much simpler to get the colors from
+  the relevant `data-theme` attribute. I'm leaving it as is so others can learn
+  from my folly :)
 </Alert>
 
 Since we need the colors from multiple themes, not just the currently active
