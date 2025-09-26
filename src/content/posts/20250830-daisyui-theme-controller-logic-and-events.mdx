@@ -177,7 +177,7 @@ elements.
   const syncRadios (theme = getTheme()) => { /* omitted */ };
 
   const theme = getTheme(); // gets theme from data-theme, localStorage, or data-theme-default
-  syncRadios(); // ensures all component instances insync
+  syncRadios(); // ensures all component instances are in sync
 </script>
 ```
 
@@ -192,7 +192,7 @@ listen for changes to local storage, and finally a listener for the custom
   // @ts-nocheck
   import { getTheme, setTheme, syncRadios } from "@utils/theme";
 
-  // intialize component(s)
+  // initialize component(s)
   const theme = getTheme();
   const controllerEl = document.querySelectorAll("div.theme-controller");
   syncRadios(theme);
@@ -269,7 +269,7 @@ const componentId = `theme-controller-${shortId()}`;
   // @ts-nocheck
   import { getTheme, setTheme, syncRadios } from "@utils/theme";
 
-  // intialize component(s)
+  // initialize component(s)
   const theme = getTheme();
   const controllerEl = document.querySelectorAll("div.theme-controller");
   syncRadios(theme);

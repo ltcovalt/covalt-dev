@@ -100,7 +100,7 @@ Now we need to get all of the child records and call the function recursively
 for each child. This code can be dropped in just below the callback function.
 
 ```js
-// execute this funciton recursively for each child node
+// execute this function recursively for each child node
 let children = new GlideRecord(tableName);
 children.addQuery(parentField, nodeId);
 children.query();
@@ -160,7 +160,7 @@ Tree.traversePreOrder = ({
   // execute the callback function for the current node
   if (callback && typeof callback === "function") callback(node);
 
-  // execute this funciton recursively for each child node
+  // execute this function recursively for each child node
   let children = new GlideRecord(tableName);
   children.addQuery(parentField, nodeId);
   children.query();
@@ -182,11 +182,12 @@ Tree.traversePreOrder = ({
 I was on the fence about whether this was a problem I even wanted to solve. The
 scenario is unlikely to occur and could largely be mitigated with proper
 training and documentation. The fix introduces an extra query per node
-traversed, so performace will take a slight hit, particularly in extremely large
-data sets. Since this is an indexed query for a single record, the performance
-hit is negligible. Still, this is something you should keep in mind if you plan
-to traverse a tree containing thousands of nodes. Ultimately, I decided to avoid
-premature optimization and err on the side of caution, preventing the mutation.
+traversed, so performance will take a slight hit, particularly in extremely
+large data sets. Since this is an indexed query for a single record, the
+performance hit is negligible. Still, this is something you should keep in mind
+if you plan to traverse a tree containing thousands of nodes. Ultimately, I
+decided to avoid premature optimization and err on the side of caution,
+preventing the mutation.
 
 ## Final testing
 
