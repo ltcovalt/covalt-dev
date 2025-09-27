@@ -5,16 +5,17 @@ description:
   Implementing a pre order depth first search algorithm to traverse an
   n-ary/generic tree
 author: "Luke Covalt"
-date: 2025-12-31
-updated: 2025-12-31
-draft: true
+date: 2025-09-25
+updated: 2025-09-26
+draft: false
 tags: [blog, servicenow, tree, algorithm, recursion]
 ---
 
 <Alert type="info">
 	This post is part of a multi-part series on Tree Traversal  
 	
-	Previous: [Traverse to the Root](/posts/servicenow-tree-traversal-to-root-node)
+	Previous: [Traverse to the Root](/posts/servicenow-tree-traversal-to-root-node) |  
+	Next: [Post-Order Depth-First Search](/posts/servicenow-tree-traversal-post-order-depth-first)
 
     View the complete code on GitHub: [Tree.js](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
 
@@ -29,7 +30,9 @@ I'll just be implementing a pre-order DFS method.
 A pre-order DFS algorithm traverses nodes starting at the root, recursively
 traversing the left sub-tree, followed by recursively traversing the right
 sub-tree. In practice, this means branches are processed left to right, fully
-traversing a branch from root to leaf before moving to the next branch.
+traversing a branch from root to leaf before moving to the next branch. A
+pre-order traversal is useful anytime you want to process parent nodes before
+the children.
 
 ## Scaffolding the traversePreOrder method
 
@@ -223,8 +226,3 @@ Tree.traversePreOrder({
  * Leaf Group 2
  */
 ```
-
-<Alert type="note">
-  The full Tree namespace script include can be found on github at
-  [Tree.js](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
-</Alert>

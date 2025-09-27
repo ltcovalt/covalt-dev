@@ -1,0 +1,173 @@
+---
+title: "ServiceNow Tree Traversal: Post-Order Depth-First Search"
+slug: servicenow-tree-traversal-post-order-depth-first
+description:
+  Use Depth-first search to traverse a tree and process nodes in post-order
+author: "Luke Covalt"
+date: 2025-09-27
+updated: 2025-09-27
+draft: false
+tags: [blog]
+---
+
+<Alert type="info">
+	This post is part of a multi-part series on Tree Traversal  
+	
+	Previous: [Pre-Order Depth-First Search](/posts/servicenow-tree-traversal-pre-order-depth-first-search)
+
+    View the complete code on GitHub: [Tree.js](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
+
+</Alert>
+
+In the previous post, we created a `traversePreOrder` to process a tree data
+structure from the top down using a pre-order DFS algorithm. In this post, we'll
+see how we can process a tree from the bottom up using a post-order DFS
+algorithm.
+
+Fortunately, all the logic we built for our previous function will carry over to
+our new `postOrderTraversal`. If you haven't read the previous post, you should
+do that now. Otherwise, copy the existing function and simply move the callback
+function to be executed after the while loop.
+
+#### Tree.postOrderTraversal
+
+```js
+/**
+ * traverses an n-ary tree using a post-order depth first search
+ * @param {object} params - named function parameters
+ * @param {GlideRecord} params.node - the current node being processed
+ * @param {string} [params.parentField=parent] - name of the parent reference field
+ * @param {function} [params.callback] - function to call for each node visited
+ * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
+ */
+Tree.traversePostOrder = ({
+  node,
+  parentField = "parent",
+  stackPath = [],
+  callback,
+}) => {
+  if (!node) throw Error("missing required parameter: node");
+  if (!node.isValidRecord())
+    throw Error("node parameter must be a valid GlideRecord");
+
+  // ensure the current node is not already in the path
+  let nodeId = node.getUniqueValue();
+  let tableName = node.getTableName();
+  if (stackPath.includes(nodeId))
+    throw Error(
+      "recursive reference found in path: " +
+        stackPath.concat(nodeId).join("-->"),
+    );
+  stackPath.push(nodeId);
+
+  // execute this function recursively for each child node
+  let children = new GlideRecord(tableName);
+  children.addQuery(parentField, nodeId);
+  children.query();
+  while (children.next()) {
+    let child = new GlideRecord(tableName);
+    child.get(children.getUniqueValue());
+    Tree.traversePostOrder({
+      node: child,
+      parentField,
+      stackPath,
+      callback,
+    });
+  }
+
+  // execute the callback function for the current node
+  if (callback && typeof callback === "function") callback(node);
+
+  stackPath.pop();
+};
+```
+
+The difference between a pre-order and post-order traversal, in terms of code
+and logic, is minimal. The code that processes/visits a node - a callback
+function in this case - occurs after the recursive function. That's it. It's
+almost disappointingly simple. Our callback can be dropped to just below the
+`while` loop, and now nodes will be processed from the bottom up, child to
+parent.
+
+## Validating the function
+
+We can validate that the processing happening post-order as intended by using a
+similar background script and user group hierarchy that we used to test the
+pre-order method.
+
+#### User groups
+
+```
+Root Group
+├── Intermediate Group 1
+│	└── Leaf Group 1
+└── Intermediate Group 2
+	└── Leaf Group 2
+```
+
+#### Background Script
+
+```js
+let root = new GlideRecord("sys_user_group");
+root.get("9ef89dea2b04ba907f83fedba291bf14"); // root group
+Tree.traversePostOrder({
+  node: root,
+  callback: (node) => gs.info(node.getDisplayValue()),
+});
+
+/** OUTPUT:
+ * Leaf Group 1
+ * Intermediate Group 1
+ * Leaf Group 2
+ * Intermediate Group 2
+ * Root Group
+ */
+```
+
+## How does it work?
+
+If you are relatively new to recursion, you may be wondering how such a tiny
+change can completely flip the order in which our nodes our processed. Both
+traversals use the exact same logic - depth first search - so both actually
+follow the exact same path when traversing nodes. The key difference is when we
+**_visit_** or **_process_** each node.
+
+Recursive function calls rely on the call stack - as each function is called, it
+is pushed to the stack. When a function completes, it is removed from the stack.
+The first function called will be the final one to complete, as it waits for all
+the recursive calls to finish. The first function call that does not have have
+additional children to process, and therefore does not invoke an additional
+recursive function call, will be the first to return.
+
+This is why such a simple change completely changes the processing order. In
+pre-order traversal, the callback function processes each node as it is
+traversed, and then recurses. In post-order traversal,processing happens after
+recursing, so nodes are only processed when there are no additional child nodes
+to recurse. Others have already covered these topics in detail, so I'd suggest
+doing further research on the call stack and recursion if you are looking to
+learn more about exactly what happens behind the scenes when a recursive
+function call is made.
+
+## Future clean-up and enhancements
+
+For now, I've updated the
+[Tree](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
+utility with the `traversePostOrder` function exactly as is was covered in this
+post. If you're anything like me though, there's a good chance that you were
+highly bothered by copying and pasting ~30 lines of code only to move a single
+line. This is definitely a code smell, and a pretty clear indicator that we're
+going to want to abstract the repeated logic into its own function. I don't mind
+occasional repetition, especially if it gets you up and running faster, but I
+make it a priority to never repeat myself more than once whenever possible.
+
+Eliminating repetitive code is especially important when it comes to
+maintenance. I already know that I want to enhance the DFS methods with the
+ability to abort traversal and handle a list of child nodes rather than a
+reference to a parent, for example. If the redundant code isn't abstracted, I
+would need to make the enhancements in multiple places. This increases the
+opportunity for bugs to sneak in and makes it easy for lose feature parity
+across our API, so it is definitely something I will update in the near future.
+
+As always, the complete code containing the latest updates and enhancements can
+be found on my GitHub:
+[Tree](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
