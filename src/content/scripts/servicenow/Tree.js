@@ -50,44 +50,8 @@ const Tree = {};
 	 * @param {function} [params.callback] - function to call for each node visited
 	 * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
 	 */
-	Tree.traversePreOrder = ({
-		node,
-		parentField = "parent",
-		stackPath = [],
-		callback,
-	}) => {
-		if (!node) throw Error("missing required parameter: node");
-		if (!node.isValidRecord()) throw Error("node parameter must be a valid GlideRecord");
-
-		// ensure the current node is not already in the path
-		let nodeId = node.getUniqueValue();
-		let tableName = node.getTableName();
-		if (stackPath.includes(nodeId))
-			throw Error(
-				"recursive reference found in path: " +
-				stackPath.concat(nodeId).join("-->"),
-			);
-		stackPath.push(nodeId);
-
-		// execute the callback function for the current node
-		if (callback && typeof callback === "function") callback(node);
-
-		// execute this function recursively for each child node
-		let children = new GlideRecord(tableName);
-		children.addQuery(parentField, nodeId);
-		children.query();
-		while (children.next()) {
-			let child = new GlideRecord(tableName);
-			child.get(children.getUniqueValue());
-			Tree.traversePreOrder({
-				node: child,
-				parentField,
-				stackPath,
-				callback,
-			});
-		}
-
-		stackPath.pop();
+	Tree.traversePreOrder = (params, callback) => {
+		_traverseDfs({ ...params, callback, preOrder: true });
 	};
 
 	/**
@@ -98,25 +62,45 @@ const Tree = {};
 	 * @param {function} [params.callback] - function to call for each node visited
 	 * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
 	 */
-	Tree.traversePostOrder = ({
-		node,
-		parentField = "parent",
-		stackPath = [],
-		callback,
-	}) => {
+	Tree.traversePostOrder = (params, callback) => {
+		_traverseDfs({ ...params, callback, postOrder: true });
+	};
+
+	/**
+	 * traverses an n-ary tree using a post-order depth first search
+	 * @param {object} params - named function parameters
+	 * @param {GlideRecord} params.node - the current node being processed
+	 * @param {boolean} [params.preOrder=false] - if true, traverse using pre-order DFS
+	 * @param {boolean} [params.postOrder=false] - if true, traverse using post-order DFS
+	 * @param {string} [params.parentField=parent] - name of the parent reference field
+	 * @param {function} [params.callback] - function to call for each node visited
+	 * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
+	 */
+	function _traverseDfs(params = {}) {
+		params = {
+			parentField: "parent",
+			preOrder: false,
+			postOrder: false,
+			stackPath: [],
+			...params,
+		};
+		const { node, callback, parentField, preOrder, postOrder, stackPath } = params;
+
+		// validate mandatory parameters
 		if (!node) throw Error("missing required parameter: node");
-		if (!node.isValidRecord())
-			throw Error("node parameter must be a valid GlideRecord");
+		if (!node.isValidRecord()) throw Error("node parameter must be a valid GlideRecord");
 
 		// ensure the current node is not already in the path
 		let nodeId = node.getUniqueValue();
 		let tableName = node.getTableName();
-		if (stackPath.includes(nodeId))
-			throw Error(
-				"recursive reference found in path: " +
-				stackPath.concat(nodeId).join("-->"),
-			);
+		if (stackPath.includes(nodeId)) throw Error(
+			"recursive reference found in path: " +
+			stackPath.concat(nodeId).join("-->"),
+		);
 		stackPath.push(nodeId);
+
+		// pre-order callback for the current node
+		if (preOrder && callback && typeof callback === "function") callback(node);
 
 		// execute this function recursively for each child node
 		let children = new GlideRecord(tableName);
@@ -125,18 +109,13 @@ const Tree = {};
 		while (children.next()) {
 			let child = new GlideRecord(tableName);
 			child.get(children.getUniqueValue());
-			Tree.traversePostOrder({
-				node: child,
-				parentField,
-				stackPath,
-				callback,
-			});
+			_traverseDfs({ ...params, node: child });
 		}
 
-		// execute the callback function for the current node
-		if (callback && typeof callback === "function") callback(node);
+		// post-order callback for the current node
+		if (postOrder && callback && typeof callback === "function") callback(node);
 
 		stackPath.pop();
-	};
+	}
 
 })();

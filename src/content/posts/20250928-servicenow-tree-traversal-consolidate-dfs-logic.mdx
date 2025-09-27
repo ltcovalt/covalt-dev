@@ -1,0 +1,311 @@
+---
+title: "ServiceNow Tree Traversal: Consolidating DFS logic"
+slug: servicenow-tree-traversal-consolidate-dfs-logic
+description:
+  Reduce repetitive code by consolidating Depth-first logic into a private
+  function
+author: "Luke Covalt"
+date: 2025-09-28
+updated: 2025-09-28
+draft: true
+tags:
+  [
+    blog,
+    servicenow,
+    tree,
+    algorithm,
+    recursion,
+    depth-first,
+    dfs,
+    private,
+    refactor,
+  ]
+---
+
+<Alert type="info">
+	This post is part of a multi-part series on Tree Traversal  
+	
+	Previous: [Post-Order Depth-First Search](/posts/servicenow-tree-traversal-post-order-depth-first)
+
+    View the complete code on GitHub: [Tree.js](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/Tree.js)
+
+</Alert>
+
+Designing tools for other developers is my favorite type of work, but ensuring
+the tools are easy to understand, self-documenting (in addition to actual
+documentation), and named properly is one of the biggest challenges. It's
+important to imagine yourself as not only a maintainer of the code, but as a
+user of the API as well. In this post, I'm going to examine a few simple ways
+that we can make the Tree utility easier to use and easier to maintain.
+
+## Refactoring for maintainability
+
+If you're coming from the previous post when we completed our
+[Post-order Depth-first Traversal](/posts/servicenow-tree-traversal-post-order-depth-first)
+function, you'll know that is shared a substantial amount of code with the
+[Pre-order Depth-first Traversal](/posts/servicenow-tree-traversal-pre-order-depth-first)
+method. We can refactor the redundant code into a private function, making it
+easier to maintain by having a single point to enhance and debug in the future.
+
+Recall that the only difference in logic between pre-order and post-order is
+when our callback should be executed. From a user perspective, the existing
+`traversePreOrder` and `traversePostOrder` methods will retain the same
+signature. Behind the scenes, we will have a private function containing the DFS
+logic that invokes the callback based on which public function called it. The
+example below illustrates a simplified structure of our code.
+
+```js
+(() => {
+	Tree.traversePreOrder(params) {
+		_traverseDfs({ ...params, preOrder = true });
+	}
+
+	Tree.traversePostOrder(params) {
+		_traverseDfs({ params, postOrder = true });
+	}
+
+	function _traverseDfs({ preOrder, postOrder, callback, ...params }) {
+		// shared DFS traversal logic omitted
+		if (preOrder) callback(node);
+		_traverseDfs({ preOrder, postOrder, callback, ...params });
+		if (postOrder) callback(node)
+	}
+})();
+```
+
+I'm not sure this is the exact solution we'll stick with, but this should give
+you a pretty good idea of the main changes that we need to make.
+
+### Consolidate DFS logic
+
+With a high-level plan in mind, it's time to start refactoring. Let's start by
+copying the `Tree.traversePreOrder` method to a new, private function named
+`_traverseDfs`.
+
+<Alert type="warning">
+  Be aware that prefixing functions and variables with an underscore is just a
+  convention. You will sometimes encounter JavaScript methods that are actually
+  public, even though the name starts with an underscore. In the script example
+  above, `_traverseDfs` is private because it is defined within our IIFE, and we
+  prefix with an underscore simply to convey intent to future devs reading the
+  code.
+</Alert>
+
+You should end up with a function that looks like below. Note we now check to
+see If the callback function should be executed both pre-order and post-order.
+
+```js
+function _traverseDfs({
+  node,
+  parentField = "parent",
+  preOrder = false,
+  postOrder = false,
+  stackPath = [],
+  callback,
+}) {
+  if (!node) throw Error("missing required parameter: node");
+  if (!node.isValidRecord())
+    throw Error("node parameter must be a valid GlideRecord");
+
+  // ensure the current node is not already in the path
+  let nodeId = node.getUniqueValue();
+  let tableName = node.getTableName();
+  if (stackPath.includes(nodeId))
+    throw Error(
+      "recursive reference found in path: " +
+        stackPath.concat(nodeId).join("-->"),
+    );
+  stackPath.push(nodeId);
+
+  // pre-order callback for the current node
+  if (preOrder && callback && typeof callback === "function") callback(node);
+
+  // execute this function recursively for each child node
+  let children = new GlideRecord(tableName);
+  children.addQuery(parentField, nodeId);
+  children.query();
+  while (children.next()) {
+    let child = new GlideRecord(tableName);
+    child.get(children.getUniqueValue());
+    _traverseDfs({
+      node: child,
+      parentField,
+      preOrder,
+      postOrder,
+      stackPath,
+      callback,
+    });
+  }
+
+  // post-order callback for the current node
+  if (postOrder && callback && typeof callback === "function") callback(node);
+
+  stackPath.pop();
+}
+```
+
+### Restructuring the destructuring
+
+While the above function will work without issue, one thing that is jumping out
+to me is how messy the recursive function call is getting as we add more named
+variables. I destructured the function parameters to named variables for brevity
+and clarity in the code, but it is starting to have the opposite effect when we
+call `_traverseDfs`, because we have to repeat every named parameter. This could
+get even messier if we decide to pass in the params to the callbacks in the
+future. Let's clean it up a bit by keeping our named bindings and setting
+default values, but also having a named object containing all the parameters.
+
+```js
+function _traverseDfs(params = {}) {
+  params = {
+    parentField: "parent",
+    preOrder: false,
+    postOrder: false,
+    stackPath: [],
+    ...params,
+  };
+  const { node, callback, parentField, preOrder, postOrder, stackPath } =
+    params;
+}
+```
+
+Rather than destructuring directly in the function parameters, we start with a
+named input `params` and default it to an empty object. Next, we update the
+params object by setting our default values and applying the input params with
+`...params`. This gives us a consolidated `params` object containing all the
+user provided inputs and our default values.
+
+<Alert type="note">
+  Order of operations is important here - our defaults are overridden by the
+  input params. If we instead wanted our defaults to override the inputs, we
+  could move `...params` above where we set the defaults.
+</Alert>
+
+Finally, to keep our code clear and concise, we destructure the consolidated
+params object to named constants we can refer to later in our code. Below is
+what our final private function should look like.
+
+```js
+function _traverseDfs(params = {}) {
+  params = {
+    parentField: "parent",
+    preOrder: false,
+    postOrder: false,
+    stackPath: [],
+    ...params,
+  };
+  const { node, callback, parentField, preOrder, postOrder, stackPath } =
+    params;
+  if (!node) throw Error("missing required parameter: node");
+  if (!node.isValidRecord())
+    throw Error("node parameter must be a valid GlideRecord");
+
+  // ensure the current node is not already in the path
+  let nodeId = node.getUniqueValue();
+  let tableName = node.getTableName();
+  if (stackPath.includes(nodeId))
+    throw Error(
+      "recursive reference found in path: " +
+        stackPath.concat(nodeId).join("-->"),
+    );
+  stackPath.push(nodeId);
+
+  // pre-order callback for the current node
+  if (preOrder && callback && typeof callback === "function") callback(node);
+
+  // execute this function recursively for each child node
+  let children = new GlideRecord(tableName);
+  children.addQuery(parentField, nodeId);
+  children.query();
+  while (children.next()) {
+    let child = new GlideRecord(tableName);
+    child.get(children.getUniqueValue());
+    _traverseDfs({ ...params, node: child });
+  }
+
+  // post-order callback for the current node
+  if (postOrder && callback && typeof callback === "function") callback(node);
+
+  stackPath.pop();
+}
+```
+
+Now we can just pass the entire params object, and only specify the properties
+we need to override. For example, the recursive call
+`_traverseDfs({ ...params, node: child })` only needs to name the node property
+and pass in the child node. This small refactoring wasn't really necessary just
+yet, but it will help keep things clean if we pass the params to the callback
+later.
+
+### Public function refactoring
+
+With our private `_traverseDfs` function ready to go, now all that is left is to
+ensure our public wrapper functions, `traversePreOrder` and `traversePostOrder`,
+call `_traverseDfs` with the correct parameters.
+
+```js
+Tree.traversePreOrder = (params) => {
+  _traverseDfs({ ...params, preOrder: true });
+};
+
+Tree.traversePostOrder = (params) => {
+  _traverseDfs({ ...params, postOrder: true });
+};
+```
+
+Be sure to test both the public functions to make sure your getting the expected
+result. By refactoring, we were able to eliminate a lot of redundant code and
+make it easier to enhance. There are use cases in which you want to process both
+pre-order and post-order - pushing and popping items from the stack path in our
+`_traverseDfs` function is a good example - and extending this functionality to
+user-land will be very easy now that we've separated our code into public and
+private functions.
+
+## Usability Enhancements
+
+Our changes until now have been focused entirely on the maintainability of our
+code, and was completely invisible to users of our API. This is the power of
+separating a public API from the underlying private logic - users don't need to
+care about changes under the hood.
+
+However, since I'm refactoring the API anyway, and there aren't yet any users of
+my API, I want to make it a bit easier to consume from a user perspective as
+well. The public methods currently expect a single params object. This works
+fine, but when a callback is provided, the extra layer of nesting gets a little
+messy. It is also common convention to have the callback function be the final
+positional argument, so let's update the public function signatures.
+
+```js
+Tree.traversePreOrder = (params, callback) => {
+  _traverseDfs({ ...params, callback, preOrder: true });
+};
+
+Tree.traversePostOrder = (params, callback) => {
+  _traverseDfs({ ...params, callback, postOrder: true });
+};
+```
+
+With this small change, now our user's function call can go from looking like
+this:
+
+```js
+Tree.traversePreOrder({
+  node,
+  callback: (node) => {
+    // callback logic
+  },
+});
+```
+
+To this:
+
+```js
+Tree.traversePreOrder(params, (node) => {
+  //callback logic
+});
+```
+
+It's a small difference, but one that provides a much nicer and more familiar
+developer experience. Best of all, none of the underlying private code needed to
+change and the API can easily be extended to contain a method that processes
+nodes pre and post-order, all without changing our publicly exposed API.
