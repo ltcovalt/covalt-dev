@@ -24,14 +24,14 @@ to document my JavaScript. I'm not sure if Astro has an official integration
 that supports generating this, so that is something I'll have to look into in
 the future.
 
-## ScriptLayout
+## CodeLayout
 
 The first thing we need is a new layout component that can be used to display.
 In my project, they are located at `/src/layouts`, so I'll create a new layout
-named `ScriptLayout.astro` in this directory that uses my default layout as a
+named `CodeLayout.astro` in this directory that uses my default layout as a
 base.
 
-#### ScriptLayout.astro
+#### CodeLayout.astro
 
 ```astro
 ---
@@ -52,19 +52,142 @@ used for my blog posts, except that I will change the prose wrap from 75ch to
 but I wrap at 120 characters in my IDE, so this seems like a sane starting
 point.
 
-## Define an Astro collection
+## Evaluating script rendering options in Astro
 
-We'll need to define a new collection for the scripts we want to render. I
-anticipated that I would want to embed scripts in this way, so I have been
-storing them at `/src/content/scripts`. These are not scripts that drive any
-logic for the site, it's just the scripts that I want to share with others or
-reference in blog posts. We can define a new collection in the
-`content.config.js` file.
+I anticipated I would want to embed and share scripts, so I have been storing
+them at `/src/content/scripts`. These aren't scripts that are used in any way by
+my website, they are strictly content intended to be shared with others. At the
+time, storing my scripts as content made sense - it clearly separated them from
+other `/src` scripts that contains logic for my site. Unfortunately, I hit a
+minor snag - Astro content collections doesn't recognize `.js` files as content,
+so I can't create a collection directly from my files.
+
+I have a couple options, but each has its own drawbacks. I could just import my
+source files as raw text, bypassing Astro's markdown rendering pipeline
+entirely, and handle styling myself with a library like
+[Prism](https://prismjs.com) or [Shiki](https://shiki.matsu.io/). This means I
+would have full control of styling, but it would be extra work to maintain and I
+would have to reimplement some features that I already built as remark and
+rehype plugins. To keep things consistent across the site, I am pretty confident
+the best solution for me will be to have them rendered through Astro's standard
+rendering pipeline.
+
+To have my scripts processed through Astro's renderer, I could create a simple
+markdown file that wraps my script. Then a standard Astro collection of these
+markdown files can be created and rendered. However, I also want to be able to
+share the exact script contents, free of any additional markup, so it can be
+easily downloaded and used by others.
+
+Finally, I briefly considered Starlight, Astro's own documentation site
+solution. I know I will want API doc pages in the future, but I am currently
+leaning towards building my own solution so that the look and feel is perfectly
+integrated with my current themes and styles used for my site and blog.
+
+## Choosing a solution
+
+In the end, I decided to go with a solution that will require a little manual
+upkeep from me. I will maintain the raw source files and create a simple wrapper
+markdown file that injects the source code. These markdown files can be used in
+a regular Astro collection and rendered like normal.
+
+## Moving my content scripts
+
+Knowing that I plan to have a docs site in the future, I moved my scripts from
+`/src/content/` to `/docs/code`. These are my raw, source files free of any
+additional markup.
+
+## Wrapping the source in markdown
+
+The next thing I need is a standard content collection that can be rendered. For
+this, I create a new file for each API I want a page for. For the ServiceNow
+Tree API I have been working on most recently, that would be located at
+`/src/content/code/servicenow/Tree.mdx`. I don't want to maintain two separate
+script files - so I use the `remark-code-import` plugin to import my source code
+from `/docs/code/servicenow/Tree.js` directly. While creating a wrapper like
+this is a small amount of manual effort, it also means I can embed frontmatter,
+like a user friendly title, description, and tags.
+
+## Create an Astro collection
+
+With our source files wrapped in a minimal markdown document, they can be used
+in Astro collections like normal. We just need to update `content.config.js` to
+define the new collection. Here is my config that defines a Posts and a Code
+collection.
 
 #### content.config.js
 
 ```js
-const scripts = defineCollection({
-  loader: glob({ pattern: "**/*.js", base: "./src/scripts" }),
+import { defineCollection } from "astro:content";
+import { glob, file } from "astro/loaders";
+
+// define collections
+const posts = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/posts" }),
 });
+
+const code = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/code" }),
+});
+
+// export all collections as a single collections object
+export const collections = { posts, code };
 ```
+
+## Rendering the Code collection
+
+The final step is to create a new Astro page that will render the content. I'll
+share my complete page code here for reference, but I don't want to go into much
+detail, as the official
+[Astro Docs](https://docs.astro.build/en/guides/content-collections/) do an
+excellent job explaining how to configure, query, and render collections as well
+as how to generate static paths for the content.
+
+Create a new page `/src/pages/code/[...id].astro`. The `[...id]` bit ensures
+that subpaths are matched too. For example, where `[id].astro` would only match
+`/code/file-id`, `[...id].astro` will match `/code/file-id`,
+`/code/servicenow/file-id`, and any other sub-path created in the future under
+`code`.
+
+#### /src/pages/code/[...id].astro
+
+```astro
+---
+import { getCollection, render } from "astro:content";
+import CodeLayout from "@layouts/CodeLayout.astro";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("code");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<CodeLayout title={entry.data.title}>
+  <Content />
+</CodeLayout>
+```
+
+## Wrapping up and Review
+
+The final thing to do is ensure the scripts are accessible under the expected
+path. At the time of writing, I've only published one API, but it should be
+accessible by navigating to
+[https://covalt.dev/code/servicenow/tree](/code/servicenow/tree).
+
+Here's a final recap of the end-to-end solution and process.
+
+1. Source files are stored at `/docs/code`
+2. Source files are injected into a simple wrapper markdown file at
+   `/src/content/code` using the `remark-code-import` plugin
+3. Define a new code collection in `content.config.js` containing the files from
+   `/src/content/code`
+4. Create a new page `/src/pages/code/[...id].astro` to render the collection
+
+This certainly isn't the final solution, as I will want a full-featured docs
+browser in the future, but it solves my immediate needs. Now I can easily render
+full scripts without linking out to my GitHub repo.
