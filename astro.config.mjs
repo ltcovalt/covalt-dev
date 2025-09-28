@@ -23,7 +23,8 @@ export default defineConfig({
 				'@components': path.resolve('./src/components'),
 				'@layouts': path.resolve('./src/layouts'),
 				'@utils': path.resolve('./src/utils'),
-				'@icons': path.resolve('./src/icons')
+				'@icons': path.resolve('./src/icons'),
+				'@content': path.resolve('./src/content')
 			}
 		},
 		build: { cssCodeSplit: false }
