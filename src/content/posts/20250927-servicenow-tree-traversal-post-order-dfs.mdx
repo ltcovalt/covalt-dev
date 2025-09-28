@@ -16,7 +16,7 @@ tags:
 	
 	Previous: [Pre-Order Depth-First Search](/posts/servicenow-tree-traversal-pre-order-depth-first-search)
 
-    View the complete code on GitHub: [Tree.js](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/script-includes/Tree.js)
+    View the complete code: [Tree.js](/code/servicenow/tree)
 
 </Alert>
 
@@ -151,15 +151,14 @@ function call is made.
 
 ## Future clean-up and enhancements
 
-For now, I've updated the
-[Tree](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/script-includes/Tree.js)
-utility with the `traversePostOrder` function exactly as is was covered in this
-post. If you're anything like me though, there's a good chance that you were
-highly bothered by copying and pasting ~30 lines of code only to move a single
-line. This is definitely a code smell, and a pretty clear indicator that we're
-going to want to abstract the repeated logic into its own function. I don't mind
-occasional repetition, especially if it gets you up and running faster, but I
-make it a priority to never repeat myself more than once whenever possible.
+For now, I've updated the [Tree](/code/servicenow/tree) utility with the
+`traversePostOrder` function exactly as is was covered in this post. If you're
+anything like me though, there's a good chance that you were highly bothered by
+copying and pasting ~30 lines of code only to move a single line. This is
+definitely a code smell, and a pretty clear indicator that we're going to want
+to abstract the repeated logic into its own function. I don't mind occasional
+repetition, especially if it gets you up and running faster, but I make it a
+priority to never repeat myself more than once whenever possible.
 
 Eliminating repetitive code is especially important when it comes to
 maintenance. I already know that I want to enhance the DFS methods with the
@@ -170,5 +169,4 @@ opportunity for bugs to sneak in and makes it easy for lose feature parity
 across our API, so it is definitely something I will update in the near future.
 
 As always, the complete code containing the latest updates and enhancements can
-be found on my GitHub:
-[Tree](https://github.com/ltcovalt/covalt-dev/blob/main/src/content/scripts/servicenow/script-includes/Tree.js)
+be found on my GitHub: [Tree](/code/servicenow/tree)
