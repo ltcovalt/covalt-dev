@@ -1,0 +1,70 @@
+---
+title: Astro Script Viewer
+slug: astro-script-viewer
+description: Build an astro layout for rendering and navigating script files
+author: "Luke Covalt"
+date: 2025-12-31
+updated: 2025-12-31
+draft: true
+tags: [blog, api, documentation, javascript, jsdoc]
+---
+
+A major feature missing form this site is a nice way to view full scripts and
+API documentation. Many of my posts link out directly to the GitHub repo for
+this site when I want to share a specific script. It would be much nicer if I
+could link to those files directly on this site. Of course, Astro natively
+supports the rendering of markdown code fences, which I make heavy use of in my
+posts - but I want a page to view full scripts that won't force the prose word
+wrap style, which sometimes causes scripts to be formatted in strange ways. This
+should not be too difficult to implement, so I'll tackle this feature first.
+
+API documentation will likely be a bit more involved. I know generators exist to
+automatically build documentation pages from JSDOC comments, which I always use
+to document my JavaScript. I'm not sure if Astro has an official integration
+that supports generating this, so that is something I'll have to look into in
+the future.
+
+## ScriptLayout
+
+The first thing we need is a new layout component that can be used to display.
+In my project, they are located at `/src/layouts`, so I'll create a new layout
+named `ScriptLayout.astro` in this directory that uses my default layout as a
+base.
+
+#### ScriptLayout.astro
+
+```astro
+---
+import DefaultLayout from "./DefaultLayout.astro";
+const { title = "covalt.dev" } = Astro.props;
+---
+
+<DefaultLayout {title}>
+  <div class="prose xl:prose-lg m-auto max-w-[120ch] p-8">
+    <slot />
+  </div>
+</DefaultLayout>
+```
+
+For now, I'll use the same basic settings as my `ArticleLayout.astro` layout
+used for my blog posts, except that I will change the prose wrap from 75ch to
+120ch. I'll have to wait and see what it actually looks like when it's rendered,
+but I wrap at 120 characters in my IDE, so this seems like a sane starting
+point.
+
+## Define an Astro collection
+
+We'll need to define a new collection for the scripts we want to render. I
+anticipated that I would want to embed scripts in this way, so I have been
+storing them at `/src/content/scripts`. These are not scripts that drive any
+logic for the site, it's just the scripts that I want to share with others or
+reference in blog posts. We can define a new collection in the
+`content.config.js` file.
+
+#### content.config.js
+
+```js
+const scripts = defineCollection({
+  loader: glob({ pattern: "**/*.js", base: "./src/scripts" }),
+});
+```
