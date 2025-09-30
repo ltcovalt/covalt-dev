@@ -5,9 +5,9 @@ description:
   Reduce repetitive code by consolidating Depth-first logic into a private
   function
 author: "Luke Covalt"
-date: 2025-09-28
-updated: 2025-09-28
-draft: true
+date: 2025-09-30
+updated: 2025-09-30
+draft: false
 tags:
   [
     blog,
@@ -18,7 +18,7 @@ tags:
     depth-first,
     dfs,
     private,
-    refactor,
+    refactoring,
   ]
 ---
 
@@ -73,7 +73,7 @@ example below illustrates a simplified structure of our code.
 })();
 ```
 
-I'm not sure this is the exact solution we'll stick with, but this should give
+I'm not sure this is the exact solution I'll stick with, but this should give
 you a pretty good idea of the main changes that we need to make.
 
 ### Consolidate DFS logic
@@ -86,9 +86,9 @@ copying the `Tree.traversePreOrder` method to a new, private function named
   Be aware that prefixing functions and variables with an underscore is just a
   convention. You will sometimes encounter JavaScript methods that are actually
   public, even though the name starts with an underscore. In the script example
-  above, `_traverseDfs` is private because it is defined within our IIFE, and we
-  prefix with an underscore simply to convey intent to future devs reading the
-  code.
+  above, `_traverseDfs` is truly private because it is defined within our IIFE,
+  and we prefix with an underscore simply to convey intent to future devs
+  reading the code.
 </Alert>
 
 You should end up with a function that looks like below. Note we now check to
