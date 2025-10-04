@@ -18,11 +18,11 @@ const Tree = {};
 	 * @param {object} params - named function parameters
 	 * @param {GlideRecord} params.node - the current node being processed
 	 * @param {string} [params.parentField=parent] - name of the parent reference field
-	 * @param {function} [params.callback] - function to call for each node visited
 	 * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
+	 * @param {function} [callback] - function to call for each node visited
 	 * @returns {GlideRecord} the root node of the tree
 	 */
-	Tree.walkToRoot = ({ node, parentField = 'parent', stackPath = [], callback }) => {
+	Tree.traverseToRoot = ({ node, parentField = 'parent', stackPath = [] }, callback) => {
 		if (!node) throw Error('missing required parameter: node');
 		if (!node.isValidRecord()) throw Error('node parameter must be a valid GlideRecord');
 
@@ -39,7 +39,7 @@ const Tree = {};
 
 		// get the parent node, then call the function again using the parent node
 		let parentNode = node[parentField].getRefRecord();
-		return Tree.walkToRoot({ node: parentNode, parentField, stackPath, callback });
+		return Tree.traverseToRoot({ node: parentNode, parentField, stackPath }, callback);
 	};
 
 	/**
