@@ -1,0 +1,169 @@
+---
+title: Adventures in Neovim
+slug: adventures-in-neovim
+description: My first real foray into the wacky and wonderful world of Neovim
+author: "Luke Covalt"
+date: 2025-10-13
+updated: 2025-10-13
+draft: false
+tags: [blog, vim, neovim]
+---
+
+I've long had fasination of vim. The idea of using short, expressive operators
+and motions to quickly navigate through text and code was always very
+compelling. Yet, despite being a Linux user and programming on and off for 25
+years or so, I never made a real attempt to learn vi or vim. My usage was
+essentially limited to accidentally finding myself in vim, getting angry that
+typing wasn't working properly, and struggling for entirely too long to close
+vim. Later, I would "try" vim a few more times - spending maybe 10-15 minutes
+before giving up and deciding that it simply wasn't for me.
+
+In hindsight, the problem was obvious - there was nothing wrong with vim - I was
+simply trying to learn too much at once. I was just getting my feet wet with web
+development and basic programming principles. Trying to also learn an arcane
+editor at the same time was just too much. This is a tendency I would notice in
+my personal projects, where I would try to incorporate too many new things. It
+was likely comes as a shock to no one, I've found it much more efficient to
+focus on learning one or two things at a time, while keeping the rest of my
+chosen tech stack to something a bit more familiar.
+
+That brings me to today - after programming on and off for 25 years and
+programming full-time for nearly the last 10 years, I finally felt ready to give
+vim a real shot. I've seen how fast the vim wizards were able to manipulate
+their code - wanted to at least give it a week or two of intentional use before
+I decided if I wanted to write it off forever or not. I've been using Neovim for
+about a week now, and despite there being a few bumps along the way, I was
+shocked at how easy it was to pick up the basics and be reasonably productive.
+
+## Getting starting with Neovim
+
+I decided to use Neovim primarily due to the ease of extensibility through Lua
+plugins. At least initially, my plan was to keep my config pretty barebones and
+just learn the basics, only adding plugins as I needed them. I first started by
+working through `:Tutor` in Neovim - and something magical happened. Rather than
+feeling completely lost and frustrated, it only took about 15 minutes of working
+through the tutorial to see the value. I was just doing the bare basics the
+tutorial taught, but I was hooked! I wasn't anywhere near productive yet, but
+the most important thing happened pretty quickly - **I was having fun!** I find
+this is the biggest hurdle for learning anything new - if you can't find a way
+to make it fun, you're not going to stick with it long term.
+
+After about 2 hours of practice, I was navigating clunkily, but decently well
+using some of the basic operators and motions. I knew how to jump between
+blocks, paragraphs, find words, substitute text, etc. At that point, I was still
+more productive in VS Code, but not by much. This was only my first or second
+day using Neovim, but I was pretty confident that this was the time it would
+stick, and it would become my full-time editor. I could always use insert/visual
+mode and the arrow keys in a pinch when I needed to do something I hadn't yet
+learned to do the vim way.
+
+## LazyVim, Kickstart, vs. config from scratch
+
+Now that I was reasonably confident I would be using Neovim long-term, I wanted
+to get some basic configuration and plugins to make it suitable for my full-time
+IDE. Up until this point, I was just using stock Neovim. This was perfect for
+learning, but there were many major features I knew I needed, and the thought of
+configuring everything myself was pretty overwhelming. I read mixed opinions on
+whether beginner should start with something like Lazy or Kickstart, or if they
+should start from scratch. This section is going to describe my experience
+trying each approach and why ultimately **I recommend kickstart for most
+people**.
+
+### LazyVim
+
+I did some quick Googling and found that LazyVim was overwhelmingly the most
+popular option. Because I am brand new, I also made the mistake of initially
+thinking LazyVim and lazy.nvim were the same thing - they're not! lazy.nvim is
+an awesome plugin manager that can be used even if you aren't using the complete
+LazyVim distro. This is an important distinction, as it made my decision to move
+away from LazyVim much easier, as I could still use the lazy.nvim plugin
+manager.
+
+Getting LazyVim up and running following the official
+[installation guide](https://www.lazyvim.org/installation) was simple. Neovim
+roared to life and looked great. It looked to have most of the featured I
+needed. Then I had a realization: I still had no idea what I was doing. I spent
+some time with the docs and figured out the basics, but I couldn't shake the
+feeling that I wasn't really learning how to use Neovim, I was just learning
+LazyVim. I wasn't any closer to understanding how I could customize my setup to
+make it suit my needs specifically. At least for now, I felt LazyVim wasn't for
+me and I would prefer to build from scratch. Even if I ended up with a
+full-featured distro in the future, understanding how to build it from scratch
+would be hugely beneficial for my own customizations in the future.
+
+### Configuring Neovim from scratch
+
+The next step in my journey was to start my own configuration from scratch. This
+way I knew exactly what I was getting and how to update and maintain my config
+in the future. I don't remember how far I made it down this path - but this is
+when I realized lazy.nvim could be used to manage plugins without using LazyVim.
+I got lazy.nvim, Telescope, and one or two other basic plugins setup. I had yet
+another somewhat disappointing epiphany - I was not going to be productive for
+likely dozens of hours. I knew I wanted a directory browser, git status, theme
+support, LSPs, formatting, and syntax highlighting for the many languages I
+would eventually use. Each of these things would require a substantial amount of
+time to research, learn, and setup. While I definitely want to configure things
+myself, trying to do so without some basic examples as a reference was going to
+take a prohibitively large amount of time for me. This lead me to reconsider my
+decision to do everything from scratch, and brought me to Kickstart.
+
+### Kickstart.nvim
+
+The final stop (so far) on my journey was
+[Kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim). Kickstart is a
+simple, single-file Lua script designed to teach you how to configure Neovim as
+you go. I watched TJ DeVries' awesome
+[NeoVim Setup Guide](https://www.youtube.com/watch?v=m8C0Cq9Uv9o) on YouTube and
+knew it was exactly what I wanted. It got me a minimal setup with some of the
+core features I needed, like Telescope and LSPs, but made it dead simple to
+strip out what I didn't want. Even for the things I didn't need, it was great to
+have examples that I could use for inspiration when making my own config.
+
+Something I initially thought I didn't like about Kickstart is that it is
+contained in a single file. In hindsight, I think Kickstart achieved exactly
+what it set out to do - I knew I wanted to split my keymaps and plugins into
+their own files to make it easier to locate and maintain long-term. I was also
+new to Lua, this forced me to learn how to import Lua files and import lazy.nvim
+plugins. Because of the way Kickstart is structured, you can read the file top
+to bottom, make tweaks along the way, and take what you learn to make it your
+own. I highly recommend Kickstart to anyone looking for a minimal config to get
+them started on building their own in no-time.
+
+## My current setup
+
+My current config can be viewed on github at
+[ltcovalt/nvim-config](https://github.com/ltcovalt/nvim-config). It still shares
+a lot of DNA with Kickstart, but I have fully modularized it, tweaked several of
+the settings to my liking, and added some plugins that fit my workflow. For the
+most part, Kickstart included examples and instructions for what I deem the most
+critical plugins, like Telescope and LSPs.
+
+## My progress so far
+
+I think it's been just about 2 weeks since I switched to Neovim full time.
+Overall, I am quite pleased with the progress made so far. I definitely have my
+moments of frustration and have been tempted to fallback to my VS Code setup.
+But for each of those moments, I have just as many moments of discovery,
+learning a simple new way to navigate my text even quicker. I'd say I'm not yet
+as productive as I was with my old setup, but I am starting to get close and I
+can tell I still have enormous room to improve.
+
+## Conclusion
+
+This whole process has been a good reminder that timing really does matter when
+trying to learn and apply new things. When I first learned basic JavaScript
+programming, I was probably about 12 years old and did not particularly enjoy
+it. It led me to pursue a career in network engineering and security, because
+infrastructure just made more sense to me. Now, I use JavaScript almost
+exclusively for work. The issue wasn't that I hated programming or was bad it,
+it was just that at that point in life, I was trying to juggle too much. I was
+trying to learn computer repair, Linux, web design, Cisco networking, graphic
+design, and programming simultaneously - while attending school and working part
+time. I think the same thing happened with vim, and now that I am comfortable
+with web development, I have a bit of mental capacity to spare to devote to
+learning vim.
+
+To wrap things up succinctly - if you are considering giving vim a shot, I
+highly recommend simply working through `:Tutor` on a stock Neovim install.
+After getting a handle on basic navigation and file operations, Kickstart is an
+amazing tool to help learn how to configure your own environment.
