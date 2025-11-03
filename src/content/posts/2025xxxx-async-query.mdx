@@ -1,0 +1,72 @@
+---
+title: Asynchronous server data fetching
+slug: async-server-data-fetching
+description: Fetch server data asynchronously and pass it to front end clients
+author: "Luke Covalt"
+date: 2025-12-31
+updated: 2025-12-31
+draft: true
+tags: [blog, ajax, async, fetch, query, GlideRecordSecure]
+---
+
+One of the first things I like to implement in a new ServiceNow environment is a
+utility to assist with fetching arbitrary data from the backend. Best practice
+is to query data asynchonously, so the client isn't blocked while it waits for a
+response from the server. Async queries can be performed using the
+`GlideRecord - Client` API, but this API returns the entire record. Again, best
+practice would be to return just the data that you need.
+
+To fully follow these recommendations you would need to create a client-callable
+script include to return only the needed data and use `GlideAjax` on the client
+side to call the script include. This works fine, but it adds a substantial
+amount of boilerplate to the client-side script and results in many bespoke
+script include being created, increasing maintenance and the surface area for
+bugs. This is where a reusable utility can help us.
+
+This is something I've built a couple times now, but not since ServiceNow rolled
+out support for ES12. Rather than stealing my own code and updating it for the
+modern world, I'm going to write a new utility from scratch for this post. I'm
+interested to see if I end up taking a similar approach and if the utility can
+be made substantially more concise and user friendly without being bound to ES5.
+
+## Basic Structure
+
+Like I mentioned previously, to invoke a server-side script from a traditional
+client script, we need to use an AJAX script include. The script include is what
+will actually query the server, format the response, and return it to the
+client. We could stop here, and it would solve one of our main problems -
+reducing bespoke script include sprawl - but it would still result in a decent
+amount of boiler plate in the client script to setup the `GlideAjax` object,
+invoke the query, and process the response.
+
+To handle client-side boiler plate, I like to make use of a UI script. You can
+think of UI scripts in much the same way as script includes, except they store
+reusable client code. We can create a global (gasp!) UI Script that invokes the
+AJAX script include and takes care of basic response processing, error handling,
+and parsing, while presenting developers with a more concise and simple to use
+API over the standard `GlideAjax` API.
+
+<Alert type="note">
+  You may have heard that UI Scripts should not be global. While I agree with
+  this as a matter of standard, utility code that will be used across many
+  client scripts is the perfect use case for global scripts and is exactly how
+  global scripts should be used. Don't let overly-dogmatic statements scare you
+  away from the right solution - just be ready to explain and defend your
+  reasoning.
+</Alert>
+
+Something I've been doing more recently is only including AJAX specific logic in
+the client-callable script include. All backend logic goes into a separate
+script that is not client-callable. This allows the backend logic to be reused
+on the server as well and the AJAX script to be a simplified wrapper that parses
+AJAX params, handles input validation, formats the JSON response, etc. while the
+server-side script performs the more complex logic. This means the final
+solution will require three files.
+
+- Query (Script Include)
+- QueryAjax (AJAX Script Include)
+- Query (UI Script)
+
+## Script Include
+
+The first step is to build the server-side logic
