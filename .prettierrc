@@ -1,16 +1,12 @@
 {
-	"plugins": [
-		"prettier-plugin-astro",
-		"prettier-plugin-tailwindcss"
-	],
+	"useTabs": true,
+	"tabWidth": 4,
+	"plugins": ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
 	"printWidth": 120,
 	"proseWrap": "always",
 	"overrides": [
 		{
-			"files": [
-				"*.md",
-				"*.mdx"
-			],
+			"files": ["*.md", "*.mdx"],
 			"options": {
 				"printWidth": 80,
 				"proseWrap": "always"
@@ -18,3 +14,4 @@
 		}
 	]
 }
+
