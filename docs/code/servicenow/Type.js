@@ -70,7 +70,7 @@ const Type = {};
 		 * GlideFilter
 		 */
 
-		// NOTE: instanceof can throw if the right side of the comparison
+		// WARN: instanceof can throw if the right side of the comparison
 		// is null or undefined and can be especially inconsistent in scoped apps
 		try {
 			if (val instanceof GlideDate) return "GlideDate";
