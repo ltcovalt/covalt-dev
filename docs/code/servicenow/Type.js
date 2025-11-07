@@ -3,6 +3,10 @@
  */
 const Type = {};
 (() => {
+	Type.check = (name, value) => {
+		return new TypeChecker(name, value);
+	};
+
 	/**
 	 * checks if a value's type matches the expected type and throws a
 	 * TypeError if there is a type mismatch.
@@ -70,7 +74,7 @@ const Type = {};
 		 * GlideFilter
 		 */
 
-		// WARN: instanceof can throw if the right side of the comparison
+		// NOTE: instanceof can throw if the right side of the comparison
 		// is null or undefined and can be especially inconsistent in scoped apps
 		try {
 			if (val instanceof GlideDate) return "GlideDate";

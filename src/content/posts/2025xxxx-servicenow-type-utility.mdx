@@ -11,15 +11,25 @@ tags: [blog, type, assert, validation, servicenow]
 
 I originally started working on a generic AJAX query utility (I'll update this
 post with a link when it is ready) when I remembered how tedious and verbose
-simple input paramater validation and type checking can be. There's not much to
-this utility, so I'll keep this post brief - you can check out the full source
-code if you want more detail.
+simple input paramater validation and type checking can be. So I had a change of
+heart and will be working on a type checking and assertion library instead. I
+think will be useful - but I admit, I attempted this once before and my
+resulting library was too verbose, and I ultimately ended up scrapping the
+utility, because it didn't elimnate as much boiler plate as I had hoped. With
+the introduction of modern JavaScript to ServiceNow server-side script, I'm
+going to give it another shot.
 
-Keep in mind, that although I may use this in some code examples moving forward
-(that's why I made it after all), it is entirely unnecessary to use. This is
-just a tiny helper utility to help tidy up some type checking code. If you would
-prefer not to introduce additional scripts/dependencies, it's simple enough to
-write you own inline type checking, just like I did in some of my previous
-posts.
+## API Structure and Goals
 
-## Methods
+First of all, the API needs to be concise and it needs to be very clear at a
+glance what validation/checking is being performed. I'm going to take a note out
+of other testing and assertion libraries, like Chai, Jest, Mocha, etc... and
+attempt to build a fluent, chainable API. As an example, I'd like to be able to
+do something similar to
+`Type.check(value).isType('string').matches(/regex/).guard();`
+
+For the most part, I think reading this is pretty self explanatory. `Type` is
+the overall API name, and we check to make sure the value is a string and
+matches some regex. Finally, the `guard` method - a name I'm not completely sold
+on yet - can be used to throw an exception if the checks aren't passed or
+omitted to perform the validation without throwing.
