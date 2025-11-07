@@ -19,11 +19,11 @@ utility, because it didn't elimnate as much boiler plate as I had hoped. With
 the introduction of modern JavaScript to ServiceNow server-side script, I'm
 going to give it another shot.
 
-## API Structure and Goals
+## API structure and goals
 
 First of all, the API needs to be concise and it needs to be very clear at a
-glance what validation/checking is being performed. I'm going to take a note out
-of other testing and assertion libraries, like Chai, Jest, Mocha, etc... and
+glance what validation/checking is being performed. I'm going to take a note
+from other testing and assertion libraries, like Chai, Jest, Mocha, etc... and
 attempt to build a fluent, chainable API. As an example, I'd like to be able to
 do something similar to
 `Type.check(value).isType('string').matches(/regex/).guard();`
@@ -33,3 +33,61 @@ the overall API name, and we check to make sure the value is a string and
 matches some regex. Finally, the `guard` method - a name I'm not completely sold
 on yet - can be used to throw an exception if the checks aren't passed or
 omitted to perform the validation without throwing.
+
+## Notable features and design choices
+
+The inner workings of this utility is pretty simple, but very verbose, simply
+due to the number of checks, branches, and chaining methods implemented. For
+brevity's sake, I'm just going to call out some of the high-level features
+implemented and design choices I made, then focus on the actual usage of the API
+itself.
+
+### Real classes - or, as real as they can be in JS
+
+ServiceNow script includes rely on `prototype.js` for the native class
+implementation. Although I typically prefer simple namespaced methods to classes
+in ServiceNow, because I wanted a fluent, chainable API with persistent state
+across method calls, a class was an obvious fit for this use case - but I
+decided to take a different approach.
+
+Since ServiceNow finally supports modern JavaScript, I leveraged a standard
+JavaScript class. As long as the class name matches the script include name,
+it's accessible like any other script include. This brings a couple benefits I
+wanted to leverage - it doesn't depend on prototype, making the code more
+portable, and I can leverage standard class features like getters and setters. A
+getter allows an `not` property to be exposed to invert the result of a check,
+rather than requiring our users to call a `not()` method, so we can write
+something like `Type.check(value).not.type('string')` rather than
+`Type.check(value).not().isType('string')`.
+
+The standard class syntax will be more familiar to anyone that has done work
+outside of ServiceNow, which is a plus. I created the
+[TypeChecker](/code/servicenow/TypeChecker.js) class to store the type
+validation, assertion, and error handling logic.
+
+### The Façade
+
+Even with the advent of ES6 classes, I'm still not generally a fan. I find they
+are often misused or used when a simple collection of standalone functions would
+suffice. It's a minor thing, but especially when a class is instantiated over
+and over (as will be the case when validating many input parameters), the need
+to call `new` repeatedly drives me crazy. For these reasons, I also created a
+server-side namespace named [Type](/code/servicenow/Type.js). The `Type`
+namespace contains some standalone methods, like retrieving additional details
+on an object type, but importantly exposes a factory function called `check`
+which instantiates the TypeChecker behind the scenes.
+
+In my opinion, this makes the developer experience much better. All type related
+methods can be accessed through the unified `Type` namespace. The code below
+shows what the API looks like with and without using the façade.
+
+```js
+// using the TypeChecker directly
+new TypeChecker.check(name, value).is.type("string").guard();
+
+// using the Type namespace
+Type.check(name, value).is.type("string").guard();
+
+// the Factory could also take an object with a single key to simplify check(name, value)
+Type.check({ value }).is.type("string").guard();
+```
