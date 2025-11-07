@@ -62,8 +62,8 @@ something like `Type.check(value).not.type('string')` rather than
 
 The standard class syntax will be more familiar to anyone that has done work
 outside of ServiceNow, which is a plus. I created the
-[TypeChecker](/code/servicenow/TypeChecker.js) class to store the type
-validation, assertion, and error handling logic.
+[TypeChecker](/code/servicenow/typechecker) class to store the type validation,
+assertion, and error handling logic.
 
 ### The Façade
 
@@ -72,10 +72,10 @@ are often misused or used when a simple collection of standalone functions would
 suffice. It's a minor thing, but especially when a class is instantiated over
 and over (as will be the case when validating many input parameters), the need
 to call `new` repeatedly drives me crazy. For these reasons, I also created a
-server-side namespace named [Type](/code/servicenow/Type.js). The `Type`
-namespace contains some standalone methods, like retrieving additional details
-on an object type, but importantly exposes a factory function called `check`
-which instantiates the TypeChecker behind the scenes.
+server-side namespace named [Type](/code/servicenow/type). The `Type` namespace
+contains some standalone methods, like retrieving additional details on an
+object type, but importantly exposes a factory function called `check` which
+instantiates the TypeChecker behind the scenes.
 
 In my opinion, this makes the developer experience much better. All type related
 methods can be accessed through the unified `Type` namespace. The code below
