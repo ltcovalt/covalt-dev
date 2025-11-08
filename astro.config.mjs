@@ -5,6 +5,7 @@ import sitemap from '@astrojs/sitemap';
 
 import remarkCodeImport from 'remark-code-import';
 import remarkCodeLang from './plugins/remark-code-lang.js';
+import remarkCodeStripPrettierIgnore from './plugins/remark-code-strip-prettier-ignore.js';
 import remarkLinkComponent from './plugins/remark-link-component.js';
 import rehypeCodeHeader from './plugins/rehype-code-header.js';
 
@@ -15,24 +16,23 @@ export default defineConfig({
 	site: 'https://covalt.dev',
 	integrations: [mdx(), sitemap()],
 	vite: {
-		plugins: [
-			tailwindcss()
-		],
+		plugins: [tailwindcss()],
 		resolve: {
 			alias: {
 				'@components': path.resolve('./src/components'),
 				'@layouts': path.resolve('./src/layouts'),
 				'@utils': path.resolve('./src/utils'),
 				'@icons': path.resolve('./src/icons'),
-				'@content': path.resolve('./src/content')
-			}
+				'@content': path.resolve('./src/content'),
+			},
 		},
-		build: { cssCodeSplit: false }
+		build: { cssCodeSplit: false },
 	},
 	build: { inlineStylesheets: 'always' },
 	markdown: {
 		extendDefaultPlugins: true,
-		remarkPlugins: [remarkCodeImport, remarkCodeLang, remarkLinkComponent],
-		rehypePlugins: [rehypeCodeHeader]
+		remarkPlugins: [remarkCodeImport, remarkCodeLang, remarkCodeStripPrettierIgnore, remarkLinkComponent],
+		rehypePlugins: [rehypeCodeHeader],
 	},
 });
+

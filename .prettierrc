@@ -1,9 +1,15 @@
 {
+	"plugins": ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
 	"useTabs": true,
 	"tabWidth": 4,
-	"plugins": ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
 	"printWidth": 120,
 	"proseWrap": "always",
+	"semi": true,
+	"singleQuote": true,
+	"trailingComma": "all",
+	"bracketSpacing": true,
+	"arrowParens": "always",
+
 	"overrides": [
 		{
 			"files": ["*.md", "*.mdx"],
@@ -14,4 +20,3 @@
 		}
 	]
 }
-
