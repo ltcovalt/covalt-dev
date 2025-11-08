@@ -1,7 +1,11 @@
 /**
- * TypeChecker performs runtime type validation and error handling
+ * performs runtime type validation and error handling
  */
-class TypeChecker {
+const Check = (name, value) => {
+	return new Checker(name, value);
+};
+
+class Checker {
 	/**
 	 * instantiates a new TypeChecker object
 	 * @param {string} name - the name or label of the value being checked
@@ -19,7 +23,7 @@ class TypeChecker {
 		return this.invert ? "NOT " : "";
 	}
 
-	get type() {
+	get typeof() {
 		return typeof this.value;
 	}
 
@@ -53,37 +57,37 @@ class TypeChecker {
 		return this;
 	}
 
-	// NOTE: core predicate functions
+	// NOTE: type predicate functions
 
 	type(expected) {
-		let message = `${this.name}: expected typeof ${this.prefix}${expected}, received ${this.type}`;
-		this.evaluate(expected === actual, {
+		this.evaluate(expected === this.typeof, {
+			message: `${this.name}: expected typeof ${this.prefix}${expected}, received ${this.typeof}`,
+			actual: this.typeof,
 			predicate: "type",
 			expected,
-			actual,
 		});
 		return this;
 	}
 
+	// NOTE: number comparisons
+
 	less(expected) {
-		let actual = typeof this.value;
 		let prefix = this.invert ? "NOT" : "";
-		let message = `${this.name}: expected ${this.value} to ${prefix}be less than ${expected}`;
 		this.evaluate(this.value < expected, {
+			message: `${this.name}: expected ${this.value} to ${prefix}be less than ${expected}`,
+			actual: this.value,
 			predicate: "less",
 			expected,
-			actual,
 		});
 	}
 
 	lessOrEqual(expected) {
-		let actual = typeof this.value;
 		let prefix = this.invert ? "NOT" : "";
-		let message = `${this.name}: expected ${this.value} to ${prefix}be less than or equal to ${expected}`;
 		this.evaluate(this.value <= expected, {
+			message: `${this.name}: expected ${this.value} to ${prefix}be less than or equal to ${expected}`,
+			actual: this.value,
 			predicate: "lessOrEqual",
 			expected,
-			actual,
 		});
 	}
 
@@ -105,6 +109,7 @@ class TypeChecker {
 	result() {
 		return {
 			ok: this.ok(),
+			checks: [...this.checks],
 			errors: [...this.errors],
 		};
 	}
@@ -135,11 +140,11 @@ class TypeChecker {
 
 		this.checks.push({
 			name: this.name,
-			predicate: detail.predicate,
-			expected,
-			actual,
 			pass,
-			message,
+			message: detail.message,
+			predicate: detail.predicate,
+			expected: detail.expected,
+			actual: detail.actual,
 		});
 
 		// reset the result inversion flag
