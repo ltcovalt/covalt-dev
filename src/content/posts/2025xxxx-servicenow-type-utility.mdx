@@ -2,7 +2,7 @@
 title: Type Checking in ServiceNow
 slug: servicenow-type-checking
 description: Type checking and validation utility for ServiceNow
-author: "Luke Covalt"
+author: 'Luke Covalt'
 date: 2025-12-31
 updated: 2025-12-31
 draft: true
@@ -12,9 +12,9 @@ tags: [blog, type, assert, validation, servicenow]
 I originally started working on a generic AJAX query utility (I'll update this
 post with a link when it is ready) when I remembered how tedious and verbose
 simple input paramater validation and type checking can be. So I had a change of
-heart and will be working on a type checking and assertion library instead. I
-think will be useful - but I admit, I attempted this once before and my
-resulting library was too verbose, and I ultimately ended up scrapping the
+heart and will be working on a type/value checking and assertion library
+instead. I think will be useful - but I admit, I attempted this once before and
+my resulting library was too verbose, and I ultimately ended up scrapping the
 utility, because it didn't elimnate as much boiler plate as I had hoped. With
 the introduction of modern JavaScript to ServiceNow server-side script, I'm
 going to give it another shot.
@@ -24,15 +24,23 @@ going to give it another shot.
 First of all, the API needs to be concise and it needs to be very clear at a
 glance what validation/checking is being performed. I'm going to take a note
 from other testing and assertion libraries, like Chai, Jest, Mocha, etc... and
-attempt to build a fluent, chainable API. As an example, I'd like to be able to
-do something similar to
-`Type.check(value).isType('string').matches(/regex/).guard();`
+attempt to build a fluent, chainable API in the style of an assertion library.
+As an example, I'd like to be able to do something similar to
+`Check(value).isType('string').matches(/regex/).guard();`.
 
 For the most part, I think reading this is pretty self explanatory. `Type` is
 the overall API name, and we check to make sure the value is a string and
 matches some regex. Finally, the `guard` method - a name I'm not completely sold
 on yet - can be used to throw an exception if the checks aren't passed or
 omitted to perform the validation without throwing.
+
+The big difference between what I hope to achieve and existing assertion
+libraries, is I want to use it for runtime checking, logging, and error
+handling. Assertion libraries are primarily used for non-production testing and
+development only and the related `assert` calls are frequently stripped out of
+production code. Although the API and underlying checks are similar, and I may
+create an assert wrapper for my library in the future, my current use case does
+not align with existing assertion libraries.
 
 ## Notable features and design choices
 
@@ -42,7 +50,7 @@ brevity's sake, I'm just going to call out some of the high-level features
 implemented and design choices I made, then focus on the actual usage of the API
 itself.
 
-### Real classes - or, as real as they can be in JS
+### Real classes (sort of, it's still JS)
 
 ServiceNow script includes rely on `prototype.js` for the native class
 implementation. Although I typically prefer simple namespaced methods to classes
@@ -55,15 +63,15 @@ JavaScript class. As long as the class name matches the script include name,
 it's accessible like any other script include. This brings a couple benefits I
 wanted to leverage - it doesn't depend on prototype, making the code more
 portable, and I can leverage standard class features like getters and setters. A
-getter allows an `not` property to be exposed to invert the result of a check,
+getter allows a `not` property to be exposed to invert the result of a check,
 rather than requiring our users to call a `not()` method, so we can write
-something like `Type.check(value).not.type('string')` rather than
+something like `Type.check(value).is.not.type('string')` rather than
 `Type.check(value).not().isType('string')`.
 
 The standard class syntax will be more familiar to anyone that has done work
 outside of ServiceNow, which is a plus. I created the
-[TypeChecker](/code/servicenow/typechecker) class to store the type validation,
-assertion, and error handling logic.
+[Checker](/code/servicenow/check) class to store the type validation, assertion,
+and error handling logic.
 
 ### The Façade
 
@@ -77,17 +85,47 @@ contains some standalone methods, like retrieving additional details on an
 object type, but importantly exposes a factory function called `check` which
 instantiates the TypeChecker behind the scenes.
 
-In my opinion, this makes the developer experience much better. All type related
-methods can be accessed through the unified `Type` namespace. The code below
-shows what the API looks like with and without using the façade.
+<Alert type="note">
+	I originally exposed a factory in the [Type](/code/servicenow/type) utility
+	as described above, but as I shifted from simple type checking to more
+	general validation, it no longer made sense. Now, the `Check` factory
+	function and the `Checker` class both live in the same
+	[Check](/code/sericenow/check) script include.
+</Alert>
+
+Using the facade/factory makes the developer experience much nicer in my
+opinion. The API can be accessed by calling `Check`, which instantiates a new
+`Checker` object without requiring the user to write `new` over and over. Here's
+what API looks like with and without using the façade.
 
 ```js
 // using the TypeChecker directly
-new TypeChecker.check(name, value).is.type("string").guard();
+new Checker(name, value).is.not.type('null').guard();
 
 // using the Type namespace
-Type.check(name, value).is.type("string").guard();
+Check(name, value).is.not.type('string').guard();
 
 // the Factory could also take an object with a single key to simplify check(name, value)
-Type.check({ value }).is.type("string").guard();
+Check({ value }).is.not.type('string').guard();
+```
+
+## Chaining multiple checks
+
+It's rare that I need to validate just one input. I want an API that makes it
+simple to chain multiple checks together. Exposing a `check` method on the
+`Checker` class (remember, the factory is `Check`) means we can use the same
+verb to define a new check. The difference in capitalization indicates which
+method instantiates the object.
+
+Now, we can chain multiple tests against the same value, multiple checks against
+different values, and return an aggregated result with consistent validation
+errors for logging or throwing an exception.
+
+```js
+// prettier-ignore
+let result = Check({ value }).is.type('string').matches(/regex/)
+	.check({ anotherValue }).is.not.type('null')
+	.check({ numberValue }).is.type('number').greater(0)
+    // call .result() to return the aggregate details or .guard() to throw
+    .result();
 ```
