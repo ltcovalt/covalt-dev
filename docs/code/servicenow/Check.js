@@ -2,7 +2,7 @@
  * performs runtime type validation and error handling
  */
 const Check = (value, name) => {
-	if (typeof value === 'object') {
+	if (value && Type.isPlainObject(value)) {
 		let keys = Object.keys(value);
 		if (keys.length !== 1) throw Error('object must contain a single name:value pair');
 		return new Checker(value[keys[0]], keys[0]);
@@ -33,22 +33,15 @@ class Checker {
 	constructor(value, name) {
 		this.value = value;
 		this.name = name;
+		this.typeof = typeof this.value;
+		this.typeofDetail = Type.detail(this.value);
 		this.invert = false;
 		this.checks = [];
 		this.errors = [];
-		this.message;
 	}
 
 	get prefix() {
 		return this.invert ? 'NOT ' : '';
-	}
-
-	get typeof() {
-		return typeof this.value;
-	}
-
-	get typeofDetail() {
-		return Type.detail(this.value);
 	}
 
 	// NOTE: modifiers
@@ -152,7 +145,7 @@ class Checker {
 	finite() {
 		this.evaluate(this.typeofDetail === 'number (Integer)' || this.typeofDetail === 'number (Float)', {
 			actual: this.typeofDetail,
-			predicate: 'finate',
+			predicate: 'finite',
 			label: 'finite number',
 			expected: 'number (Integer) or number (Float)',
 		});
@@ -169,6 +162,7 @@ class Checker {
 		});
 		return this;
 	}
+
 	falsy() {
 		this.evaluate(!!this.value === false, {
 			actual: !!this.value,
@@ -183,12 +177,15 @@ class Checker {
 	array() {
 		return this.typeDetail('object (Array)');
 	}
+
 	regex() {
 		return this.typeDetail('object (RegExp)');
 	}
+
 	date() {
 		return this.typeDetail('object (Date)');
 	}
+
 	nil() {
 		let pass = this.value === null || this.value === undefined ? true : false;
 		this.evaluate(pass, {
@@ -199,13 +196,11 @@ class Checker {
 		});
 		return this;
 	}
+
 	plainObject() {
-		let prototype = Object.getPrototypeOf(this.value);
-		let typeDetail = Type.detail(this.value);
-		let pass = typeDetail === 'object (Object)' && (prototype === Object.prototype || prototype === null);
 		// TODO: consider updating actual/expected to indicate the prototype as well,
 		// as there are cases where object (Object) uses a custom class/prototype
-		this.evaluate(pass, {
+		this.evaluate(Type.isPlainObject(this.value), {
 			actual: typeDetail,
 			predicate: 'plainObject',
 			label: 'plain object',
@@ -290,7 +285,7 @@ class Checker {
 	}
 
 	lte(expected) {
-		return lessOrEquals(expected);
+		return this.lessOrEquals(expected);
 	}
 
 	greaterThan(expected) {
@@ -308,7 +303,7 @@ class Checker {
 	}
 
 	gt(expected) {
-		return greaterThan(expected);
+		return this.greaterThan(expected);
 	}
 
 	greaterThanOrEquals(expected) {
@@ -403,6 +398,9 @@ class Checker {
 	check(value, name) {
 		this.value = value;
 		this.name = name;
+		this.typeof = typeof this.value;
+		this.typeofDetail = Type.detail(this.value);
+		this.invert = false;
 		return this;
 	}
 }
