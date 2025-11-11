@@ -324,6 +324,15 @@ class Checker {
 		return greaterThanOrEquals(expected);
 	}
 
+	multipleOf(v) {
+		this.evaluate(this.value % v === 0, {
+			actual: this.value,
+			predicate: 'multipleOf',
+			label: 'multiple of',
+			expected: `multiple of ${v}`,
+		});
+	}
+
 	// NOTE: terminal operation methods
 
 	/**
