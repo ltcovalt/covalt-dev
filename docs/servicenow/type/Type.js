@@ -87,7 +87,7 @@ const Type = {};
 	 * Attempts to identify the specific Glide class an object is an instance of
 	 *
 	 * Most GlideClasses are of type [object JavaObject]
-	 * @param {JavaObject} obj -
+	 * @param {JavaObject} obj - JavaObject, typically a Glide class, to be type checks
 	 */
 	Type.getJavaObjectName = (obj) => {
 		let typeTag = Type.getToStringTag(obj);
