@@ -1,0 +1,21 @@
+---
+const { title, href, class: userClass, IconStart, IconEnd } = Astro.props;
+const baseClass = 'relative rounded-xl bg-base-200 border border-base-300 transition-colors not-prose';
+const hoverClass = 'hover:bg-base-200/40 hover:border-base-content/20';
+const padLeft = IconEnd ? 'pl-4' : 'pl-2';
+const padRight = IconStart ? 'pr-4' : 'pr-2';
+---
+
+<div class={`${baseClass} ${href ? hoverClass : ''} ${userClass} flex`}>
+	{href && <a {href} class="absolute inset-0 z-10" aria-label={title} />}
+	<div class=`flex flex-1 items-center justify-center gap-2 py-2 ${padLeft} ${padRight}`>
+		{IconStart && <IconStart class="h-4 w-4 shrink-0 stroke-[2]" />}
+
+		<div class="text-xs font-extrabold">
+			{title}
+			<slot name="title" />
+		</div>
+
+		{IconEnd && <IconEnd class="h-4 w-4 shrink-0 stroke-[2]" />}
+	</div>
+</div>

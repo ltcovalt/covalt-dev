@@ -1,5 +1,8 @@
 /**
- * performs runtime type validation and error handling
+ * Factory function for the Checker class
+ * @param {*} value - the value to be checked
+ * @param {string} name - the name or label of the value being checked
+ * @returns {Checker} a new Checker instance
  */
 const Check = (value, name) => {
 	if (value && Type.isPlainObject(value)) {
@@ -11,12 +14,14 @@ const Check = (value, name) => {
 };
 
 // prettier-ignore
+/** template formatter functions */
 const TEMPLATE_MAP = Object.freeze({
 	type: (o) => `${o.name}: expected ${o.label} ${o.prefix}${o.expected}, received ${o.actual}`,
 	truthy: (o) => `${o.name}: expected value to ${o.prefix}be ${o.predicate}, received ${o.actual}`,
 	DEFAULT: (o) => `${o.name}: expected value to ${o.prefix}be ${o.expected}, received ${o.actual}`,
 });
 
+/** maps predicates to templates */
 const PREDICATE_TEMPLATE = Object.freeze({
 	type: 'type',
 	typeDetail: 'type',
@@ -24,11 +29,14 @@ const PREDICATE_TEMPLATE = Object.freeze({
 	falsy: 'truthy',
 });
 
+/**
+ * performs runtime type validation and error handling
+ */
 class Checker {
 	/**
-	 * instantiates a new TypeChecker object
-	 * @param {string} name - the name or label of the value being checked
+	 * Creates a new TypeChecker object instance
 	 * @param {*} value - the value to be checked
+	 * @param {string} name - the name or label of the value being checked
 	 */
 	constructor(value, name) {
 		this.value = value;

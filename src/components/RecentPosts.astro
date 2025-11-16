@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+import { FeaturedPost } from '@components';
+import { RecentPostPreview } from '@components';
+const { limit } = Astro.props;
+
+let posts = await getCollection('posts', ({ data }) => !data.draft);
+// sort posts from newest to oldest
+posts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+let featuredPost = posts[0];
+posts = posts.length >= limit ? posts.slice(1, limit) : posts;
+---
+
+<div class="divide-base-content/20 mx-auto mt-8 flex max-w-[100ch] flex-col gap-6">
+	<FeaturedPost post={featuredPost} />
+	<div class="flex flex-row justify-center gap-6">
+		{posts.map((post) => <RecentPostPreview {post} class="max-w-[40ch] flex-1" />)}
+	</div>
+</div>

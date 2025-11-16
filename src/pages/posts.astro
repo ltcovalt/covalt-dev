@@ -1,9 +1,9 @@
 ---
-import { Link } from "@components";
-import { ArticleLayout } from "@layouts";
-import { getCollection, getEntry } from "astro:content";
+import { Link } from '@components';
+import { ArticleLayout } from '@layouts';
+import { getCollection } from 'astro:content';
 
-let posts = await getCollection("posts", ({ data }) => !data.draft);
+let posts = await getCollection('posts', ({ data }) => !data.draft);
 // sort newest → oldest
 posts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 ---
@@ -13,10 +13,7 @@ posts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.d
 	{
 		posts.map((post) => (
 			<li class="list-none">
-				{post.data.date.toISOString().split('T')[0]} - 
-				<Link href={`/posts/${post.id}`}>
-					{post.data.title}
-				</Link>
+				{post.data.date.toISOString().split('T')[0]} - <Link href={`/posts/${post.id}`}>{post.data.title}</Link>
 			</li>
 		))
 	}

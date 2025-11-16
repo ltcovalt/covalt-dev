@@ -1,0 +1,31 @@
+---
+const { post, class: classes } = Astro.props;
+const baseClass = 'group relative rounded-xl bg-base-200 border border-base-300';
+const hoverClass = 'hover:border-base-content/10 hover:scale-110';
+const alignClass = 'flex flex-col gap-4 p-4 min-h-[12em] max-h-[16em]';
+const textClass = 'text-center text-base-content/50';
+const transitionClass = 'transition-all duration-400';
+---
+
+<div class={`${baseClass} ${hoverClass} ${alignClass} ${textClass} ${transitionClass} ${classes}`}>
+	<a href={'/posts/' + post.data.slug} class="absolute inset-0 z-10" aria-label={post.data.title}></a>
+
+	<div class="flex h-[3em] max-h-[3em] min-h-[3em] items-center justify-center">
+		<div class="group-hover:text-base-content line-clamp-2 text-lg leading-tight font-extrabold">
+			{post.data.title}
+		</div>
+	</div>
+
+	<div
+		class=`group-hover:bg-secondary mx-auto h-0.5 w-0 rounded-xl bg-transparent group-hover:w-[70%] ${transitionClass}`
+	>
+	</div>
+
+	<div class=`text-base-content/30 group-hover:text-base-content/80 ${transitionClass}`>
+		{post.data.description}
+	</div>
+
+	<div class="text-base-content/20 mt-auto text-left text-sm">
+		{post.data.date.toISOString().slice(0, 10)}
+	</div>
+</div>

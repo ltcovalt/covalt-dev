@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import { Header } from '@components';
 import { defaultTheme } from 'src/config';
-const { title = 'covalt.dev' } = Astro.props;
+const { title = 'covalt.dev', class: classes } = Astro.props;
 ---
 
 <html lang="en" data-theme-default={defaultTheme}>
@@ -20,8 +20,10 @@ const { title = 'covalt.dev' } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body>
-		<Header />
-		<slot />
+    <Header />
+    <div class={classes ?? ''}>
+  		<slot />
+    </div
 	</body>
 	<script src="/scripts/copy-code.js" type="module"></script>
 </html>
