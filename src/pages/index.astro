@@ -17,15 +17,18 @@ import profilePhoto from '../assets/profile_photo_circle_bw_256.png';
 			<img src={profilePhoto.src} class="h-auto-block mr-6 ml-auto max-w-[7rem]" />
 		</div>
 
-		<p class="mt-2">
-			Welcome to my corner of the Internet, where I share whatever it is I'm building, learning, or experimenting
-			with. I use this space to share ServiceNow and software development tips, document solutions I've found
-			useful, and share the various tools and utilities I build. You can learn more about me on the <Link
-				href="/about">About</Link
-			> page or by exploring past <Link href="/posts">posts</Link>.
-		</p>
+		<div class="mt-8 mb-16">
+			<div class="border-base-content/3 mx-auto w-[66%] border-b-2"></div>
+			<p>
+				Welcome to my corner of the Internet, where I share whatever it is I'm building, learning, or
+				experimenting with. I use this space to share ServiceNow and software development tips, document
+				solutions I've found useful, and share the various tools and utilities I build. You can learn more about
+				me on the <Link href="/about">About</Link> page or by exploring past <Link href="/posts">posts</Link>.
+			</p>
+			<div class="border-base-content/3 mx-auto w-[66%] border-b-2"></div>
+		</div>
+
 		<h2 class="my-8 text-center">Recent Posts</h2>
-		<div class="border-base-content/3 mx-auto mt-4 w-[66%] border-b-1"></div>
 	</div>
-	<RecentPosts limit={4} />
+	<RecentPosts limit={3} />
 </DefaultLayout>

@@ -1,5 +1,5 @@
 ---
-title: Input Validation and Type Checking
+title: Input Validation and Type Checking Library
 slug: servicenow-input-and-type-validation
 description:
     Build a fluent, chainable API for performing input validation, type
@@ -9,7 +9,8 @@ author: 'Luke Covalt'
 date: 2025-11-11
 updated: 2025-11-11
 draft: false
-tags: [blog, type, assert, validation, servicenow]
+tags:
+    [JavaScript, ServiceNow, class, namespace, facade, type, assert, validation]
 ---
 
 I originally started working on a generic AJAX query utility (I'll update this
@@ -26,11 +27,11 @@ used elsewhere.
 
 ## API structure and goals
 
-First of all, the API needs to be concise and it needs to be very clear at a
-glance what validation/checking is being performed. I'm going to take a note
-from other testing and assertion libraries, like Chai, Jest, Mocha, etc... and
-attempt to build a fluent, chainable API in the style of an assertion library.
-As an example, I'd like to be able to do something like this:
+First, the API needs to be concise and very clear at a glance what
+validation/checking is being performed. I'm going to take a note from other
+testing and assertion libraries, like Chai, Jest, Mocha, etc... and attempt to
+build a fluent, chainable API in the style of an assertion library. As an
+example, I'd like to be able to do something like this:
 
 ```js
 Check(value).isType('string').matches(/regex/).guard();
@@ -81,7 +82,7 @@ a `not()` method, so we can write something like:
 ```js
 // the 'is' and 'not' getter properties compute their value when accessed
 Check(value).is.not.type('string');
-// rather than calling standard functions
+// rather than calling standard class methods
 Check(value).not().isType('string');
 ```
 

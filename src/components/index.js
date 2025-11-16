@@ -1,10 +1,9 @@
 export { default as Alert } from './Alert.astro';
-export { default as FeaturedPost } from './FeaturedPost.astro';
 export { default as Header } from './Header.astro';
 export { default as Link } from './Link.astro';
 export { default as NavMenuDropdown } from './NavMenuDropdown.astro';
 export { default as PostFooter } from './PostFooter.astro';
 export { default as PostFooterPreview } from './PostFooterPreview.astro';
-export { default as RecentPostPreview } from './RecentPostPreview.astro';
+export { default as PostPreview } from './PostPreview.astro';
 export { default as RecentPosts } from './RecentPosts.astro';
 export { default as ThemeController } from './ThemeController/ThemeController.astro';
