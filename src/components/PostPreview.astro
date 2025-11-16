@@ -4,7 +4,7 @@ const transitionClass = 'transition-all duration-400';
 ---
 
 <div
-	class="bg-base-200 group hover:border-base-content/10 text-base-content/50 border-base-300 relative flex max-h-[24em] min-h-[16em] flex-col gap-2 rounded-xl border p-4 text-center hover:scale-105"
+	class="bg-base-200 group hover:border-base-content/10 text-base-content/50 border-base-300 rounded-box relative flex max-h-[24em] min-h-[16em] flex-col gap-2 border p-4 text-center hover:scale-105"
 	class:list={[transitionClass, classes]}
 >
 	<a href={'/posts/' + post.data.slug} class="absolute inset-0 z-10" aria-label={post.data.title}></a>
@@ -21,7 +21,7 @@ const transitionClass = 'transition-all duration-400';
 
 	<!-- animated underline -->
 	<div
-		class="group-hover:bg-secondary bg-secondary/30 mx-auto h-0.5 w-[2ch] rounded-xl group-hover:w-[50%]"
+		class="group-hover:bg-secondary bg-secondary/30 rounded-box mx-auto h-0.5 w-[2ch] group-hover:w-[50%]"
 		class:list={[transitionClass]}
 	>
 	</div>
