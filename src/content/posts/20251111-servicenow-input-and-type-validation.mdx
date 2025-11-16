@@ -1,10 +1,10 @@
 ---
-title: Input Validation and Type Checking in ServiceNow
+title: Input Validation and Type Checking
 slug: servicenow-input-and-type-validation
 description:
-    Build a fluent, chainable API for performing input validation and type
-    checking in ServiceNow, using a standard JavaScript class and namespace
-    facade.
+    Build a fluent, chainable API for performing input validation, type
+    checking, and error handling in ServiceNow using a standard JavaScript class
+    and namespace.
 author: 'Luke Covalt'
 date: 2025-11-11
 updated: 2025-11-11
@@ -16,11 +16,13 @@ I originally started working on a generic AJAX query utility (I'll update this
 post with a link when it is ready) when I remembered how tedious and verbose
 simple input paramater validation and type checking can be. So I had a change of
 heart and will be working on a type/value checking and assertion library
-instead. I think will be useful - but I admit, I attempted this once before and
-my resulting library was too verbose, and I ultimately ended up scrapping the
-utility, because it didn't elimnate as much boiler plate as I had hoped. With
-the introduction of modern JavaScript to ServiceNow server-side scripts, I'm
-going to give it another shot.
+instead. I think it will be useful - but I admit, I attempted this once before
+and my resulting library was too verbose, and I ultimately ended up scrapping
+the utility, because it didn't elimnate as much boiler plate as I had hoped.
+With the introduction of modern JavaScript to ServiceNow server-side scripts,
+I'm going to give it another shot. Although I'm building this solution in
+ServiceNow, it is all done using vanilla JavaScript APIs and could be easily
+used elsewhere.
 
 ## API structure and goals
 
@@ -43,7 +45,7 @@ omitted to perform the validation without throwing.
 The big difference between what I hope to achieve and existing assertion
 libraries, is I want to use it for runtime checking, logging, and error
 handling. Assertion libraries are primarily used for non-production testing and
-development only and the related `assert` calls are frequently stripped out of
+development and the related `assert` calls are frequently stripped out of
 production code. Although the API and underlying checks are similar, and I may
 create an assert wrapper for my library in the future, my current use case does
 not align with existing assertion libraries.
