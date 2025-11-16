@@ -1,8 +1,10 @@
 ---
 title: Astro Script Viewer
 slug: astro-script-viewer
-description: Build an astro layout for rendering and navigating script files
-author: "Luke Covalt"
+description:
+    Create a custom Astro layout component to render a collection of source code
+    files, complete with syntax highlighting
+author: 'Luke Covalt'
 date: 2025-10-04
 updated: 2025-10-04
 draft: false
@@ -76,14 +78,14 @@ a base.
 
 ```astro
 ---
-import DefaultLayout from "./DefaultLayout.astro";
-const { title = "covalt.dev" } = Astro.props;
+import DefaultLayout from './DefaultLayout.astro';
+const { title = 'covalt.dev' } = Astro.props;
 ---
 
 <DefaultLayout {title}>
-  <div class="prose xl:prose-lg m-auto max-w-[120ch] p-8">
-    <slot />
-  </div>
+	<div class="prose xl:prose-lg m-auto max-w-[120ch] p-8">
+		<slot />
+	</div>
 </DefaultLayout>
 ```
 
@@ -124,16 +126,16 @@ collection.
 #### content.config.js
 
 ```js
-import { defineCollection } from "astro:content";
-import { glob, file } from "astro/loaders";
+import { defineCollection } from 'astro:content';
+import { glob, file } from 'astro/loaders';
 
 // define collections
 const posts = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/posts" }),
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
 });
 
 const code = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/code" }),
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/code' }),
 });
 
 // export all collections as a single collections object
@@ -159,15 +161,15 @@ that subpaths are matched too. For example, where `[id].astro` would only match
 
 ```astro
 ---
-import { getCollection, render } from "astro:content";
-import CodeLayout from "@layouts/CodeLayout.astro";
+import { getCollection, render } from 'astro:content';
+import CodeLayout from '@layouts/CodeLayout.astro';
 
 export async function getStaticPaths() {
-  const entries = await getCollection("code");
-  return entries.map((entry) => ({
-    params: { id: entry.id },
-    props: { entry },
-  }));
+	const entries = await getCollection('code');
+	return entries.map((entry) => ({
+		params: { id: entry.id },
+		props: { entry },
+	}));
 }
 
 const { entry } = Astro.props;
@@ -175,7 +177,7 @@ const { Content } = await render(entry);
 ---
 
 <CodeLayout title={entry.data.title}>
-  <Content />
+	<Content />
 </CodeLayout>
 ```
 
