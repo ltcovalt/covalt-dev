@@ -21,14 +21,14 @@ const transitionClass = 'transition-all duration-400';
 
 	<!-- animated underline -->
 	<div
-		class="group-hover:bg-secondary bg-secondary/30 mx-auto h-0.5 w-[4ch] rounded-xl group-hover:w-[50%]"
+		class="group-hover:bg-secondary bg-secondary/30 mx-auto h-0.5 w-[2ch] rounded-xl group-hover:w-[50%]"
 		class:list={[transitionClass]}
 	>
 	</div>
 
 	<!-- body -->
 	<div
-		class="text-base-content/30 group-hover:text-base-content/80 flex flex-1 items-center"
+		class="text-base-content/30 group-hover:text-base-content/80 mx-auto flex max-w-[60ch] flex-1 items-center"
 		class:list={[transitionClass]}
 	>
 		{post.data.description}
