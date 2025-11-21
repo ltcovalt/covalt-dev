@@ -15,11 +15,11 @@ tags:
 
 I originally started working on a generic AJAX query utility (I'll update this
 post with a link when it is ready) when I remembered how tedious and verbose
-simple input paramater validation and type checking can be. So I had a change of
+simple input parameter validation and type checking can be. So I had a change of
 heart and will be working on a type/value checking and assertion library
 instead. I think it will be useful - but I admit, I attempted this once before
 and my resulting library was too verbose, and I ultimately ended up scrapping
-the utility, because it didn't elimnate as much boiler plate as I had hoped.
+the utility, because it didn't eliminate as much boiler plate as I had hoped.
 With the introduction of modern JavaScript to ServiceNow server-side scripts,
 I'm going to give it another shot. Although I'm building this solution in
 ServiceNow, it is all done using vanilla JavaScript APIs and could be easily
@@ -62,7 +62,7 @@ itself.
 ### Real classes (sort of, it's still JS)
 
 ServiceNow script includes rely on `prototype.js` for the native class
-implementation. Although I typically prefer simple namespaced methods to classes
+implementation. Although I typically prefer simple namespace methods to classes
 in ServiceNow, because I wanted a fluent, chainable API with persistent state
 across method calls, a class was an obvious fit for this use case - but I
 decided to take a different approach.
@@ -86,7 +86,7 @@ Check(value).is.not.type('string');
 Check(value).not().isType('string');
 ```
 
-You can also use the getters to define simple passthroughs, like 'is' (shown
+You can also use the getters to define simple a pass through, like 'is' (shown
 above), 'to', 'be', etc. that don't do anything except return `this`. I'll use
 these to make the API more human readable and grammatically correct, but behind
 the scenes,
@@ -109,7 +109,7 @@ instantiates the TypeChecker behind the scenes.
 	general validation, it no longer made sense. Now, the `Check` factory
 	function and the `Checker` class both live in the same
 	[Check](/code/servicenow/check) script include, but I think the original
-	pattern was interesting enought to leave as a reference.
+	pattern was interesting enough to leave as a reference.
 </Alert>
 
 Using the facade/factory makes the developer experience much nicer in my
@@ -161,7 +161,8 @@ Next, we have the [Check](/code/servicenow/check) namespace that defines the
 templating, and error handling, but it also makes use of the `Type` methods for
 some of the basic type checks.
 
-Neither util is anywhere near complete. There are many checks I want to add to
-the `Checker` class and I want to make the logic for identifying the JavaObject
-type much more robust in the `Type` utility. For now, they are functional enough
-to start using and I'll add additional functionality as I need it.
+Neither utility is anywhere near complete. There are many checks I want to add
+to the `Checker` class and I want to make the logic for identifying the
+JavaObject type much more robust in the `Type` utility. For now, they are
+functional enough to start using and I'll add additional functionality as I need
+it.
