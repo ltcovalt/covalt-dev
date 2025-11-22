@@ -2,7 +2,7 @@
 title: Asynchronous server data fetching
 slug: async-server-data-fetching
 description: Fetch server data asynchronously and pass it to front end clients
-author: "Luke Covalt"
+author: 'Luke Covalt'
 date: 2025-12-31
 updated: 2025-12-31
 draft: true
@@ -11,8 +11,8 @@ tags: [blog, ajax, async, fetch, query, GlideRecordSecure]
 
 One of the first things I like to implement in a new ServiceNow environment is a
 utility to assist with fetching arbitrary data from the backend. Best practice
-is to query data asynchonously, so the client isn't blocked while it waits for a
-response from the server. Async queries can be performed using the
+is to query data asynchronously, so the client isn't blocked while it waits for
+a response from the server. Async queries can be performed using the
 `GlideRecord - Client` API, but this API returns the entire record. Again, best
 practice would be to return just the data that you need.
 
@@ -47,12 +47,12 @@ and parsing, while presenting developers with a more concise and simple to use
 API over the standard `GlideAjax` API.
 
 <Alert type="note">
-  You may have heard that UI Scripts should not be global. While I agree with
-  this as a matter of standard, utility code that will be used across many
-  client scripts is the perfect use case for global scripts and is exactly how
-  global scripts should be used. Don't let overly-dogmatic statements scare you
-  away from the right solution - just be ready to explain and defend your
-  reasoning.
+	You may have heard that UI Scripts should not be global. While I agree with
+	this as a matter of standard, utility code that will be used across many
+	client scripts is the perfect use case for global scripts and is exactly how
+	global scripts should be used. Don't let overly-dogmatic statements scare
+	you away from the right solution - just be ready to explain and defend your
+	reasoning.
 </Alert>
 
 Something I've been doing more recently is only including AJAX specific logic in
