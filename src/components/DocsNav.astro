@@ -3,7 +3,7 @@ import { buildMenu } from '@utils/docsMenu';
 import { getCollection } from 'astro:content';
 import { Link } from '@components';
 import ServerIcon from '@icons/server-stack.svg';
-import ServiceNowIcon from '@icons/servicenow.svg';
+import ServiceNowIcon from '@icons/user-circle-solid.svg';
 import MenuIcon from '@icons/book-open.svg'
 
 let {class: classes} = Astro.props;
@@ -26,7 +26,7 @@ const isCurrentPage = (href) => {
       <li>
         <details open>
           <summary>
-            {platform.label == 'ServiceNow' && <ServiceNowIcon class="w-4"/>}
+          {platform.label == 'ServiceNow' && <ServiceNowIcon class="w-4"/>}
             {platform.label}
           </summary>
           <ul>
