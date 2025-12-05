@@ -1,0 +1,77 @@
+---
+import { getCollection, render } from 'astro:content';
+import { DocumentationLayout } from '@layouts';
+import { DocumentationHeader } from '@components';
+
+export async function getStaticPaths() {
+	// documentation index.mdx files
+	const docs = await getCollection('docs');
+	// source code mdx wrappers
+	const source = await getCollection('sourceCode');
+	const contentEntries = [...docs, ...source];
+
+	// paths for astro content collections (unchanged)
+	const contentPaths = contentEntries.map((entry) => {
+		const docsEntry = docs.find((e) => e.id === entry.id);
+		const sourceEntry = source.find((e) => e.id === entry.id);
+		return {
+			params: { id: entry.id },
+			props: { currentEntry: entry, docsEntry, sourceEntry },
+		};
+	});
+
+	// TypeDoc API pages
+	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
+	const apiPaths = Object.keys(apiPages).flatMap((file) => {
+		/*
+		 * Strip /docs/ and from the full path (i.e., /docs/servicenow/check/classes/Checker.md)
+		 * Astro route already includes /docs, so keeping here would duplicate it
+		 */
+		const apiId = file
+			.replace(/^\/docs\//, '')
+			.replace('/typedoc/', '/')
+			.replace(/\.md$/, '');
+		console.log(apiId);
+		return [
+			{
+				params: { id: apiId },
+				props: { apiPath: file },
+			},
+			{
+				params: { id: apiId + '.md' },
+				props: { apiPath: file },
+			},
+		];
+	});
+
+	return [...contentPaths, ...apiPaths];
+}
+
+const { currentEntry, apiPath } = Astro.props;
+
+let Content;
+
+if (currentEntry) {
+	// Render content from Astro collections
+	const rendered = await render(currentEntry);
+	Content = rendered.Content;
+} else if (apiPath) {
+	// Render generated TypeDoc markdown
+	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
+	const loader = apiPages[apiPath];
+
+	if (!loader) {
+		throw new Error(`No TypeDoc page found for path: ${apiPath}`);
+	}
+
+	const mod = await loader();
+	Content = (mod as any).default;
+}
+---
+
+<DocumentationLayout>
+	<div class="flex flex-col">
+		{currentEntry && <DocumentationHeader entry={currentEntry} />}
+		{Content && <Content />}
+	</div>
+</DocumentationLayout>

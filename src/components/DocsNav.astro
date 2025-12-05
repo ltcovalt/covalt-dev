@@ -1,0 +1,61 @@
+---
+import { buildMenu } from '@utils/docsMenu';
+import { getCollection } from 'astro:content';
+import { Link } from '@components';
+import ServerIcon from '@icons/server-stack.svg';
+import ServiceNowIcon from '@icons/servicenow.svg';
+import MenuIcon from '@icons/book-open.svg'
+
+let {class: classes} = Astro.props;
+let docs = await getCollection('docs');
+let menu = buildMenu(docs);
+
+const currentPage = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isCurrentPage = (href) => {
+	const base = href.replace(/\/+$/, '') || '/';
+  // exact match or prefix match for sub-pages
+	return currentPage === base || (base !== '/' && currentPage.startsWith(base + '/'));
+};
+---
+
+<!-- docs menu is nested using platform, runtime, and api name metadata -->
+<div class="p-2 not-prose" class:list={classes}>
+  <ul class="menu w-full">
+    <h2 class="menu-title flex gap-2"><MenuIcon class="w-4" />Documentation</h2></span>
+    {menu.map((platform) => (
+      <li>
+        <details open>
+          <summary>
+            {platform.label == 'ServiceNow' && <ServiceNowIcon class="w-4"/>}
+            {platform.label}
+          </summary>
+          <ul>
+            {platform.children.map((runtime) => (
+              <li>
+                <details open>
+                  <summary>
+                    {runtime.label == 'Server' && <ServerIcon class="w-4"/>}
+                    {runtime.label}
+                  </summary>
+                  <!-- API names, leaf node menu items -->
+                  <ul class="flex flex-col mt-0.5 gap-0.5">
+                    {runtime.children.map((item) => (
+                      <li>
+                        <Link href={item.href} style="plain" class:list={[
+                          "w-full no-underline",
+                          { "menu-active": isCurrentPage(item.href) }
+                        ]}>
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </li>
+    ))}
+  </ul>
+</div>

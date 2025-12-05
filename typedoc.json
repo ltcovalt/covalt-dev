@@ -1,0 +1,51 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"tsconfig": "tsconfig.typedoc.json",
+
+	"plugin": ["typedoc-plugin-markdown", "typedoc-plugin-remark"],
+
+	"navigation": true,
+
+	"readme": "none",
+	"disableSources": true,
+	"skipErrorChecking": true,
+	"cleanOutputDir": false,
+	"hidePageHeader": true,
+	"hideBreadcrumbs": false,
+
+	"indexFormat": "table",
+	"parametersFormat": "table",
+	"interfacePropertiesFormat": "table",
+	"classPropertiesFormat": "table",
+	"enumMembersFormat": "table",
+	"typeDeclarationFormat": "table",
+
+	"remarkPlugins": [
+		{
+			"applyTo": ["Class", "Interface", "Namespace", "Module", "Document"],
+			"plugins": [
+				[
+					"remark-insert-headings",
+					{
+						"text": "Contents",
+						"position": "start",
+						"minHeadingCount": 2
+					}
+				],
+				[
+					"remark-toc",
+					{
+						"maxDepth": 3
+					}
+				]
+			]
+		}
+	],
+
+	"visibilityFilters": {
+		"external": false,
+		"inherited": true,
+		"private": false,
+		"protected": false
+	}
+}

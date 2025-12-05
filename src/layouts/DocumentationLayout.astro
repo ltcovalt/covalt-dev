@@ -1,0 +1,44 @@
+---
+import DefaultLayout from './DefaultLayout.astro';
+import { DocsNav } from '@components';
+import { getCollection } from 'astro:content';
+import DocsMenuIcon from '@icons/book-open.svg';
+
+const { title = 'covalt.dev' } = Astro.props;
+const entries = await getCollection('sourceCode');
+---
+
+<DefaultLayout {title}>
+	<div class="drawer lg:drawer-open flex-1">
+		<input id="docs-nav-drawer" type="checkbox" class="drawer-toggle" />
+
+		<div class="drawer-content flex flex-col">
+			<!-- documentation menu button - hidden on large screens -->
+			<div class="px-4 pt-2 pb-1 lg:hidden">
+				<label
+					for="docs-nav-drawer"
+					class="btn gap-2 px-2 py-1 font-semibold"
+					aria-label="Open documentation navigation"
+				>
+					<DocsMenuIcon class="w-5" />
+					<!-- <span>Documentation</span> -->
+				</label>
+			</div>
+
+			<div class="flex flex-1">
+				<!-- main content slot -->
+				<div class="prose xl:prose-lg prose-docs mx-auto w-full max-w-[100ch] min-w-0 p-8">
+					<slot />
+				</div>
+			</div>
+		</div>
+
+		<!-- Docs menu -->
+		<div class="drawer-side">
+			<label for="docs-nav-drawer" class="drawer-overlay" aria-label="Close sidebar"></label>
+			<div class="border-base-300/40 bg-base-200 lg:bg-base-200/50 min-h-full w-80 max-w-[40ch] border-r">
+				<DocsNav entries={entries} class="h-full w-full p-2" />
+			</div>
+		</div>
+	</div>
+</DefaultLayout>

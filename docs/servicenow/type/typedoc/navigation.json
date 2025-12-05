@@ -1,0 +1,13 @@
+[
+  {
+    "title": "Variables",
+    "children": [
+      {
+        "title": "Type",
+        "kind": 32,
+        "path": "variables/Type.md",
+        "isDeprecated": false
+      }
+    ]
+  }
+]

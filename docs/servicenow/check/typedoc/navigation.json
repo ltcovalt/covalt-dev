@@ -1,0 +1,35 @@
+[
+  {
+    "title": "Classes",
+    "children": [
+      {
+        "title": "Checker",
+        "kind": 128,
+        "path": "classes/Checker.md",
+        "isDeprecated": false
+      }
+    ]
+  },
+  {
+    "title": "Interfaces",
+    "children": [
+      {
+        "title": "CheckDetail",
+        "kind": 256,
+        "path": "interfaces/CheckDetail.md",
+        "isDeprecated": false
+      }
+    ]
+  },
+  {
+    "title": "Functions",
+    "children": [
+      {
+        "title": "Check",
+        "kind": 64,
+        "path": "functions/Check.md",
+        "isDeprecated": false
+      }
+    ]
+  }
+]

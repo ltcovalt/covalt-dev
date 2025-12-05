@@ -1,0 +1,25 @@
+{{!-- MDX-safe Markdown-only JSDoc template --}}
+
+{{#each docs}}
+## {{name}}
+
+{{{description}}}
+
+{{#if params}}
+### Parameters
+{{#each params}}
+- `{{name}}`{{#if type}} ({{type.names.[0]}}){{/if}} — {{{description}}}
+{{/each}}
+{{/if}}
+
+{{#if returns}}
+### Returns
+{{#each returns}}
+- {{#if type}}`{{type.names.[0]}}`{{/if}} {{#if description}}— {{{description}}}{{/if}}
+{{/each}}
+{{/if}}
+
+---
+
+{{/each}}
+
