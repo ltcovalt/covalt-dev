@@ -1,29 +1,30 @@
 ---
-import { NavMenuDropdown } from "@components";
-import { ThemeController } from "@components";
+import { NavMenuDropdown } from '@components';
+import { ThemeController } from '@components';
 
 const headerLinks = [
-	{ href: "/", label: "home" },
-	{ href: "/about", label: "about" },
-	{ href: "/posts", label: "posts" },
+	{ href: '/', label: 'home' },
+	{ href: '/about', label: 'about' },
+	{ href: '/docs', label: 'docs' },
+	{ href: '/posts', label: 'posts' },
 ];
 
-const activePageClass = "underline decoration-accent decoration-2 underline-offset-8";
-const currentPage = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const activePageClass = 'underline decoration-accent decoration-2 underline-offset-8';
+const currentPage = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isCurrentPage = (href) => {
-	const base = href.replace(/\/+$/, "") || "/";
+	const base = href.replace(/\/+$/, '') || '/';
 	// exact match or prefix match for sub-pages
-	return currentPage === base || (base !== "/" && currentPage.startsWith(base + "/"));
+	return currentPage === base || (base !== '/' && currentPage.startsWith(base + '/'));
 };
 ---
 
-<div class="navbar bg-base-100 shadow-sm flex items-center gap-2 min-h-14 py-0">
+<div class="navbar bg-base-100 border-base-200/60 flex min-h-14 items-center gap-2 border-2 py-0">
 	<!-- navbar is rendered as a dropdown menu for small screens -->
 	<NavMenuDropdown>
 		{
 			headerLinks.map((link) => (
 				<li>
-					<a href={link.href} class={isCurrentPage(link.href) ? activePageClass : ""}>
+					<a href={link.href} class={isCurrentPage(link.href) ? activePageClass : ''}>
 						{link.label}
 					</a>
 				</li>
@@ -42,7 +43,11 @@ const isCurrentPage = (href) => {
 					<li>
 						<a
 							href={link.href}
-							class={isCurrentPage(link.href) ? "underline decoration-accent decoration-2 underline-offset-8" : ""}
+							class={
+								isCurrentPage(link.href)
+									? 'decoration-accent underline decoration-2 underline-offset-8'
+									: ''
+							}
 						>
 							{link.label}
 						</a>

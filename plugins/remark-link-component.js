@@ -6,7 +6,10 @@ export default function remarkLinkToComponent(opts = {}) {
 	const onlyExternal = opts.onlyExternal === true;
 	const addExternalTarget = opts.addExternalTarget === true;
 
-	return function transformer(tree) {
+	return function transformer(tree, file) {
+		const filePath = file?.history?.[0] || file?.path || '';
+		// For plain .md (like TypeDoc output), do nothing:
+		if (!filePath.endsWith('.mdx')) return;
 		let changed = false;
 
 		// Collect [id]: url definitions for linkReference nodes
@@ -45,7 +48,7 @@ export default function remarkLinkToComponent(opts = {}) {
 				type: 'mdxJsxTextElement', // requires @astrojs/mdx / remark-mdx in the pipeline
 				name: 'Link',
 				attributes: attrs,
-				children: node.children || []
+				children: node.children || [],
 			};
 			changed = true;
 		});

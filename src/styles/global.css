@@ -10,6 +10,7 @@
 		night;
 }
 @plugin '@tailwindcss/typography';
+@import './prose-docs.css';
 
 @layer utilities {
 	/*

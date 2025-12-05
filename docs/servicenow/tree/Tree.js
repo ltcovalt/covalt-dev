@@ -1,6 +1,5 @@
 /**
  * namespace containing tree traversal functions
- * @namespace
  */
 const Tree = {};
 (() => {
@@ -28,7 +27,8 @@ const Tree = {};
 
 		// ensure the current node is not already in the path
 		let nodeId = node.getUniqueValue();
-		if (stackPath.includes(nodeId)) throw Error('recursive reference found in path: ' + stackPath.concat(nodeId).join('-->'));
+		if (stackPath.includes(nodeId))
+			throw Error('recursive reference found in path: ' + stackPath.concat(nodeId).join('-->'));
 		stackPath.push(nodeId);
 
 		// execute the callback function for the current node
@@ -78,7 +78,7 @@ const Tree = {};
 	 */
 	function _traverseDfs(params = {}) {
 		params = {
-			parentField: "parent",
+			parentField: 'parent',
 			preOrder: false,
 			postOrder: false,
 			stackPath: [],
@@ -87,20 +87,18 @@ const Tree = {};
 		const { node, callback, parentField, preOrder, postOrder, stackPath } = params;
 
 		// validate mandatory parameters
-		if (!node) throw Error("missing required parameter: node");
-		if (!node.isValidRecord()) throw Error("node parameter must be a valid GlideRecord");
+		if (!node) throw Error('missing required parameter: node');
+		if (!node.isValidRecord()) throw Error('node parameter must be a valid GlideRecord');
 
 		// ensure the current node is not already in the path
 		let nodeId = node.getUniqueValue();
 		let tableName = node.getTableName();
-		if (stackPath.includes(nodeId)) throw Error(
-			"recursive reference found in path: " +
-			stackPath.concat(nodeId).join("-->"),
-		);
+		if (stackPath.includes(nodeId))
+			throw Error('recursive reference found in path: ' + stackPath.concat(nodeId).join('-->'));
 		stackPath.push(nodeId);
 
 		// pre-order callback for the current node
-		if (preOrder && callback && typeof callback === "function") callback(node);
+		if (preOrder && callback && typeof callback === 'function') callback(node);
 
 		// execute this function recursively for each child node
 		let children = new GlideRecord(tableName);
@@ -113,9 +111,9 @@ const Tree = {};
 		}
 
 		// post-order callback for the current node
-		if (postOrder && callback && typeof callback === "function") callback(node);
+		if (postOrder && callback && typeof callback === 'function') callback(node);
 
 		stackPath.pop();
 	}
-
 })();
+

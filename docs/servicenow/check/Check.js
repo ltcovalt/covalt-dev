@@ -1,4 +1,21 @@
 /**
+ * Input validation and error handling library that that uses a fluent, chainable API.
+ * Leverages a standard JavaScript class instead of Prototype.js.
+ * @module
+ */
+
+/**
+ * @typedef {Object} CheckDetail - details the results of each predicate check performed
+ * @property {boolean} pass - true if the check was passed
+ * @property {boolean} inverse - true if the check result should be inverted
+ * @property {any} actual - the actual value received
+ * @property {string} predicate - name of the predicate function that was ran
+ * @property {string} prefix - prefix to append to the label
+ * @property {string} label - user readable label for the predicate
+ * @property {any} expected - the expected value
+ */
+
+/**
  * Factory function for the Checker class
  * @param {*} value - the value to be checked
  * @param {string} name - the name or label of the value being checked
@@ -13,15 +30,21 @@ const Check = (value, name) => {
 	return new Checker(value, name);
 };
 
-// prettier-ignore
-/** template formatter functions */
+/**
+ * Template formatter functions
+ * @hidden
+ * prettier-ignore
+ */
 const TEMPLATE_MAP = Object.freeze({
 	type: (o) => `${o.name}: expected ${o.label} ${o.prefix}${o.expected}, received ${o.actual}`,
 	truthy: (o) => `${o.name}: expected value to ${o.prefix}be ${o.predicate}, received ${o.actual}`,
 	DEFAULT: (o) => `${o.name}: expected value to ${o.prefix}be ${o.expected}, received ${o.actual}`,
 });
 
-/** maps predicates to templates */
+/**
+ * Maps predicates to templates
+ * @hidden
+ */
 const PREDICATE_TEMPLATE = Object.freeze({
 	type: 'type',
 	typeDetail: 'type',
@@ -30,7 +53,15 @@ const PREDICATE_TEMPLATE = Object.freeze({
 });
 
 /**
- * performs runtime type validation and error handling
+ * Performs runtime type validation and error handling
+ *
+ * @property {any} value - the current value being processed
+ * @property {string} name - name or label of the current value being processed
+ * @property {string} typeof - type of the current value
+ * @property {string} typeofDetail - detailed typeof the current value
+ * @property {boolean} invert - controls if the result should be inverted, used when "not" is included in the call chain
+ * @property {object[]} checks - array of objects detailing each check that was performed
+ * @property {object[]} errors - array of objects detailing validation errors
  */
 class Checker {
 	/**
@@ -39,21 +70,33 @@ class Checker {
 	 * @param {string} name - the name or label of the value being checked
 	 */
 	constructor(value, name) {
+		/** @property {string} */
 		this.value = value;
 		this.name = name;
+		/** @type {string} */
 		this.typeof = typeof this.value;
+		/** @type {string} */
 		this.typeofDetail = Type.detail(this.value);
 		this.invert = false;
+		/** @type {CheckDetail[]} */
 		this.checks = [];
+		/** @type {string[]} */
 		this.errors = [];
 	}
 
+	/**
+	 * Returns the prefix to be used for crafting user-readable strings
+	 * @returns {string}
+	 */
 	get prefix() {
 		return this.invert ? 'NOT ' : '';
 	}
 
 	// NOTE: modifiers
 
+	/**
+	 * Inverts the result when the next set of validations is evaluated
+	 */
 	get not() {
 		this.invert = !this.invert;
 		return this;
@@ -62,32 +105,64 @@ class Checker {
 	// TODO: passthrough getters to make API calls grammically accurate
 	// consider limiting which predicates are available for each getter
 
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
 	get is() {
 		return this;
 	}
 
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
 	get are() {
 		return this;
 	}
 
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
 	get to() {
 		return this;
 	}
 
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
 	get be() {
 		return this;
 	}
 
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
 	get has() {
 		return this;
 	}
 
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
 	get have() {
 		return this;
 	}
 
 	// NOTE: core type predicates
 
+	/**
+	 * Checks if the current value is the expected type
+	 * @returns {this}
+	 *
+	 * @example
+	 * let testValue = 'Some String';
+	 * let pass = Check({ testValue }).is.type('string'); // true
+	 */
 	type(expected) {
 		this.evaluate(this.typeof === expected, {
 			actual: this.typeof,
@@ -98,6 +173,18 @@ class Checker {
 		return this;
 	}
 
+	/**
+	 * Checks if the detailed type of the current value is the expected type
+	 * @returns {this}
+	 *
+	 * @example
+	 * let testValue = new GlideRecord('sys_user');
+	 * let pass = Check({ testValue }).is.typeDetail('object (GlideRecord)'); // true
+	 *
+	 * @example
+	 * let testValue = {};
+	 * let pass = Check({ testValue }).is.typeDetail('object (Object)'); // true
+	 */
 	typeDetail(expected) {
 		this.evaluate(this.typeofDetail === expected, {
 			actual: this.typeofDetail,
