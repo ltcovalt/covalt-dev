@@ -8,114 +8,190 @@ const Type = {
 	 * contextual information based on the type being checked.
 	 * Examples, number (NaN), number (Integer), object (GlideRecord)
 	 *
-	 * @param {string} v - the value to be type checked
+	 * @param {string} value - the value to be type checked
 	 * @returns {string} returns detailed type and typeof output as a string
 	 */
-	detail(v) {
+	detail(value) {
 		const handlerMap = {
 			Number: (v) => Type.getNumberType(v),
 			JavaObject: (v) => Type.getJavaObjectName(v),
 		};
 
-		let primType = typeof v;
-		let tag = Object.prototype.toString.call(v).slice(8, -1);
+		let primType = typeof value;
+		let tag = Object.prototype.toString.call(value).slice(8, -1);
 		let handler = handlerMap[tag];
-		let objType = handler ? handler(v) : tag;
+		let objType = handler ? handler(value) : tag;
 		return `${primType} (${objType})`;
 	},
 
-	/*
-	 * primitive type checks
+	/**
+	 * Checks if a value is a string
+	 * @param {any} value
+	 * @returns {boolean}
 	 */
-	isString(v) {
-		return typeof v === 'string';
-	},
-	isNumber(v) {
-		return typeof v === 'number';
-	},
-	isBigint(v) {
-		return typeof v === 'bigint';
-	},
-	isBoolean(v) {
-		return typeof v === 'boolean';
-	},
-	isUndefined(v) {
-		return typeof v === 'undefined';
-	},
-	isSymbol(v) {
-		return typeof v === 'symbol';
-	},
-	isFunction(v) {
-		return typeof v === 'function';
-	},
-	isObject(v) {
-		return typeof v === 'object';
-	},
-	isNull(v) {
-		return v === null;
+	isString(value) {
+		return typeof value === 'string';
 	},
 
-	/*
-	 * number type checks
+	/**
+	 * Checks if a value is a number
+	 * @param {any} value
+	 * @returns {boolean}
 	 */
-	isInteger(v) {
-		return Type.getNumberType(v) === 'Integer';
+	isNumber(value) {
+		return typeof value === 'number';
 	},
-	isFloat(v) {
-		return Type.getNumberType(v) === 'Float';
+
+	/**
+	 * Checks if a value is a bigint
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isBigint(value) {
+		return typeof value === 'bigint';
 	},
-	isNaN(v) {
-		return Type.getNumberType(v) === 'NaN';
+
+	/**
+	 * Checks if a value is a boolean
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isBoolean(value) {
+		return typeof value === 'boolean';
 	},
-	isFinite(v) {
-		return Number.isFinite(v);
+
+	/**
+	 * Checks if a value is undefined
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isUndefined(value) {
+		return typeof value === 'undefined';
 	},
-	isInfinite(v) {
-		return !Number.isFinite(v);
+
+	/**
+	 * Checks if a value is a symbol
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isSymbol(value) {
+		return typeof value === 'symbol';
+	},
+
+	/**
+	 * Checks if a value is a function
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isFunction(value) {
+		return typeof value === 'function';
+	},
+
+	/**
+	 * Checks if a value is an object
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isObject(value) {
+		return typeof value === 'object';
+	},
+
+	/**
+	 * Checks if a value is null
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isNull(value) {
+		return value === null;
+	},
+
+	/**
+	 * Checks if a value is an integer
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isInteger(value) {
+		return Type.getNumberType(value) === 'Integer';
+	},
+
+	/**
+	 * Checks if a value is a float/decimal
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isFloat(value) {
+		return Type.getNumberType(value) === 'Float';
+	},
+
+	/**
+	 * Checks if a value is a Not a Number (NaN)
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isNaN(value) {
+		return Type.getNumberType(value) === 'NaN';
+	},
+
+	/**
+	 * Checks if a value is a finite number
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isFinite(value) {
+		return Number.isFinite(value);
+	},
+
+	/**
+	 * Checks if a value is a infinite
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isInfinite(value) {
+		return !Number.isFinite(value);
 	},
 
 	/**
 	 * Determines if a number is an integer, float, NaN, or Infinity
-	 * @param {number} v - the value to be checked
+	 * @param {number} value - the value to be checked
 	 * @returns {string} string identifying the type of number
 	 */
-	getNumberType(v) {
-		if (typeof v !== 'number') throw TypeError('value must be a number');
-		if (Number.isInteger(v)) return 'Integer';
-		if (Number.isFinite(v)) return 'Float';
-		if (Number.isNaN(v)) return 'NaN';
-		if (!Number.isFinite(v)) return 'Infinity';
+	getNumberType(value) {
+		if (typeof value !== 'number') throw TypeError('value must be a number');
+		if (Number.isInteger(value)) return 'Integer';
+		if (Number.isFinite(value)) return 'Float';
+		if (Number.isNaN(value)) return 'NaN';
+		if (!Number.isFinite(value)) return 'Infinity';
 		return 'Number';
 	},
 
 	/**
 	 * Checks if a value is a plain, vanilla JS object
-	 * @param {*} v - the value to be checked
+	 * @param {*} value - the value to be checked
 	 * @returns {boolean} true if the value is a plain object
 	 */
-	isPlainObject(v) {
-		if (!v) return false;
-		if (Type.detail(v) !== 'object (Object)') return false;
+	isPlainObject(value) {
+		if (!value) return false;
+		if (Type.detail(value) !== 'object (Object)') return false;
 
-		let prototype = Object.getPrototypeOf(v);
+		let prototype = Object.getPrototypeOf(value);
 		if (!prototype || prototype === Object.prototype) return false;
 		return true;
 	},
 
 	/**
 	 * Get the @@toStringTag (formerly internal [[class]]) for a value
-	 * @param {*} v - value to retrieve the tag for
+	 * @param {*} value - value to retrieve the tag for
 	 * @returns {string} the class/object type portion of the tag (i.e., return 'Date' for [object Date]);
 	 */
-	getToStringTag(v) {
-		return Object.prototype.toString.call(v).slice(8, -1);
+	getToStringTag(value) {
+		return Object.prototype.toString.call(value).slice(8, -1);
 	},
 
 	/**
 	 * Attempts to identify the specific Glide class an object is an instance of
 	 *
 	 * Most GlideClasses are of type [object JavaObject]
-	 * @param {JavaObject} obj - JavaObject, typically a Glide class, to be type checks
+	 * @param {JavaObject} obj - JavaObject, typically a Glide class, to be type checked
 	 */
 	getJavaObjectName(obj) {
 		let typeTag = Type.getToStringTag(obj);

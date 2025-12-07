@@ -2,14 +2,16 @@
 
 # Function: isNumber()
 
-> **isNumber**(`v`): `v is number`
+> **isNumber**(`value`): `boolean`
+
+Checks if a value is a number
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 
-`v is number`
+`boolean`

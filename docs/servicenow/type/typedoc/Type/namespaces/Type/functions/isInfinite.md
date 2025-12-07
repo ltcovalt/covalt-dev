@@ -2,13 +2,15 @@
 
 # Function: isInfinite()
 
-> **isInfinite**(`v`): `boolean`
+> **isInfinite**(`value`): `boolean`
+
+Checks if a value is a infinite
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 

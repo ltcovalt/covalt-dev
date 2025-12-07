@@ -2,13 +2,15 @@
 
 # Function: isInteger()
 
-> **isInteger**(`v`): `boolean`
+> **isInteger**(`value`): `boolean`
+
+Checks if a value is an integer
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 

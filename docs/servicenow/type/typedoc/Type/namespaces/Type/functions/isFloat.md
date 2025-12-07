@@ -2,13 +2,15 @@
 
 # Function: isFloat()
 
-> **isFloat**(`v`): `boolean`
+> **isFloat**(`value`): `boolean`
+
+Checks if a value is a float/decimal
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 

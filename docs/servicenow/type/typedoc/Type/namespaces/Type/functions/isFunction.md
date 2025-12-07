@@ -2,13 +2,15 @@
 
 # Function: isFunction()
 
-> **isFunction**(`v`): `boolean`
+> **isFunction**(`value`): `boolean`
+
+Checks if a value is a function
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 

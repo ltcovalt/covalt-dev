@@ -12,18 +12,18 @@ server-side namespace containing type checking utilities
 | [getJavaObjectName](functions/getJavaObjectName.md) | Attempts to identify the specific Glide class an object is an instance of |
 | [getNumberType](functions/getNumberType.md) | Determines if a number is an integer, float, NaN, or Infinity |
 | [getToStringTag](functions/getToStringTag.md) | Get the @@toStringTag (formerly internal \[\[class]]) for a value |
-| [isBigint](functions/isBigint.md) | - |
-| [isBoolean](functions/isBoolean.md) | - |
-| [isFinite](functions/isFinite.md) | - |
-| [isFloat](functions/isFloat.md) | - |
-| [isFunction](functions/isFunction.md) | - |
-| [isInfinite](functions/isInfinite.md) | - |
-| [isInteger](functions/isInteger.md) | - |
-| [isNaN](functions/isNaN.md) | - |
-| [isNull](functions/isNull.md) | - |
-| [isNumber](functions/isNumber.md) | - |
-| [isObject](functions/isObject.md) | - |
+| [isBigint](functions/isBigint.md) | Checks if a value is a bigint |
+| [isBoolean](functions/isBoolean.md) | Checks if a value is a boolean |
+| [isFinite](functions/isFinite.md) | Checks if a value is a finite number |
+| [isFloat](functions/isFloat.md) | Checks if a value is a float/decimal |
+| [isFunction](functions/isFunction.md) | Checks if a value is a function |
+| [isInfinite](functions/isInfinite.md) | Checks if a value is a infinite |
+| [isInteger](functions/isInteger.md) | Checks if a value is an integer |
+| [isNaN](functions/isNaN.md) | Checks if a value is a Not a Number (NaN) |
+| [isNull](functions/isNull.md) | Checks if a value is null |
+| [isNumber](functions/isNumber.md) | Checks if a value is a number |
+| [isObject](functions/isObject.md) | Checks if a value is an object |
 | [isPlainObject](functions/isPlainObject.md) | Checks if a value is a plain, vanilla JS object |
-| [isString](functions/isString.md) | - |
-| [isSymbol](functions/isSymbol.md) | - |
-| [isUndefined](functions/isUndefined.md) | - |
+| [isString](functions/isString.md) | Checks if a value is a string |
+| [isSymbol](functions/isSymbol.md) | Checks if a value is a symbol |
+| [isUndefined](functions/isUndefined.md) | Checks if a value is undefined |

@@ -2,13 +2,15 @@
 
 # Function: isNaN()
 
-> **isNaN**(`v`): `boolean`
+> **isNaN**(`value`): `boolean`
+
+Checks if a value is a Not a Number (NaN)
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 

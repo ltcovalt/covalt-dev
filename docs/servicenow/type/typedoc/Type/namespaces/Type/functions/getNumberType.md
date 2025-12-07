@@ -2,7 +2,7 @@
 
 # Function: getNumberType()
 
-> **getNumberType**(`v`): `string`
+> **getNumberType**(`value`): `string`
 
 Determines if a number is an integer, float, NaN, or Infinity
 
@@ -10,7 +10,7 @@ Determines if a number is an integer, float, NaN, or Infinity
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `v` | `number` | the value to be checked |
+| `value` | `number` | the value to be checked |
 
 ## Returns
 

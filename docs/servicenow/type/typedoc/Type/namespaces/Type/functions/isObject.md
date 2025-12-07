@@ -2,13 +2,15 @@
 
 # Function: isObject()
 
-> **isObject**(`v`): `boolean`
+> **isObject**(`value`): `boolean`
+
+Checks if a value is an object
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 

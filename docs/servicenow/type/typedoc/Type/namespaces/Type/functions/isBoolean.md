@@ -2,14 +2,16 @@
 
 # Function: isBoolean()
 
-> **isBoolean**(`v`): `v is boolean`
+> **isBoolean**(`value`): `boolean`
+
+Checks if a value is a boolean
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 
-`v is boolean`
+`boolean`

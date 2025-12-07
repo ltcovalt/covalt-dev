@@ -2,13 +2,15 @@
 
 # Function: isFinite()
 
-> **isFinite**(`v`): `boolean`
+> **isFinite**(`value`): `boolean`
+
+Checks if a value is a finite number
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 

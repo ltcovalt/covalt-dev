@@ -2,14 +2,16 @@
 
 # Function: isString()
 
-> **isString**(`v`): `v is string`
+> **isString**(`value`): `boolean`
+
+Checks if a value is a string
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 
-`v is string`
+`boolean`

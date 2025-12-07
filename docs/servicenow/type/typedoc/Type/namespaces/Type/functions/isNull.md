@@ -2,13 +2,15 @@
 
 # Function: isNull()
 
-> **isNull**(`v`): `boolean`
+> **isNull**(`value`): `boolean`
+
+Checks if a value is null
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 

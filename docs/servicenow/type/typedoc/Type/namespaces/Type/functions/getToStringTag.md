@@ -2,7 +2,7 @@
 
 # Function: getToStringTag()
 
-> **getToStringTag**(`v`): `string`
+> **getToStringTag**(`value`): `string`
 
 Get the @@toStringTag (formerly internal \[\[class]]) for a value
 
@@ -10,7 +10,7 @@ Get the @@toStringTag (formerly internal \[\[class]]) for a value
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `v` | `any` | value to retrieve the tag for |
+| `value` | `any` | value to retrieve the tag for |
 
 ## Returns
 

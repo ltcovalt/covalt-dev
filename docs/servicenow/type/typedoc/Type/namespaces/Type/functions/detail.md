@@ -2,7 +2,7 @@
 
 # Function: detail()
 
-> **detail**(`v`): `string`
+> **detail**(`value`): `string`
 
 Performs a typeof check on a value and retrieves additional
 contextual information based on the type being checked.
@@ -12,7 +12,7 @@ Examples, number (NaN), number (Integer), object (GlideRecord)
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `v` | `string` | the value to be type checked |
+| `value` | `string` | the value to be type checked |
 
 ## Returns
 

@@ -12,7 +12,7 @@ Most GlideClasses are of type \[object JavaObject]
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `obj` | `JavaObject` | JavaObject, typically a Glide class, to be type checks |
+| `obj` | `JavaObject` | JavaObject, typically a Glide class, to be type checked |
 
 ## Returns
 

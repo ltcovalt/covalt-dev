@@ -2,14 +2,16 @@
 
 # Function: isUndefined()
 
-> **isUndefined**(`v`): `v is undefined`
+> **isUndefined**(`value`): `boolean`
+
+Checks if a value is undefined
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 
-`v is undefined`
+`boolean`

@@ -2,14 +2,16 @@
 
 # Function: isBigint()
 
-> **isBigint**(`v`): `v is bigint`
+> **isBigint**(`value`): `boolean`
+
+Checks if a value is a bigint
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `any` |  |
 
 ## Returns
 
-`v is bigint`
+`boolean`

@@ -2,7 +2,7 @@
 
 # Function: isPlainObject()
 
-> **isPlainObject**(`v`): `boolean`
+> **isPlainObject**(`value`): `boolean`
 
 Checks if a value is a plain, vanilla JS object
 
@@ -10,7 +10,7 @@ Checks if a value is a plain, vanilla JS object
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `v` | `any` | the value to be checked |
+| `value` | `any` | the value to be checked |
 
 ## Returns
 
