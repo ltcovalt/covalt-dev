@@ -26,7 +26,7 @@ export async function getStaticPaths() {
 		/*
 		 * file example: /docs/servicenow/check/typedoc/classes/Checker.md
 		 * strip leading /docs/ (Astro route already has /docs)
-		 * strip /typedoc/ (we don't want it in the public URL)
+		 * strip /typedoc/ from the public url
 		 * strip .md for canonical, extensionless URLs
 		 */
 		const apiId = file
@@ -37,12 +37,11 @@ export async function getStaticPaths() {
 		console.log(apiId);
 
 		return [
-			// canonical, extensionless path
+			// return paths for with and without the extension
 			{
 				params: { id: apiId },
 				props: { apiPath: file },
 			},
-			// optional .md variant (if you still want it to resolve)
 			{
 				params: { id: apiId + '.md' },
 				props: { apiPath: file },
@@ -59,11 +58,11 @@ let Content;
 let apiHtml = null;
 
 if (currentEntry) {
-	// Render content from Astro collections (MDX, etc.)
+	// render content from Astro collections
 	const rendered = await render(currentEntry);
 	Content = rendered.Content;
 } else if (apiPath) {
-	// Render generated TypeDoc markdown (docs/**/typedoc/**/*.md)
+	// render generated TypeDoc markdown
 	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
 	const loader = apiPages[apiPath];
 
