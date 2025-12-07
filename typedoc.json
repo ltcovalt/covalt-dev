@@ -2,7 +2,7 @@
 	"$schema": "https://typedoc.org/schema.json",
 	"tsconfig": "tsconfig.typedoc.json",
 
-	"plugin": ["typedoc-plugin-markdown", "typedoc-plugin-remark"],
+	"plugin": ["typedoc-plugin-markdown", "typedoc-plugin-remark", "typedoc-plugin-frontmatter"],
 
 	"navigation": true,
 
