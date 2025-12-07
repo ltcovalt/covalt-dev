@@ -7,7 +7,7 @@
 	}
 
 	.prose-docs a {
-		@apply hover:text-accent transition-all duration-300;
+		@apply hover:text-accent transition-all duration-200;
 	}
 
 	.prose-docs hr {
@@ -99,7 +99,7 @@
 	}
 
 	.prose-docs table a {
-		@apply text-accent/80 font-medium no-underline underline-offset-2 hover:underline;
+		@apply text-accent hover:text-accent/70 font-medium no-underline hover:underline hover:underline-offset-2;
 	}
 
 	/* 
@@ -119,12 +119,17 @@
 		@apply my-1;
 	}
 
-	/* Shrink spacing between items in *all* TOC levels */
+	/* Shrink spacing between items in all TOC levels */
 	.prose-docs h2 + ul li,
 	.prose-docs h3 + ul li,
 	.prose-docs h4 + ul li,
 	.prose-docs h5 + ul li {
 		@apply my-1;
+	}
+
+	.prose-docs ul > li + li {
+		margin-top: 0px !important;
+		margin-bottom: 0px !important;
 	}
 
 	/* Nested TOC lists (indent cleanup) */
@@ -137,6 +142,10 @@
 
 	.prose-docs h2 + ul > li {
 		@apply my-1;
+	}
+
+	.prose-docs ul li a {
+		@apply no-underline hover:underline hover:underline-offset-2;
 	}
 
 	/* 

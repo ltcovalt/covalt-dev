@@ -21,7 +21,7 @@
 	}
 
 	div.code-header + pre.astro-code {
-		margin-top: 0;
+		margin-top: 1rem;
 	}
 
 	div.code-block {
@@ -29,13 +29,14 @@
 	}
 
 	div.code-header {
+		margin-top: 1rem;
 		position: absolute;
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 2rem; /* header height */
+		height: 2rem;
 		padding: 0 0.75rem;
-		background: transparent; /* show the pre’s bg through */
+		background: transparent;
 		color: var(--tw-prose-pre-code, #e1e4e8);
 		z-index: 1;
 	}

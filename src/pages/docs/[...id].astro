@@ -1,4 +1,5 @@
 ---
+// @ts-nocheck
 import { getCollection, render } from 'astro:content';
 import { DocumentationLayout } from '@layouts';
 import { DocumentationHeader } from '@components';
@@ -10,13 +11,26 @@ export async function getStaticPaths() {
 	const source = await getCollection('sourceCode');
 	const contentEntries = [...docs, ...source];
 
-	// paths for astro content collections (unchanged)
+	// paths for astro content collections
 	const contentPaths = contentEntries.map((entry) => {
-		const docsEntry = docs.find((e) => e.id === entry.id);
-		const sourceEntry = source.find((e) => e.id === entry.id);
+		let indexEntry = null;
+		let sourceEntry = null;
+
+		if (entry.collection === 'docs') {
+			// index pages are the meta source
+			indexEntry = entry;
+		} else if (entry.collection === 'sourceCode') {
+			sourceEntry = entry;
+
+			// source wrappers live next to index.mdx
+			// e.g. servicenow/type/source -> servicenow/type/index or servicenow/type
+			const indexPath = entry.id.replace(/\/source$/, '');
+			indexEntry = docs.find((d) => d.id === indexPath) ?? null;
+		}
+
 		return {
 			params: { id: entry.id },
-			props: { currentEntry: entry, docsEntry, sourceEntry },
+			props: { currentEntry: entry, docsEntry: indexEntry, sourceEntry },
 		};
 	});
 
@@ -34,8 +48,6 @@ export async function getStaticPaths() {
 			.replace('/typedoc/', '/')
 			.replace(/\.md$/, '');
 
-		console.log(apiId);
-
 		return [
 			// return paths for with and without the extension
 			{
@@ -52,15 +64,20 @@ export async function getStaticPaths() {
 	return [...contentPaths, ...apiPaths];
 }
 
-const { currentEntry, apiPath } = Astro.props;
+const { currentEntry, docsEntry, apiPath } = Astro.props;
 
 let Content;
 let apiHtml = null;
+let headerEntry = null;
 
 if (currentEntry) {
-	// render content from Astro collections
+	// render content from Astro collections (index or source wrapper)
 	const rendered = await render(currentEntry);
 	Content = rendered.Content;
+
+	// header meta always prefers the docs entry (index.mdx)
+	// fall back to currentEntry only if it has env
+	headerEntry = docsEntry ?? (currentEntry.data?.env ? currentEntry : null);
 } else if (apiPath) {
 	// render generated TypeDoc markdown
 	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
@@ -104,7 +121,7 @@ function rewriteRelativeLinks(html, base) {
 
 <DocumentationLayout>
 	<div class="flex flex-col">
-		{currentEntry && <DocumentationHeader entry={currentEntry} />}
+		{headerEntry?.data?.env && <DocumentationHeader entry={headerEntry} />}
 		{currentEntry && Content && <Content />}
 		{!currentEntry && apiHtml && <div set:html={apiHtml} />}
 	</div>
