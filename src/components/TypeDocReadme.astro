@@ -1,0 +1,46 @@
+---
+const { platform, api } = Astro.props;
+
+const platformSlug = String(platform).toLowerCase();
+const apiSlug = String(api).toLowerCase();
+
+// TypeDoc README lives on disk at: docs/<platform>/<api>/typedoc/README.md
+const modules = import.meta.glob('/docs/**/typedoc/README.md');
+
+// Filesystem path for THIS API's README
+const typedocPath = `/docs/${platformSlug}/${apiSlug}/typedoc/README.md`;
+const loader = modules[typedocPath];
+
+if (!loader) {
+	throw new Error(`No TypeDoc README found at: ${typedocPath}`);
+}
+
+const mod = await loader();
+
+// Get compiled HTML string from the markdown module
+const rawHtml = await mod.compiledContent?.();
+
+if (!rawHtml) {
+	throw new Error(`No compiledContent() for TypeDoc README: ${typedocPath}`);
+}
+
+// Public base URL for this API (NOTE: NO `/typedoc` here)
+const baseUrl = `/docs/${platformSlug}/${apiSlug}`;
+
+/**
+ * Rewrite TypeDocs's relative links so they match Astro routes,
+ * which does not include /typedoc/ in the path. Does not update non-relative routes.
+ */
+function rewriteRelativeLinks(html, base) {
+	const regex = new RegExp('href="(?!https?:\/\/|/|#)([^"]+)"', 'g');
+
+	return html.replace(regex, (_match, rel) => {
+		const normalizedBase = base.replace(/\/+$/, '');
+		return `href="${normalizedBase}/${rel}"`;
+	});
+}
+
+const fixedHtml = rewriteRelativeLinks(rawHtml, baseUrl);
+---
+
+<div set:html={fixedHtml} />

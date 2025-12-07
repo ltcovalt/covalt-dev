@@ -1,4 +1,4 @@
-[Check](/docs/servicenow/check/README.md) / Checker
+[Check](../README.md) / Checker
 
 # Class: Checker
 
@@ -90,7 +90,7 @@ Creates a new TypeChecker object instance
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="checks"></a> `checks` | [`CheckDetail`](/docs/servicenow/check/interfaces/CheckDetail.md)\[] | array of objects detailing each check that was performed |
+| <a id="checks"></a> `checks` | [`CheckDetail`](../interfaces/CheckDetail.md)\[] | array of objects detailing each check that was performed |
 | <a id="errors"></a> `errors` | `string`\[] | array of objects detailing validation errors |
 | <a id="invert"></a> `invert` | `boolean` | controls if the result should be inverted, used when "not" is included in the call chain |
 | <a id="name"></a> `name` | `string` | name or label of the current value being processed |

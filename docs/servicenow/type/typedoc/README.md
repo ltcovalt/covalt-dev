@@ -1,7 +1,7 @@
 # Type
 
-## Variables
+## Namespaces
 
-| Variable | Description |
+| Namespace | Description |
 | ------ | ------ |
-| [Type](/docs/servicenow/type/variables/Type.md) | server-side namespace containing type checking utilities |
+| [Type](Type/namespaces/Type/README.md) | server-side namespace containing type checking utilities |

@@ -20,6 +20,6 @@ tags:
         facade,
     ]
 ---
-import Generated from './typedoc/README.md';
+import Readme from '@components/TypeDocReadme.astro';
 
-<Generated />
+<Readme platform={frontmatter.env.platform} api={frontmatter.env.api} />

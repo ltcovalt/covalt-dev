@@ -1,8 +1,8 @@
-[Check](/docs/servicenow/check/README.md) / Check
+[Check](../README.md) / Check
 
 # Function: Check()
 
-> **Check**(`value`, `name`): [`Checker`](/docs/servicenow/check/classes/Checker.md)
+> **Check**(`value`, `name`): [`Checker`](../classes/Checker.md)
 
 Factory function for the Checker class
 
@@ -15,6 +15,6 @@ Factory function for the Checker class
 
 ## Returns
 
-[`Checker`](/docs/servicenow/check/classes/Checker.md)
+[`Checker`](../classes/Checker.md)
 
 a new Checker instance

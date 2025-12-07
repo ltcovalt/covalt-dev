@@ -11,7 +11,7 @@ const typedocConfigPath = path.join(repoRoot, 'typedoc.json');
 
 /**
  * Checks if a path is a directory
- * @param {import('node:fs').PathLike} the path to be checked
+ * @param {import('node:fs').PathLike} p - the path to be checked
  * @returns {boolean}
  */
 function isDirectory(p) {
@@ -22,7 +22,20 @@ function isDirectory(p) {
 	}
 }
 
-// Discover platform names from directory names - i.e., /docs/<platform>/</apiName>
+/**
+ * Checks if a path is a file
+ * @param {import('node:fs').PathLike} p - the path to be checked
+ * @returns {boolean}
+ */
+function isFile(p) {
+	try {
+		return fs.statSync(p).isFile();
+	} catch {
+		return false;
+	}
+}
+
+// Discover platform names from directory names - i.e., /docs/<platform>/
 const platforms = fs
 	.readdirSync(docsRoot)
 	.map((platformDirName) => ({
@@ -32,45 +45,54 @@ const platforms = fs
 	.filter((platform) => isDirectory(platform.platformDirPath));
 
 // Discover APIs under each platform - i.e., /docs/<platform>/<apiName>
-const apiTargets = platforms.flatMap((platform) => {
-	const apiDirs = fs
-		.readdirSync(platform.platformDirPath)
-		.map((apiDirName) => ({
-			dirName: apiDirName,
-			apiDirPath: path.join(platform.platformDirPath, apiDirName),
-		}))
-		.filter((api) => isDirectory(api.apiDirPath));
+const apiTargets = platforms
+	.flatMap((platform) => {
+		const apiDirs = fs
+			.readdirSync(platform.platformDirPath)
+			.map((apiDirName) => ({
+				dirName: apiDirName,
+				apiDirPath: path.join(platform.platformDirPath, apiDirName),
+			}))
+			.filter((api) => isDirectory(api.apiDirPath));
 
-	return apiDirs
-		.map((api) => {
-			// Prefer <Api>.js (capitalized dir name) if present, else index.js
-			const preferredFileName = api.dirName.charAt(0).toUpperCase() + api.dirName.slice(1) + '.js';
-			const preferredEntryPath = path.join(api.apiDirPath, preferredFileName);
-			const fallbackEntryPath = path.join(api.apiDirPath, 'index.js');
+		return apiDirs
+			.map((api) => {
+				// Look for .js files directly inside the API dir (ignore subdirs)
+				const entries = fs.readdirSync(api.apiDirPath, { withFileTypes: true });
+				const jsFiles = entries
+					.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.js'))
+					.map((entry) => path.join(api.apiDirPath, entry.name))
+					.filter((fullPath) => isFile(fullPath));
 
-			let entryFilePath;
-			if (fs.existsSync(preferredEntryPath)) {
-				entryFilePath = preferredEntryPath;
-			} else if (fs.existsSync(fallbackEntryPath)) {
-				entryFilePath = fallbackEntryPath;
-			} else {
-				console.warn(`[typedoc] Skipping ${platform.dirName}/${api.dirName} – no JS entry file found`);
-				return null;
-			}
+				if (jsFiles.length === 0) {
+					console.warn(`[typedoc] Skipping ${platform.dirName}/${api.dirName} – no JS entry file found`);
+					return null;
+				}
 
-			// This is the actual API *display* name (e.g. "Check" from "Check.js")
-			const entryFileBaseName = path.basename(entryFilePath, path.extname(entryFilePath));
+				// If there are multiple .js files, warn and pick the first (sorted) as the entry.
+				jsFiles.sort(); // deterministic choice
+				if (jsFiles.length > 1) {
+					console.warn(
+						`[typedoc] ${platform.dirName}/${api.dirName} has multiple JS files:\n  ${jsFiles
+							.map((p) => path.relative(repoRoot, p))
+							.join('\n  ')}\n  -> Using ${path.relative(repoRoot, jsFiles[0])} as the entry point.`,
+					);
+				}
 
-			return {
-				platformDirName: platform.dirName,
-				apiDirName: api.dirName,
-				entryFilePath, // full path to Api.js file
-				entryFileBaseName,
-				outDirPath: api.apiDirPath,
-			};
-		})
-		.filter(Boolean);
-});
+				const entryFilePath = jsFiles[0];
+				const entryFileBaseName = path.basename(entryFilePath, path.extname(entryFilePath));
+
+				return {
+					platformDirName: platform.dirName,
+					apiDirName: api.dirName,
+					entryFilePath,
+					entryFileBaseName,
+					outDirPath: api.apiDirPath,
+				};
+			})
+			.filter(Boolean);
+	})
+	.filter(Boolean);
 
 if (apiTargets.length === 0) {
 	console.warn('[typedoc] No APIs found under docs/<platform>/<api>/');
@@ -96,8 +118,8 @@ for (const target of apiTargets) {
 		path.join(outDirPath, 'typedoc'),
 		'--name',
 		entryFileBaseName,
-		'--publicPath',
-		`/docs/${platformDirName}/${apiDirName}/`,
+		// '--publicPath',
+		// `/docs/${platformDirName}/${apiDirName}/`,
 		'--navigationJson',
 		`${outDirPath}/typedoc/navigation.json`,
 	];

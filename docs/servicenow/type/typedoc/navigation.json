@@ -1,12 +1,133 @@
 [
   {
-    "title": "Variables",
+    "title": "Namespaces",
     "children": [
       {
         "title": "Type",
-        "kind": 32,
-        "path": "variables/Type.md",
-        "isDeprecated": false
+        "kind": 4,
+        "path": "Type/namespaces/Type/README.md",
+        "isDeprecated": false,
+        "children": [
+          {
+            "title": "Functions",
+            "children": [
+              {
+                "title": "detail",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/detail.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "getJavaObjectName",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/getJavaObjectName.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "getNumberType",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/getNumberType.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "getToStringTag",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/getToStringTag.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isBigint",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isBigint.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isBoolean",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isBoolean.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isFinite",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isFinite.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isFloat",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isFloat.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isFunction",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isFunction.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isInfinite",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isInfinite.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isInteger",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isInteger.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isNaN",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isNaN.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isNull",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isNull.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isNumber",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isNumber.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isObject",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isObject.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isPlainObject",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isPlainObject.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isString",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isString.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isSymbol",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isSymbol.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "isUndefined",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isUndefined.md",
+                "isDeprecated": false
+              }
+            ]
+          }
+        ]
       }
     ]
   }

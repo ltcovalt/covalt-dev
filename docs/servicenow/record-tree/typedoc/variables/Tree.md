@@ -1,4 +1,4 @@
-[Tree](/docs/servicenow/tree/README.md) / Tree
+[RecordTree](../README.md) / Tree
 
 # Variable: Tree
 

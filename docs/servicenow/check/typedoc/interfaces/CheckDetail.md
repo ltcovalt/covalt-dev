@@ -1,4 +1,4 @@
-[Check](/docs/servicenow/check/README.md) / CheckDetail
+[Check](../README.md) / CheckDetail
 
 # Interface: CheckDetail
 

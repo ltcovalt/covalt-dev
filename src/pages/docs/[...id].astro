@@ -6,7 +6,7 @@ import { DocumentationHeader } from '@components';
 export async function getStaticPaths() {
 	// documentation index.mdx files
 	const docs = await getCollection('docs');
-	// source code mdx wrappers
+	// source.mdx wrappers for the raw .js files
 	const source = await getCollection('sourceCode');
 	const contentEntries = [...docs, ...source];
 
@@ -20,23 +20,29 @@ export async function getStaticPaths() {
 		};
 	});
 
-	// TypeDoc API pages
+	// TypeDoc API pages (raw files under docs/**/typedoc/**/*.md)
 	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
 	const apiPaths = Object.keys(apiPages).flatMap((file) => {
 		/*
-		 * Strip /docs/ and from the full path (i.e., /docs/servicenow/check/classes/Checker.md)
-		 * Astro route already includes /docs, so keeping here would duplicate it
+		 * file example: /docs/servicenow/check/typedoc/classes/Checker.md
+		 * strip leading /docs/ (Astro route already has /docs)
+		 * strip /typedoc/ (we don't want it in the public URL)
+		 * strip .md for canonical, extensionless URLs
 		 */
 		const apiId = file
 			.replace(/^\/docs\//, '')
 			.replace('/typedoc/', '/')
 			.replace(/\.md$/, '');
+
 		console.log(apiId);
+
 		return [
+			// canonical, extensionless path
 			{
 				params: { id: apiId },
 				props: { apiPath: file },
 			},
+			// optional .md variant (if you still want it to resolve)
 			{
 				params: { id: apiId + '.md' },
 				props: { apiPath: file },
@@ -50,13 +56,14 @@ export async function getStaticPaths() {
 const { currentEntry, apiPath } = Astro.props;
 
 let Content;
+let apiHtml = null;
 
 if (currentEntry) {
-	// Render content from Astro collections
+	// Render content from Astro collections (MDX, etc.)
 	const rendered = await render(currentEntry);
 	Content = rendered.Content;
 } else if (apiPath) {
-	// Render generated TypeDoc markdown
+	// Render generated TypeDoc markdown (docs/**/typedoc/**/*.md)
 	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
 	const loader = apiPages[apiPath];
 
@@ -65,13 +72,41 @@ if (currentEntry) {
 	}
 
 	const mod = await loader();
-	Content = (mod as any).default;
+
+	// Get compiled HTML for the markdown file
+	const rawHtml = await mod.compiledContent?.();
+
+	if (!rawHtml) {
+		throw new Error(`No compiledContent() for TypeDoc page: ${apiPath}`);
+	}
+
+	// base URL is the current request path without the file name
+	// i.e., /docs/servicenow/check/classes/Checker -> /docs/servicenow/check/classes
+	const pathname = Astro.url.pathname.replace(/\/+$/, ''); // trim trailing slash
+	const baseUrl = pathname.replace(/\/[^/]*$/, '');
+
+	apiHtml = rewriteRelativeLinks(rawHtml, baseUrl);
+}
+
+/**
+ * Rewrite TypeDocs's relative links so they match Astro routes,
+ * which does not include /typedoc/ in the path. Does not update non-relative routes.
+ */
+function rewriteRelativeLinks(html, base) {
+	const regex = new RegExp('href="(?!https?:\/\/|/|#)([^"]+)"', 'g');
+	return html.replace(regex, (_match, rel) => {
+		// drop .md extension from targets to match extensionless routes
+		const cleanRel = rel.replace(/\.md$/, '');
+		const normalizedBase = base.replace(/\/+$/, '');
+		return `href="${normalizedBase}/${cleanRel}"`;
+	});
 }
 ---
 
 <DocumentationLayout>
 	<div class="flex flex-col">
 		{currentEntry && <DocumentationHeader entry={currentEntry} />}
-		{Content && <Content />}
+		{currentEntry && Content && <Content />}
+		{!currentEntry && apiHtml && <div set:html={apiHtml} />}
 	</div>
 </DocumentationLayout>

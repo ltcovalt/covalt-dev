@@ -3,14 +3,13 @@ description:
     Tree traversal utility functions used for searching and processing nodes in
     hierachical GlideRecord relationships
 env:
-    api: Tree
+    api: RecordTree
     platform: ServiceNow
     runtime: Server
     resource: Script Include
 tags:
     [api, servicenow, server, tree, dfs, depth-first, traverse, script include]
 ---
+import Readme from '@components/TypeDocReadme.astro';
 
-```js file=<rootDir>/docs/servicenow/tree/Tree.js
-
-```
+<Readme platform={frontmatter.env.platform} api={'record-tree'} />

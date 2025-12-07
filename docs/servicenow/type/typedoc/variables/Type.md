@@ -1,4 +1,4 @@
-[Type](/docs/servicenow/type/README.md) / Type
+[Type](../README.md) / Type
 
 # Variable: Type
 

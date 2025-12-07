@@ -1,0 +1,55 @@
+[
+  {
+    "title": "Namespaces",
+    "children": [
+      {
+        "title": "RecordTree",
+        "kind": 4,
+        "path": "RecordTree/namespaces/RecordTree/README.md",
+        "isDeprecated": false,
+        "children": [
+          {
+            "title": "Functions",
+            "children": [
+              {
+                "title": "getRootNode",
+                "kind": 64,
+                "path": "RecordTree/namespaces/RecordTree/functions/getRootNode.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "traversePostOrder",
+                "kind": 64,
+                "path": "RecordTree/namespaces/RecordTree/functions/traversePostOrder.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "traversePreOrder",
+                "kind": 64,
+                "path": "RecordTree/namespaces/RecordTree/functions/traversePreOrder.md",
+                "isDeprecated": false
+              },
+              {
+                "title": "traverseToRoot",
+                "kind": 64,
+                "path": "RecordTree/namespaces/RecordTree/functions/traverseToRoot.md",
+                "isDeprecated": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Functions",
+    "children": [
+      {
+        "title": "traverseDfs",
+        "kind": 64,
+        "path": "functions/traverseDfs.md",
+        "isDeprecated": false
+      }
+    ]
+  }
+]

@@ -12,6 +12,6 @@ env:
     resource: Script Include
 tags: [api, servicenow, server, type, input, validation, class, es6, es12]
 ---
-import Generated from './typedoc/README.md';
+import Readme from '@components/TypeDocReadme.astro';
 
-<Generated />
+<Readme platform={frontmatter.env.platform} api={frontmatter.env.api} />
