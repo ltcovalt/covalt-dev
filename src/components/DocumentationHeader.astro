@@ -1,5 +1,6 @@
 ---
 import { Link } from '@components';
+import CodeIcon from '@icons/code-bracket.svg';
 const { entry } = Astro.props;
 const sourceLink = Astro.url.pathname.replace('/source', '');
 const sourceView = Astro.url.pathname.endsWith('/source');
@@ -13,7 +14,10 @@ const sourceView = Astro.url.pathname.endsWith('/source');
 		{
 			!sourceView && (
 				<li>
-					<Link href={`${sourceLink}/source`}>View Source</Link>
+					<Link href={`${sourceLink}/source`} class="flex items-center">
+						<CodeIcon class="w-5" />
+						View Source
+					</Link>
 				</li>
 			)
 		}

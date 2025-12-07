@@ -7,7 +7,7 @@
 	}
 
 	.prose-docs a {
-		@apply hover:text-accent transition-all duration-200;
+		@apply link link-hover hover:text-accent no-underline transition-all duration-200 hover:underline;
 	}
 
 	.prose-docs hr {
@@ -72,6 +72,7 @@
 		/* @apply mb-4 leading-snug; */
 		@apply border-base-300 rounded-box w-full border-separate border-spacing-0 overflow-hidden border;
 	}
+
 	/* Override DaisyUI's inline code styling inside tables */
 	.prose-docs table :where(code):not(pre > code) {
 		background-color: transparent !important;
@@ -99,7 +100,7 @@
 	}
 
 	.prose-docs table a {
-		@apply text-accent hover:text-accent/70 font-medium no-underline hover:underline hover:underline-offset-2;
+		@apply text-accent hover:text-accent/80 link link-accent link-hover font-medium no-underline hover:underline hover:underline-offset-2;
 	}
 
 	/* 
@@ -142,10 +143,6 @@
 
 	.prose-docs h2 + ul > li {
 		@apply my-1;
-	}
-
-	.prose-docs ul li a {
-		@apply no-underline hover:underline hover:underline-offset-2;
 	}
 
 	/* 
