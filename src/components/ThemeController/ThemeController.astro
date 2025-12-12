@@ -6,18 +6,16 @@ import ThemeRadioInput from './ThemeRadioInput.astro';
 const componentId = `theme-controller-${shortId()}`;
 ---
 
-<div title="Change Theme" class="dropdown dropdown-end block theme-controller" id={componentId}>
+<div title="Change Theme" class="dropdown dropdown-end theme-controller block" id={componentId}>
 	<!-- header menu button/active theme preview -->
 	<MainButton />
 
 	<!-- dropdown theme selector -->
 	<div
 		tabindex="0"
-		class="dropdown-content bg-base-200 text-base-content rounded-box h-auto
-			max-h-[calc(100vh-8.6rem)] overflow-y-auto border border-white/5
-			shadow-lg outline-1 outline-black/5 mt-4"
+		class="dropdown-content bg-base-200 text-base-content rounded-box mt-4 h-auto max-h-[calc(100vh-8.6rem)] overflow-y-auto border border-white/5 shadow-lg outline-1 outline-black/5"
 	>
-		<ul class="menu w-52 px-0">
+		<ul class="menu w-52 px-2">
 			<li class="menu-title text-xs">Theme</li>
 			{
 				themes.map((theme) => {

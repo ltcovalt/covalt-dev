@@ -15,15 +15,20 @@ const { title = 'covalt.dev', class: classes } = Astro.props;
 		</script>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
 		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/png" href="/favicon.png" />
 		<title>{title}</title>
 	</head>
-	<body class="flex min-h-screen flex-col">
-		<Header />
-		<div class:list={[classes, 'flex flex-1 flex-col']}>
-			<slot />
+	<body>
+		<div class="bg-base-200/50 mx-auto">
+			<Header class="mx-auto max-w-7xl" />
 		</div>
+		<div class="mx-auto max-w-7xl">
+			<div class:list={[classes, 'flex flex-1 flex-col']}>
+				<slot />
+			</div>
+		</div>
+
 		<script src="/scripts/copy-code.js" type="module"></script>
 	</body>
 </html>

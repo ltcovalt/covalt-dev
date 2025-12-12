@@ -2,12 +2,13 @@
 	/*
    * prose styles for documentation pages
    */
-	.prose-docs {
-		@apply prose max-w-[100ch];
-	}
 
 	.prose-docs a {
-		@apply link link-hover hover:text-accent no-underline transition-all duration-200 hover:underline;
+		@apply link link-accent link-hover no-underline transition-all duration-200 hover:underline;
+	}
+
+	:root .prose-docs a code {
+		@pply link-accent text-inherit;
 	}
 
 	.prose-docs hr {
@@ -160,5 +161,10 @@
 	.prose-docs blockquote p::before,
 	.prose-docs blockquote p::after {
 		content: none;
+	}
+
+	/* Make links that wrap inline code use accent color */
+	:root .prose-docs a:not(.no-accent) code {
+		@apply link link-hover link-accent text-accent;
 	}
 }

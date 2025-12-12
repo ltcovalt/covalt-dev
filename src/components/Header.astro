@@ -16,9 +16,10 @@ const isCurrentPage = (href) => {
 	// exact match or prefix match for sub-pages
 	return currentPage === base || (base !== '/' && currentPage.startsWith(base + '/'));
 };
+let { class: classes } = Astro.props;
 ---
 
-<div class="navbar bg-base-100 border-base-200/60 flex min-h-14 items-center gap-2 border-2 py-0">
+<div class={`navbar flex min-h-14 gap-2 py-0 ${classes}`}>
 	<!-- navbar is rendered as a dropdown menu for small screens -->
 	<NavMenuDropdown>
 		{
@@ -36,7 +37,7 @@ const isCurrentPage = (href) => {
 	</div>
 
 	<!-- center navbar, hidden for small screens -->
-	<div class="navbar-center hidden md:flex">
+	<div class="navbar-center lg: hidden lg:flex lg:items-end">
 		<ul class="menu menu-horizontal px-1 text-lg">
 			{
 				headerLinks.map((link) => (

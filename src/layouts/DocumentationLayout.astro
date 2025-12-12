@@ -9,7 +9,7 @@ const entries = await getCollection('sourceCode');
 ---
 
 <DefaultLayout {title}>
-	<div class="drawer lg:drawer-open flex-1">
+	<div class="drawer lg:drawer-open min-h-screen flex-1">
 		<input id="docs-nav-drawer" type="checkbox" class="drawer-toggle" />
 
 		<div class="drawer-content flex flex-col">
@@ -21,13 +21,12 @@ const entries = await getCollection('sourceCode');
 					aria-label="Open documentation navigation"
 				>
 					<DocsMenuIcon class="w-5" />
-					<!-- <span>Documentation</span> -->
 				</label>
 			</div>
 
 			<div class="flex flex-1">
 				<!-- main content slot -->
-				<div class="prose xl:prose-lg prose-docs mx-auto w-full max-w-[100ch] min-w-0 p-8">
+				<div class="prose xl:prose-lg prose-docs mx-auto w-full max-w-[90ch] min-w-0 p-8">
 					<slot />
 				</div>
 			</div>
@@ -36,8 +35,9 @@ const entries = await getCollection('sourceCode');
 		<!-- Docs menu -->
 		<div class="drawer-side">
 			<label for="docs-nav-drawer" class="drawer-overlay" aria-label="Close sidebar"></label>
-			<div class="border-base-300/40 bg-base-200 lg:bg-base-200/50 min-h-full w-[28ch] max-w-[40ch] border-r">
-				<DocsNav entries={entries} class="h-full w-full p-2" />
+
+			<div class="bg-base-100 min-h-full w-64">
+				<DocsNav entries={entries} class="h-full w-full" />
 			</div>
 		</div>
 	</div>

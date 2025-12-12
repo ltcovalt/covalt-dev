@@ -5,18 +5,17 @@ const themeIndicatorColors = ['--color-base-content', '--color-primary', '--colo
 const { name, theme } = Astro.props;
 ---
 
-<li class="p-0">
-	<label class="flex items-center justify-start gap-1 w-full p-1.5 border-none outline-none rounded-none">
+<li>
+	<label class="rounded-box flex w-full items-center justify-start gap-1 border-none p-2 outline-none">
 		<div
-			class="inline-grid grid-cols-2 grid-flow-row gap-0.5 w-fit flex-none
-				border border-base-content/25 rounded-md p-1 transition-colors"
+			class="border-base-content/25 inline-grid w-fit flex-none grid-flow-row grid-cols-2 gap-0.5 rounded-md border p-1 transition-colors"
 			style={`background-color: ${themeColors[theme]['--color-base-100']};`}
 		>
 			{
 				themeIndicatorColors.map((color) => {
 					return (
 						<span
-							class="size-2 rounded-full bg-base-content"
+							class="bg-base-content size-2 rounded-full"
 							style={`background-color: ${themeColors[theme][color]};`}
 						/>
 					);
@@ -24,9 +23,9 @@ const { name, theme } = Astro.props;
 			}
 		</div>
 		{/* <ThemeRadio /> */}
-		<input type="radio" name={name} value={theme} aria-label={theme} class="theme-controller sr-only peer" />
+		<input type="radio" name={name} value={theme} aria-label={theme} class="theme-controller peer sr-only" />
 		<span class="ml-1 truncate">{theme}</span>
 		{/* show checkmark if theme is active, hidden otherwise*/}
-		<ActiveIcon class="size-6 ml-auto hidden peer-checked:inline"/>
+		<ActiveIcon class="ml-auto hidden size-6 peer-checked:inline" />
 	</label>
 </li>

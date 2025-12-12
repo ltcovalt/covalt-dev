@@ -1,0 +1,38 @@
+---
+import { Link } from '@components';
+import CodeIcon from '@icons/code-bracket.svg';
+const { entry } = Astro.props;
+const sourceLink = Astro.url.pathname.replace('/source', '');
+const sourceView = Astro.url.pathname.endsWith('/source');
+const { platform, runtime, resource } = entry.data.env;
+const deps = entry.data?.requires?.map((v) => {
+	const [platform, api] = v.split('/');
+	return { platform: platform.toLowerCase(), api: api.toLowerCase(), label: api };
+});
+---
+
+<div class="not-prose">
+	<ul class="m-0 mb-6 list-none p-0">
+		<li><span class="font-extrabold">Platform</span>: {platform}</li>
+		<li><span class="font-extrabold">Runtime</span>: {runtime}</li>
+		<li><span class="font-extrabold">Resource Type</span>: {resource}</li>
+		{
+			entry.data?.requires && (
+				<li>
+					<span class="font-extrabold">Requires</span>:{' '}
+					{deps && deps.map((e) => <a href={`/docs/${e.platform}/${e.api}`}>{e.label}</a>)}
+				</li>
+			)
+		}
+		{
+			!sourceView && (
+				<li>
+					<Link href={`${sourceLink}/source`} class="flex items-center">
+						<CodeIcon class="w-5" />
+						View Source
+					</Link>
+				</li>
+			)
+		}
+	</ul>
+</div>
