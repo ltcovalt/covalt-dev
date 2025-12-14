@@ -1,0 +1,147 @@
+---
+title: Site Docs are Live!
+slug: site-docs-go-live
+description:
+    Documentation pages are now live at covalt.dev/docs! The docs section is
+    where you will be able to find the API documentation for all the utilities I
+    share on the website. In the future, in-depth usage guides may also be
+    published on the documentation site.
+author: 'Luke Covalt'
+date: 2025-12-31
+updated: 2025-12-31
+draft: true
+tags: [blog, docs, documentation, api, astro]
+---
+
+Near the end of last month, I set an entirely arbitrary and self-imposed
+deadline to have a solution for publishing documentation pages on my site.
+Today, I'm happy to announce that my documentation site is live! It can be
+accessed at [covalt.dev/docs](https://covalt.dev/docs). There's still a few
+issues, there are several features I still want to implement, and it's a bit
+sparse on content - but my utilities and scripts have found their forever home
+for documentation and source code. Even though there's a lot to do, I hope to
+spend more time building and sharing utilities, now that I actually have a way
+to share them. It's a busy time of year, so I won't be doing a deep dive on the
+technical implementation right now, but I'll briefly discuss some of the
+highlights and major issues.
+
+## Implementation overview
+
+The first step is every developer's favorite - actually documenting your code. I
+use [JSDoc](https://jsdoc.app/) to document my code. I've long made it a point
+to document my code inline using JSDoc, and even in ServiceNow where it isn't
+fully supported, I've found it incredibly useful to have descriptions, parameter
+definitions, return values, examples, etc. baked into the code. Outside of
+ServiceNow, having code well documented using JSDoc (or Typescript and TSDoc) is
+like a superpower - as fully complete documentation sites can be generated using
+[TypeDoc](https://typedoc.org/).
+
+<Alert>
+	Note that you don't have to use Typescript or TSDoc. TypeDoc will happily
+	generate documentation from well-formatted JSDoc comments.
+</Alert>
+
+If that sounds like an oversimplification - it is. There were countless minor
+headaches, mainly simple configuration and formatting issues. My site doesn't
+have a single entry point for TypeDoc to crawl and generate docs from, as I'm
+primarily creating standalone utilities contained in a single file. Figuring out
+routing in [Astro](https://astro.build/) came with some unique challenges too,
+as the TypeDoc generated links point directly to a markdown file, which is
+served by Astro's static file handling, rather than routing through my standard
+content pipeline.
+
+## TypeDoc setup
+
+Adding TypeDoc to my project was straight forward. I don't want TypeDoc to fully
+own the my documentation site though - I want full control of styling and
+integration with my site. I also want my docs to be portable, and easily
+navigable whether viewed on this site, GitHub, or a local copy. Using
+[typedoc-plugin-markdown](https://typedoc-plugin-markdown.org/), TypeDoc
+generates Markdown files, which can be run through Astro's content pipeline, so
+the same styling and markdown processing plugins that are applied to the rest of
+my site's content is also applied to TypeDoc's generated markdown content.
+
+Next, I needed TypeDoc to run once per API. I structured my documentation site
+with one API per directory (i.e., `/docs/{platform}/{api}`). I wrote a
+[generate-api-docs](https://github.com/ltcovalt/covalt-dev/blob/main/scripts/generate-api-docs.cjs)
+node script that iterates over each API directory, runs TypeDoc, and generates
+the resulting documentation at `/docs/{platform}/{api}/typedoc`. Now, I can run
+a simple node script like `docs:update` to have TypeDoc generate all my docs
+automatically. Perfect!
+
+## Tailwind and Typography Woes
+
+After fiddling with TypeDoc configs and getting my generation script working,
+one teeny-tiny issue was immediately noticeably: the rendered Markdown looked
+like a steaming pile of hot garbage. Tailwind, and more specifically Tailwind's
+Typography styles, did not play nice at all with TypeDoc's output. I ended up
+creating my own `.prose-docs` class to override many of Tailwind's default
+`prose` styles, which can be found at
+[/src/styles/prose-docs.css](https://github.com/ltcovalt/covalt-dev/blob/main/src/styles/prose-docs.css).
+It's where I want it to be yet, but overall I'm quite happy with how it is
+shaping up.
+
+## File structure and routing
+
+Keeping my API URLs simple is important to me - at least for the initial entry
+point. I knew I wanted users to be able to navigate to something like
+`covalt.dev/docs/platform/api` rather than
+`covalt.dev/docs/platform/api/typedoc/README.md`. I accomplished this by
+creating an `index.mdx` file in each API directory, which imports TypeDoc
+generated README.md. I also created a `source.mdx` file in each API directory
+that serves only as a wrapper around my source files. This allows my source
+scripts to be imported like any other Astro content collection, but more
+importantly, enables them to be rendered through Astro's standard content
+pipeline. This means syntax highlighting and the remark/rehype plugins I created
+for my other pages will also be applied.
+
+I defined standard Astro content collections for my API document index and
+source code files and serve them via
+[/src/pages/docs/\[...id\].astro](https://github.com/ltcovalt/covalt-dev/blob/main/src/pages/docs/%5B...id%5D.astro).
+The same page also grabs all the TypeDoc generated markdown files from their
+physical on disk location using a glob pattern (`/docs/**/typedoc/**.md`),
+strips out the parts of the path I don't want to display to users, and creates
+routes for each TypeDoc page under `/docs/platform/api/`. This works as
+expected - until you try to follow a from the generated files...
+
+## Rewriting links
+
+I ran into two main challenges when getting TypeDoc links to work with my
+routing setup. By default, TypeDoc links point to the file's disk location. For
+example, the path to the `Check` API readme is
+[/docs/servicenow/check/typedoc/README.md](/docs/servicenow/check/typedoc/README.md).
+Following this link will serve the raw markdown via the static file handler. Not
+at all what I want, and is another benefit of setting up routing to handle
+routes without `/typedoc` in the path - since there isn't a static file there,
+the Astro router can be configured to handle those requests however we want.
+
+TypeDoc allows you to set the public path for your docs, which will change the
+way it generates links. This would be a simple, sane way to get my links working
+on my site - I could just set the path to `covalt.dev/docs/{platform}/{api}`
+(remember, I run TypeDoc once per API directory) and my links would work. But I
+am not a sane person. Going down this path would be simple, but then links would
+not be relative, and would always point to my website, rather than working
+locally or from GitHub. I also thought about configuring TypeDoc's relative
+links, but that also has issues since I'm serving the API index page from
+`/docs/{platform}/{api}`, which is outside of the TypeDoc generated directory,
+causing links on my index page to be broken. Even if I manually fixed the
+relative links on my index pages, links would still be pointing to the physical
+file path, which means I'd be back to fighting the static file handler.
+
+Finally, after spending way more time trying to avoid manipulating the links
+than I should have, I accepted my fate. I would use TypeDoc's relative links and
+leave them as is in the file. This keeps the raw markdown links working no
+matter how they are viewed. Finally, when a page is served from
+[/src/pages/docs/\[...id\].astro](https://github.com/ltcovalt/covalt-dev/blob/main/src/pages/docs/%5B...id%5D.astro),
+the `rewriteRelativeLinks` function rewrites the links to match my routing
+setup. The end result is run time links that match my desired public path
+structure, while leaving the original links on disk in tact.
+
+## Moving on
+
+Getting everything up and working was both fun and frustrating. I definitely
+made things more difficult on myself in someways, but I think the end result was
+worth it. I'll continue to refine and the solution and make smaller enhancements
+over time, but now that I have a working solution in place, I'm going to shift
+my focus back to building and sharing new solutions. Be sure to keep an eye on
+the [docs site](https://covalt.dev/docs) if your interested.
