@@ -29,7 +29,7 @@ const transitionClass = 'transition-all duration-400';
 	<!-- body -->
 	<div
 		class="text-base-content/50 group-hover:text-base-content/80 mx-auto flex max-w-[60ch] flex-1 items-center"
-		class:list={[transitionClass]}
+		class:list={[transitionClass, featured ? 'text-base' : 'text-sm']}
 	>
 		{post.data.description}
 	</div>
