@@ -7,10 +7,10 @@ description:
     share on the website. In the future, in-depth usage guides may also be
     published on the documentation site.
 author: 'Luke Covalt'
-date: 2025-12-31
-updated: 2025-12-31
-draft: true
-tags: [blog, docs, documentation, api, astro]
+date: 2025-12-13
+updated: 2025-12-13
+draft: false
+tags: [blog, docs, documentation, api, astro, routing, typedoc, jsdoc, tsdoc]
 ---
 
 Near the end of last month, I set an entirely arbitrary and self-imposed
@@ -22,8 +22,8 @@ sparse on content - but my utilities and scripts have found their forever home
 for documentation and source code. Even though there's a lot to do, I hope to
 spend more time building and sharing utilities, now that I actually have a way
 to share them. It's a busy time of year, so I won't be doing a deep dive on the
-technical implementation right now, but I'll briefly discuss some of the
-highlights and major issues.
+technical implementation right now, but I'll discuss some of the highlights and
+major issues I encountered.
 
 ## Implementation overview
 
@@ -37,8 +37,8 @@ like a superpower - as fully complete documentation sites can be generated using
 [TypeDoc](https://typedoc.org/).
 
 <Alert>
-	Note that you don't have to use Typescript or TSDoc. TypeDoc will happily
-	generate documentation from well-formatted JSDoc comments.
+	You don't have to use Typescript or TSDoc. TypeDoc will happily generate
+	documentation from well-formatted JSDoc comments.
 </Alert>
 
 If that sounds like an oversimplification - it is. There were countless minor
@@ -140,8 +140,8 @@ structure, while leaving the original links on disk in tact.
 ## Moving on
 
 Getting everything up and working was both fun and frustrating. I definitely
-made things more difficult on myself in someways, but I think the end result was
-worth it. I'll continue to refine and the solution and make smaller enhancements
-over time, but now that I have a working solution in place, I'm going to shift
-my focus back to building and sharing new solutions. Be sure to keep an eye on
-the [docs site](https://covalt.dev/docs) if your interested.
+made things more difficult on myself in some ways, but I think the end result
+was worth it. I'll continue to refine and the solution and make smaller
+enhancements over time, but now that I have a working solution in place, I'm
+going to shift my focus back to building and sharing new solutions. Be sure to
+keep an eye on the [docs site](https://covalt.dev/docs) if your interested.
