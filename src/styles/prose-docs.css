@@ -161,6 +161,5 @@
 	/* Make links that wrap inline code use accent color */
 	:root .prose-docs a:not(.no-accent) code {
 		@apply text-accent hover:text-accent/80 link link-accent link-hover font-medium hover:underline hover:underline-offset-2;
-		/* @apply link link-hover link-accent text-accent; */
 	}
 }
