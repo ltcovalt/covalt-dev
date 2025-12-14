@@ -1,62 +1,70 @@
 ---
 import { ArticleLayout, DefaultLayout } from '@layouts';
+import profilePhoto from '../assets/profile_photo_circle_bw_256.png';
 ---
 
 <DefaultLayout title="About covalt.dev">
-	<div class="prose xl:prose-lg max-w-[75ch] m-auto p-8 prose-h2:mt-8 prose-h2:mb-4">
-		<div>
-			<h1 class="mb-0 xl:mb-0">Hi, I'm <span class="text-secondary">Luke Covalt</span></h1>
-			<p class="mt-4 xl:mt-4">Staff Software Engineer and ServiceNow Solutions Architect</p>
+	<div class="prose xl:prose-lg prose-h2:mt-8 prose-h2:mb-4 m-auto max-w-[75ch] p-8">
+		<div class="flex flex-row items-center">
+			<div class="flex flex-col">
+				<h1 class="mb-0 xl:mb-0">Hi, I'm <span class="text-secondary">Luke Covalt</span></h1>
+				<p class="mt-4 mr-4 max-w-[60ch]">
+					Staff Software Engineer & Solutions Architect building innovative ServiceNow solutions and
+					full-stack applications
+				</p>
+			</div>
+			<img src={profilePhoto.src} class="h-auto-block mr-6 ml-auto max-w-[7rem]" />
 		</div>
 
 		<h2><span class="text-secondary">// </span>Professional Background</h2>
 		<p>
-			I have nearly 20 years of experience working in many technology roles, including as a satellite communications
-			engineer, network engineer, network security engineer, IT consultant, and software developer. Most recently, I
-			have focused on building solutions on the ServiceNow platform, holding development team lead, solutions architect,
-			and staff software engineer roles.
+			I have nearly 20 years of experience working in many technology roles, including as a satellite
+			communications engineer, network engineer, network security engineer, IT consultant, and software developer.
+			Most recently, I have focused on building solutions on the ServiceNow platform, holding development team
+			lead, solutions architect, and staff software engineer roles.
 		</p>
 
 		<h2><span class="text-secondary">// </span>Education</h2>
 		<p>
-			I hold a Master's in International Business Administration from The Pennsylvania State University. I also earned
-			both an Associate's and a Bachelor's degree in Information Technology with a concentration in advanced networking.
+			I hold a Master's in International Business Administration from The Pennsylvania State University. I also
+			earned both an Associate's and a Bachelor's degree in Information Technology with a concentration in
+			advanced networking.
 		</p>
 
 		<h2><span class="text-secondary">// </span>Website Goal</h2>
 		<p>
-			I love learning and sharing what I learn with others. I want to reach a wider audience by publishing on this site.
-			It also gives me a great reason to dive deeper into specific topics, which helps me learn as well. Eventually, I'd
-			like to host a repository of scripts and utilities for others to either use directly or reference when building
+			I love learning and sharing what I learn with others and I hope to reach a wider audience by publishing on
+			this site. Creating content for this site also gives me a great reason deep dive into topics I am interested
+			in. Finally, I want to host a growing repository of tools and utilities that others can learn from or use in
 			their own solutions.
 		</p>
 
 		<h2><span class="text-secondary">// </span>How This Site is Different</h2>
 		<p>
-			I want my site to stand apart from the many excellent developer resources already available by focusing more on
-			fundamental software engineering principles. I've noticed that because ServiceNow is so large and constantly
-			evolving, developers frequently specialize solely in the platform, without building the foundational engineering
-			skills needed to create robust, scalable solutions. I want to help address that gap by sharing and discussing
-			solutions that emphasize performance, common design patterns, algorithms, and more. Although some content on this
-			site will be targeted towards ServiceNow, my primary goal is to help developers build strong engineering skills
-			that transfer to any area of development.
+			There are many execllent developer resources available, but I hope to stand apart from existing resources by
+			focusing on fundamental software entineering principles. ServiceNow is a large, constantly evolving
+			platform, and I have noticed developers commonly specialize solely in the platform, without building
+			foundational engineering skills needed to create robust, scalable solutions. I want to help address that gap
+			by sharing solutions that emphasize performance, common design patterns, algorithms, and more. Although some
+			content on this site will be targeted towards ServiceNow, my primary goal is to help developers build strong
+			engineering skills that transfer to any area of development.
 		</p>
 
 		<h2><span class="text-secondary">// </span>Personal Background</h2>
 		<p>
-			Although I specialize in ServiceNow solutions, my true passion is continuous learning and self-improvement. While
-			my professional work is centered on ServiceNow, I enjoy working on full-stack projects like this website in my
-			spare time. Lately, I have been having a lot of fun working with Wails, a desktop application framework that uses
-			a web based frontend and Go based backend.
+			Although I specialize in ServiceNow solutions, my true passion is continuous learning and self-improvement.
+			While my professional work is centered on ServiceNow, I enjoy working on full-stack projects like this
+			website in my spare time. Lately, I have been having a lot of fun working with Wails, a desktop application
+			framework that uses a web based frontend and Go based backend.
 		</p>
 		<p>
-			My passion for learning has led me to deep dive into many hobbies beyond software development. I am an avid
-			Brazilian Jiu Jitsu practitioner, training for over 12 years and receiving my black belt in 2024. I enjoy
-			collecting and refurbishing retro video game systems and have built and sold several custom arcade control panels.
-			I have built more custom split keyboards than I care to admit and have an irresponsible amount of headphones from
-			when I fell deep into the trap of audiophile gear. I also previously ran my own wedding photography business for a
-			little over 5 years. I have an uncanny knack of taking my hobbies to an unenjoyable extreme before settling back
-			into something more sustainable. I don't know what will come next, but when it does, I'm sure I will be all in.
+			My passion for learning has led me to deep dive into many hobbies beyond software development. I collect and
+			refurbish retro video game systems. I have built and sold several custom arcade control panels and custom
+			split mechanical keyboards. I have trained in multiple martial arts, including Brazilian Jiu Jitsu for over
+			12 years. I own an irresponsible amount of headphones from when I fell deep into the trap that is audiophile
+			gear. I previously ran a wedding photography business for a little over 5 years. I have a habit of going
+			all-in on a hobby, pushing it until it nearly feels like work, then dialing it back to something sustainable
+			before jumping into whatever piques my curiosity next.
 		</p>
 	</div>
 </DefaultLayout>
