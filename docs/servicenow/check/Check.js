@@ -22,10 +22,12 @@
  * @returns {Checker} a new Checker instance
  */
 const Check = (value, name) => {
-	if (value && Type.isPlainObject(value)) {
+	// if a name isn't provided, accept an object with a single name:value pair to use as the name and value for the Checker instance
+	if (!name && value && Type.isPlainObject(value)) {
 		let keys = Object.keys(value);
-		if (keys.length !== 1) throw Error('object must contain a single name:value pair');
-		return new Checker(value[keys[0]], keys[0]);
+		if (keys.length === 1) {
+			return new Checker(value[keys[0]], keys[0]);
+		}
 	}
 	return new Checker(value, name);
 };
@@ -70,13 +72,17 @@ class Checker {
 	 * @param {string} name - the name or label of the value being checked
 	 */
 	constructor(value, name) {
-		/** @property {string} */
+		/** @type {number} */
+		this.checkCount = 1;
+		/** @type {any} */
 		this.value = value;
-		this.name = name;
+		/** @property {string} */
+		this.name = name ?? `value #${this.checkCount}`;
 		/** @type {string} */
 		this.typeof = typeof this.value;
 		/** @type {string} */
 		this.typeofDetail = Type.detail(this.value);
+		/** @type {boolean} */
 		this.invert = false;
 		/** @type {CheckDetail[]} */
 		this.checks = [];
@@ -96,6 +102,7 @@ class Checker {
 
 	/**
 	 * Inverts the result when the next set of validations is evaluated
+	 * @returns {this}
 	 */
 	get not() {
 		this.invert = !this.invert;
@@ -161,7 +168,7 @@ class Checker {
 	 *
 	 * @example
 	 * let testValue = 'Some String';
-	 * let pass = Check({ testValue }).is.type('string'); // true
+	 * let pass = Check({ testValue }).is.type('string').ok(); // true
 	 */
 	type(expected) {
 		this.evaluate(this.typeof === expected, {
@@ -195,48 +202,116 @@ class Checker {
 		return this;
 	}
 
-	// standard type checks
+	// NOTE: basic type checks
+
+	/**
+	 * Checks if a value is a string
+	 * @returns {this}
+	 */
 	string() {
 		return this.type('string');
 	}
+
+	/**
+	 * Checks if a value is a number
+	 * @returns {this}
+	 */
 	number() {
 		return this.type('number');
 	}
+
+	/**
+	 * Checks if a value is a bigint
+	 * @returns {this}
+	 */
 	bigint() {
 		return this.type('bigint');
 	}
+
+	/**
+	 * Checks if a value is a boolean
+	 * @returns {this}
+	 */
 	boolean() {
 		return this.type('boolean');
 	}
+
+	/**
+	 * Checks if a value is a function
+	 * @returns {this}
+	 */
 	function() {
 		return this.type('function');
 	}
+
+	/**
+	 * Checks if a value is an object
+	 * @returns {this}
+	 */
 	object() {
 		return this.type('object');
 	}
+
+	/**
+	 * Checks if a value is null
+	 * @returns {this}
+	 */
 	null() {
 		return this.typeDetail('object (Null)');
 	}
+
+	/**
+	 * Checks if a value is undefined
+	 * @returns {this}
+	 */
 	undefined() {
 		return this.type('undefined');
 	}
+
+	/**
+	 * Checks if a value is a symbol
+	 * @returns {this}
+	 */
 	symbol() {
 		return this.type('symbol');
 	}
 
-	// number type checks
+	/**
+	 * Checks if a value is an integer
+	 * @returns {this}
+	 */
 	integer() {
 		return this.typeDetail('number (Integer)');
 	}
+
+	/**
+	 * Checks if a value is a float/decimal number
+	 * @returns {this}
+	 */
 	float() {
 		return this.typeDetail('number (Float)');
 	}
+
+	/**
+	 * Checks if a value is Not-a-Number (NaN)
+	 * @returns {this}
+	 */
 	nan() {
 		return this.typeDetail('number (NaN)');
 	}
+
+	/**
+	 * Checks if a value is Infinity
+	 * @returns {this}
+	 */
 	infinity() {
 		return this.typeDetail('number (Infinity)');
 	}
+
+	/**
+	 * Checks if a value is a finite number
+	 * @returns {this}
+	 */
 	finite() {
 		this.evaluate(this.typeofDetail === 'number (Integer)' || this.typeofDetail === 'number (Float)', {
 			actual: this.typeofDetail,
@@ -247,7 +322,19 @@ class Checker {
 		return this;
 	}
 
-	// truthy checks
+	// NOTE: Truthy/Falsy checks
+
+	/**
+	 * Coerces a value to a boolean and checks if it is a truthy value
+	 * returns {this}
+	 *
+	 * @example
+	 * Check('string', name).is.truthy().ok(); // true
+	 * Check(true, name).is.truthy().ok(); // true
+	 * Check({}, name).is.truthy().ok(); // true
+	 * Check(0, name).is.truthy().ok(); // false
+	 * Check(null, name).is.truthy().ok() // false
+	 */
 	truthy() {
 		this.evaluate(!!this.value === true, {
 			actual: !!this.value,
@@ -258,6 +345,19 @@ class Checker {
 		return this;
 	}
 
+	/**
+	 * Coerces a value to a boolean and checks if it is a falsy value
+	 * returns {this}
+	 *
+	 * @example
+	 * Check('string', name).is.falsy().ok(); // false
+	 * Check(true, name).is.falsy().ok(); // false
+	 * Check({}, name).is.falsy().ok(); // false
+	 * Check(0, name).is.falsy().ok(); // true
+	 * Check('', name).is.falsy().ok(); // true
+	 * Check(NaN, name).is.falsy().ok(); // true
+	 * Check(null, name).is.falsy().ok() // true
+	 */
 	falsy() {
 		this.evaluate(!!this.value === false, {
 			actual: !!this.value,
@@ -268,19 +368,38 @@ class Checker {
 		return this;
 	}
 
-	// complex object checks
+	// NOTE: complex object checks
+
+	/**
+	 * Checks if a value is an Array
+	 * @returns {this}
+	 */
 	array() {
 		return this.typeDetail('object (Array)');
 	}
 
+	/**
+	 * Checks if a value is a Regular Expression
+	 * @returns {this}
+	 */
 	regex() {
 		return this.typeDetail('object (RegExp)');
 	}
 
+	/**
+	 * Checks if a value is a Date object.
+	 * Note that this is will only return true for a standard `Date` object instance.
+	 * It does not check if a value is a `GlideDate` or `GlideDateTime` instance
+	 * @returns {this}
+	 */
 	date() {
 		return this.typeDetail('object (Date)');
 	}
 
+	/**
+	 * Checks if a value is null or undefined
+	 * @returns {this}
+	 */
 	nil() {
 		let pass = this.value === null || this.value === undefined ? true : false;
 		this.evaluate(pass, {
@@ -292,11 +411,20 @@ class Checker {
 		return this;
 	}
 
+	/**
+	 * Checks if a value is a plain object.
+	 * A plain object is one with a prototype of Object.prototype or null
+	 * @returns {this}
+	 *
+	 * @example
+	 * Check({}, 'name').is.plainObject().ok(); // true
+	 * Check(new GlideRecord, 'name').is.plainObject().ok(); // false
+	 */
 	plainObject() {
 		// TODO: consider updating actual/expected to indicate the prototype as well,
 		// as there are cases where object (Object) uses a custom class/prototype
 		this.evaluate(Type.isPlainObject(this.value), {
-			actual: typeDetail,
+			actual: this.typeofDetail,
 			predicate: 'plainObject',
 			label: 'plain object',
 			expected: 'object (Object)',
@@ -306,20 +434,43 @@ class Checker {
 
 	// NOTE: equality checks
 
+	/**
+	 * Performs a strict equality (===) check on a value
+	 * @returns {this}
+	 * @example
+	 * Check(1, 'number').is.equal(1).ok(); // true
+	 * Check('1', 'number').is.equal(1).ok(); // false
+	 */
 	equal(expected) {
 		this.evaluate(this.value === expected, {
 			actual: this.value,
-			predicate: 'equals',
+			predicate: 'equal',
 			label: 'equal to',
 			expected,
 		});
 		return this;
 	}
 
+	/**
+	 * Performs a strict equality (===) check on a value.
+	 * Alias for the [equal](#equal) method.
+	 * @returns {this}
+	 * @example
+	 * Check(1, 'number').equals(1).ok(); // true
+	 * Check('1', 'number').equals(1).ok(); // false
+	 */
 	equals(expected) {
 		return this.equal(expected);
 	}
 
+	/**
+	 * Checks if a value is present in an array of values
+	 * @param {any[]} array of values
+	 * @returns {this}
+	 * @example
+	 * Check(3).is.oneOf([1, 2, 3]).ok(); // true
+	 * Check(4).is.oneOf([1, 2]).ok(); // fals
+	 */
 	oneOf(array) {
 		this.evaluate(array.indexOf(this.value) !== -1, {
 			actual: this.value,
@@ -329,6 +480,15 @@ class Checker {
 		});
 		return this;
 	}
+
+	/**
+	 * Checks if a value is not present in an array of values
+	 * @param {any[]} array of values
+	 * @returns {this}
+	 * @example
+	 * Check(3).is.noneOf([1, 2, 3]).ok(); // false
+	 * Check(4).is.noneOf([1, 2, 3]).ok(); // true
+	 */
 	noneOf(array) {
 		this.evaluate(array.indexOf(this.value) === -1, {
 			actual: this.value,
@@ -341,13 +501,27 @@ class Checker {
 
 	// NOTE: numeric constraints
 
+	/**
+	 * Checks if a value is a positive number
+	 * @returns {this}
+	 */
 	positive() {
 		return this.greaterThan(0);
 	}
+
+	/**
+	 * Checks if a value is a negative number
+	 * @returns {this}
+	 */
 	negative() {
 		return this.lessThan(0);
 	}
 
+	/**
+	 * Checks if a value is less than the expected value
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
 	lessThan(expected) {
 		this.evaluate(this.value < expected, {
 			actual: this.value,
@@ -357,32 +531,67 @@ class Checker {
 		});
 		return this;
 	}
+
+	/**
+	 * Checks if a value is less than the expected value.
+	 * Alias for [lessThan](#lessthan).
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
 	less(expected) {
 		return this.lessThan(expected);
 	}
 
+	/**
+	 * Checks if a value is less than the expected value.
+	 * Alias for [lessThan](#lessthan).
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
 	lt(expected) {
 		return this.less(expected);
 	}
 
-	lessThanOrEquals() {
+	/**
+	 * Checks if a value is less than or equal to the expected value.
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
+	lessThanOrEqual(expected) {
 		this.evaluate(this.value <= expected, {
 			actual: this.value,
-			predicate: 'lessThanOrEquals',
+			predicate: 'lessThanOrEqual',
 			label: 'less than or equal to',
 			expected,
 		});
 		return this;
 	}
 
-	lessOrEquals(expected) {
-		return this.lessThanOrEquals(expected);
+	/**
+	 * Checks if a value is less than or equal to the expected value.
+	 * Alias for [lessThanOrEqual](#lessthanorequal).
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
+	lessOrEqual(expected) {
+		return this.lessThanOrEqual(expected);
 	}
 
+	/**
+	 * Checks if a value is less than or equal to the expected value.
+	 * Alias for [lessThanOrEqual](#lessthanorequal).
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
 	lte(expected) {
-		return this.lessOrEquals(expected);
+		return this.lessOrEqual(expected);
 	}
 
+	/**
+	 * Checks if a value is greater than the expected value.
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
 	greaterThan(expected) {
 		this.evaluate(this.value > expected, {
 			actual: this.value,
@@ -393,52 +602,88 @@ class Checker {
 		return this;
 	}
 
+	/**
+	 * Checks if a value is greater than the expected value.
+	 * Alias for [greaterThan](#greaterthan).
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
 	greater(expected) {
 		return this.greaterThan(expected);
 	}
 
+	/**
+	 * Checks if a value is greater than the expected value.
+	 * Alias for [greaterThan](#greaterthan).
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
 	gt(expected) {
 		return this.greaterThan(expected);
 	}
 
-	greaterThanOrEquals(expected) {
+	/**
+	 * Checks if a value is greater than or equal to the expected value.
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
+	greaterThanOrEqual(expected) {
 		this.evaluate(this.value >= expected, {
 			actual: this.value,
-			predicate: 'greaterThanOrEquals',
+			predicate: 'greaterThanOrEqual',
 			label: 'greater than or equal to',
 			expected,
 		});
 		return this;
 	}
 
-	greaterOrEquals(expected) {
-		return this.greaterThanOrEquals(expected);
+	/**
+	 * Checks if a value is greater than or equal to the expected value.
+	 * Alias for [greaterThanOrEqual](#greaterthanorequal).
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
+	greaterOrEqual(expected) {
+		return this.greaterThanOrEqual(expected);
 	}
 
+	/**
+	 * Checks if a value is greater than or equal to the expected value.
+	 * Alias for [greaterThanOrEqual](#greaterthanorequal).
+	 * @param {number} expected - the expected value
+	 * @returns {this}
+	 */
 	gte(expected) {
-		return greaterThanOrEquals(expected);
+		return this.greaterThanOrEqual(expected);
 	}
 
-	multipleOf(v) {
-		this.evaluate(this.value % v === 0, {
+	/**
+	 * Checks if a values is a multiple of the expected value.
+	 * @param {number} expected - number the value should be a multiple of
+	 * @returns {this}
+	 */
+	multipleOf(expected) {
+		this.evaluate(this.value % expected === 0, {
 			actual: this.value,
 			predicate: 'multipleOf',
 			label: 'multiple of',
-			expected: `multiple of ${v}`,
+			expected: `multiple of ${expected}`,
 		});
+		return this;
 	}
 
 	// NOTE: terminal operation methods
 
 	/**
-	 * @returns {boolean} returns true if there were no type errors
+	 * Checks the entire validation chain for errors
+	 * @returns {boolean} true if there were no validation errors
 	 */
 	ok() {
 		return this.errors.length === 0;
 	}
 
 	/**
-	 * returns the type validation result
+	 * Returns the type validation result
 	 * @returns {object} result summary
 	 * @property {boolean} ok - true if there were no validation errors
 	 * @property {string[]} errors - array of validation errors, if any
@@ -452,7 +697,7 @@ class Checker {
 	}
 
 	/**
-	 * checks the current validation status and throws a TypeError if not ok
+	 * Checks the current validation status and throws a TypeError if not ok
 	 * @returns {this} the current TypeChecker instance
 	 */
 	guard() {
@@ -495,13 +740,14 @@ class Checker {
 
 	/**
 	 * used to append additional checks to an existing TypeChecker
-	 * @param {string} name - name or label of the value being checked
 	 * @param {*} value - the value to be checked
+	 * @param {string} name - name or label of the value being checked
 	 * @returns {this} the current TypeChecker instance
 	 */
 	check(value, name) {
+		this.checkCount++;
 		this.value = value;
-		this.name = name;
+		this.name = name ?? `value #${this.checkCount}`;
 		this.typeof = typeof this.value;
 		this.typeofDetail = Type.detail(this.value);
 		this.invert = false;

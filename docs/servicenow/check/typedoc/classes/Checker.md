@@ -32,18 +32,18 @@ Performs runtime type validation and error handling
   * [float()](#float)
   * [function()](#function)
   * [greater()](#greater)
-  * [greaterOrEquals()](#greaterorequals)
+  * [greaterOrEqual()](#greaterorequal)
   * [greaterThan()](#greaterthan)
-  * [greaterThanOrEquals()](#greaterthanorequals)
+  * [greaterThanOrEqual()](#greaterthanorequal)
   * [gt()](#gt)
   * [gte()](#gte)
   * [guard()](#guard)
   * [infinity()](#infinity)
   * [integer()](#integer)
   * [less()](#less)
-  * [lessOrEquals()](#lessorequals)
+  * [lessOrEqual()](#lessorequal)
   * [lessThan()](#lessthan)
-  * [lessThanOrEquals()](#lessthanorequals)
+  * [lessThanOrEqual()](#lessthanorequal)
   * [lt()](#lt)
   * [lte()](#lte)
   * [multipleOf()](#multipleof)
@@ -90,6 +90,7 @@ Creates a new TypeChecker object instance
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
+| <a id="checkcount"></a> `checkCount` | `number` | - |
 | <a id="checks"></a> `checks` | [`CheckDetail`](../interfaces/CheckDetail.md)\[] | array of objects detailing each check that was performed |
 | <a id="errors"></a> `errors` | `string`\[] | array of objects detailing validation errors |
 | <a id="invert"></a> `invert` | `boolean` | controls if the result should be inverted, used when "not" is included in the call chain |
@@ -216,6 +217,8 @@ No-op helper used solely to make fluent chaining more readable
 
 > **array**(): `Checker`
 
+Checks if a value is an Array
+
 #### Returns
 
 `Checker`
@@ -226,6 +229,8 @@ No-op helper used solely to make fluent chaining more readable
 
 > **bigint**(): `Checker`
 
+Checks if a value is a bigint
+
 #### Returns
 
 `Checker`
@@ -235,6 +240,8 @@ No-op helper used solely to make fluent chaining more readable
 ### boolean()
 
 > **boolean**(): `Checker`
+
+Checks if a value is a boolean
 
 #### Returns
 
@@ -267,6 +274,10 @@ the current TypeChecker instance
 
 > **date**(): `Checker`
 
+Checks if a value is a Date object.
+Note that this is will only return true for a standard `Date` object instance.
+It does not check if a value is a `GlideDate` or `GlideDateTime` instance
+
 #### Returns
 
 `Checker`
@@ -277,6 +288,8 @@ the current TypeChecker instance
 
 > **equal**(`expected`): `Checker`
 
+Performs a strict equality (===) check on a value
+
 #### Parameters
 
 | Parameter | Type |
@@ -286,6 +299,13 @@ the current TypeChecker instance
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(1, 'number').is.equal(1).ok(); // true
+Check('1', 'number').is.equal(1).ok(); // false
+```
 
 ***
 
@@ -293,6 +313,9 @@ the current TypeChecker instance
 
 > **equals**(`expected`): `Checker`
 
+Performs a strict equality (===) check on a value.
+Alias for the [equal](#equal) method.
+
 #### Parameters
 
 | Parameter | Type |
@@ -302,6 +325,13 @@ the current TypeChecker instance
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(1, 'number').equals(1).ok(); // true
+Check('1', 'number').equals(1).ok(); // false
+```
 
 ***
 
@@ -330,15 +360,32 @@ and resets the inversion flag for the next check
 
 > **falsy**(): `Checker`
 
+Coerces a value to a boolean and checks if it is a falsy value
+returns {this}
+
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check('string', name).is.falsy().ok(); // false
+Check(true, name).is.falsy().ok(); // false
+Check({}, name).is.falsy().ok(); // false
+Check(0, name).is.falsy().ok(); // true
+Check('', name).is.falsy().ok(); // true
+Check(NaN, name).is.falsy().ok(); // true
+Check(null, name).is.falsy().ok() // true
+```
 
 ***
 
 ### finite()
 
 > **finite**(): `Checker`
+
+Checks if a value is a finite number
 
 #### Returns
 
@@ -350,6 +397,8 @@ and resets the inversion flag for the next check
 
 > **float**(): `Checker`
 
+Checks if a value is a float/decimal number
+
 #### Returns
 
 `Checker`
@@ -359,6 +408,8 @@ and resets the inversion flag for the next check
 ### function()
 
 > **function**(): `Checker`
+
+Checks if a value is a function
 
 #### Returns
 
@@ -370,11 +421,14 @@ and resets the inversion flag for the next check
 
 > **greater**(`expected`): `Checker`
 
+Checks if a value is greater than the expected value.
+Alias for [greaterThan](#greaterthan).
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -382,15 +436,18 @@ and resets the inversion flag for the next check
 
 ***
 
-### greaterOrEquals()
+### greaterOrEqual()
 
-> **greaterOrEquals**(`expected`): `Checker`
+> **greaterOrEqual**(`expected`): `Checker`
+
+Checks if a value is greater than or equal to the expected value.
+Alias for [greaterThanOrEqual](#greaterthanorequal).
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -402,11 +459,13 @@ and resets the inversion flag for the next check
 
 > **greaterThan**(`expected`): `Checker`
 
+Checks if a value is greater than the expected value.
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -414,15 +473,17 @@ and resets the inversion flag for the next check
 
 ***
 
-### greaterThanOrEquals()
+### greaterThanOrEqual()
 
-> **greaterThanOrEquals**(`expected`): `Checker`
+> **greaterThanOrEqual**(`expected`): `Checker`
+
+Checks if a value is greater than or equal to the expected value.
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -434,11 +495,14 @@ and resets the inversion flag for the next check
 
 > **gt**(`expected`): `Checker`
 
+Checks if a value is greater than the expected value.
+Alias for [greaterThan](#greaterthan).
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -448,17 +512,20 @@ and resets the inversion flag for the next check
 
 ### gte()
 
-> **gte**(`expected`): `any`
+> **gte**(`expected`): `Checker`
+
+Checks if a value is greater than or equal to the expected value.
+Alias for [greaterThanOrEqual](#greaterthanorequal).
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
-`any`
+`Checker`
 
 ***
 
@@ -466,7 +533,7 @@ and resets the inversion flag for the next check
 
 > **guard**(): `Checker`
 
-checks the current validation status and throws a TypeError if not ok
+Checks the current validation status and throws a TypeError if not ok
 
 #### Returns
 
@@ -480,6 +547,8 @@ the current TypeChecker instance
 
 > **infinity**(): `Checker`
 
+Checks if a value is Infinity
+
 #### Returns
 
 `Checker`
@@ -489,6 +558,8 @@ the current TypeChecker instance
 ### integer()
 
 > **integer**(): `Checker`
+
+Checks if a value is an integer
 
 #### Returns
 
@@ -500,11 +571,14 @@ the current TypeChecker instance
 
 > **less**(`expected`): `Checker`
 
+Checks if a value is less than the expected value.
+Alias for [lessThan](#lessthan).
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -512,15 +586,18 @@ the current TypeChecker instance
 
 ***
 
-### lessOrEquals()
+### lessOrEqual()
 
-> **lessOrEquals**(`expected`): `Checker`
+> **lessOrEqual**(`expected`): `Checker`
+
+Checks if a value is less than or equal to the expected value.
+Alias for [lessThanOrEqual](#lessthanorequal).
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -532,11 +609,13 @@ the current TypeChecker instance
 
 > **lessThan**(`expected`): `Checker`
 
+Checks if a value is less than the expected value
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -544,9 +623,17 @@ the current TypeChecker instance
 
 ***
 
-### lessThanOrEquals()
+### lessThanOrEqual()
 
-> **lessThanOrEquals**(): `Checker`
+> **lessThanOrEqual**(`expected`): `Checker`
+
+Checks if a value is less than or equal to the expected value.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -558,11 +645,14 @@ the current TypeChecker instance
 
 > **lt**(`expected`): `Checker`
 
+Checks if a value is less than the expected value.
+Alias for [lessThan](#lessthan).
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -574,11 +664,14 @@ the current TypeChecker instance
 
 > **lte**(`expected`): `Checker`
 
+Checks if a value is less than or equal to the expected value.
+Alias for [lessThanOrEqual](#lessthanorequal).
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected value |
 
 #### Returns
 
@@ -588,23 +681,27 @@ the current TypeChecker instance
 
 ### multipleOf()
 
-> **multipleOf**(`v`): `void`
+> **multipleOf**(`expected`): `Checker`
+
+Checks if a values is a multiple of the expected value.
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | number the value should be a multiple of |
 
 #### Returns
 
-`void`
+`Checker`
 
 ***
 
 ### nan()
 
 > **nan**(): `Checker`
+
+Checks if a value is Not-a-Number (NaN)
 
 #### Returns
 
@@ -616,6 +713,8 @@ the current TypeChecker instance
 
 > **negative**(): `Checker`
 
+Checks if a value is a negative number
+
 #### Returns
 
 `Checker`
@@ -625,6 +724,8 @@ the current TypeChecker instance
 ### nil()
 
 > **nil**(): `Checker`
+
+Checks if a value is null or undefined
 
 #### Returns
 
@@ -636,21 +737,32 @@ the current TypeChecker instance
 
 > **noneOf**(`array`): `Checker`
 
+Checks if a value is not present in an array of values
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `array` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `array` | `any`\[] | of values |
 
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(3).is.noneOf([1, 2, 3]).ok(); // false
+Check(4).is.noneOf([1, 2, 3]).ok(); // true
+```
 
 ***
 
 ### null()
 
 > **null**(): `Checker`
+
+Checks if a value is null
 
 #### Returns
 
@@ -662,6 +774,8 @@ the current TypeChecker instance
 
 > **number**(): `Checker`
 
+Checks if a value is a number
+
 #### Returns
 
 `Checker`
@@ -671,6 +785,8 @@ the current TypeChecker instance
 ### object()
 
 > **object**(): `Checker`
+
+Checks if a value is an object
 
 #### Returns
 
@@ -682,11 +798,13 @@ the current TypeChecker instance
 
 > **ok**(): `boolean`
 
+Checks the entire validation chain for errors
+
 #### Returns
 
 `boolean`
 
-returns true if there were no type errors
+true if there were no validation errors
 
 ***
 
@@ -694,15 +812,24 @@ returns true if there were no type errors
 
 > **oneOf**(`array`): `Checker`
 
+Checks if a value is present in an array of values
+
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `array` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `array` | `any`\[] | of values |
 
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(3).is.oneOf([1, 2, 3]).ok(); // true
+Check(4).is.oneOf([1, 2]).ok(); // fals
+```
 
 ***
 
@@ -710,15 +837,27 @@ returns true if there were no type errors
 
 > **plainObject**(): `Checker`
 
+Checks if a value is a plain object.
+A plain object is one with a prototype of Object.prototype or null
+
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check({}, 'name').is.plainObject().ok(); // true
+Check(new GlideRecord, 'name').is.plainObject().ok(); // false
+```
 
 ***
 
 ### positive()
 
 > **positive**(): `Checker`
+
+Checks if a value is a positive number
 
 #### Returns
 
@@ -730,6 +869,8 @@ returns true if there were no type errors
 
 > **regex**(): `Checker`
 
+Checks if a value is a Regular Expression
+
 #### Returns
 
 `Checker`
@@ -740,7 +881,7 @@ returns true if there were no type errors
 
 > **result**(): `any`
 
-returns the type validation result
+Returns the type validation result
 
 #### Returns
 
@@ -754,6 +895,8 @@ result summary
 
 > **string**(): `Checker`
 
+Checks if a value is a string
+
 #### Returns
 
 `Checker`
@@ -763,6 +906,8 @@ result summary
 ### symbol()
 
 > **symbol**(): `Checker`
+
+Checks if a value is a symbol
 
 #### Returns
 
@@ -774,9 +919,22 @@ result summary
 
 > **truthy**(): `Checker`
 
+Coerces a value to a boolean and checks if it is a truthy value
+returns {this}
+
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check('string', name).is.truthy().ok(); // true
+Check(true, name).is.truthy().ok(); // true
+Check({}, name).is.truthy().ok(); // true
+Check(0, name).is.truthy().ok(); // false
+Check(null, name).is.truthy().ok() // false
+```
 
 ***
 
@@ -800,7 +958,7 @@ Checks if the current value is the expected type
 
 ```ts
 let testValue = 'Some String';
-let pass = Check({ testValue }).is.type('string'); // true
+let pass = Check({ testValue }).is.type('string').ok(); // true
 ```
 
 ***
@@ -838,6 +996,8 @@ let pass = Check({ testValue }).is.typeDetail('object (Object)'); // true
 ### undefined()
 
 > **undefined**(): `Checker`
+
+Checks if a value is undefined
 
 #### Returns
 
