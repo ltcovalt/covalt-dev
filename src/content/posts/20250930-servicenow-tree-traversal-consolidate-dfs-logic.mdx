@@ -1,25 +1,25 @@
 ---
-title: "ServiceNow Tree Traversal: Consolidating DFS logic"
+title: 'ServiceNow Tree Traversal: Consolidating DFS logic'
 slug: servicenow-tree-traversal-consolidate-dfs-logic
 description:
-  Reduce repetitive code by consolidating Depth-first logic into a private
-  function
-author: "Luke Covalt"
+    Reduce repetitive code by consolidating Depth-first logic into a private
+    function
+author: 'Luke Covalt'
 date: 2025-09-30
 updated: 2025-09-30
 draft: false
 tags:
-  [
-    blog,
-    servicenow,
-    tree,
-    algorithm,
-    recursion,
-    depth-first,
-    dfs,
-    private,
-    refactoring,
-  ]
+    [
+        blog,
+        servicenow,
+        tree,
+        algorithm,
+        recursion,
+        depth-first,
+        dfs,
+        private,
+        refactoring,
+    ]
 ---
 
 <Alert type="info">
@@ -27,7 +27,7 @@ tags:
 	
 	Previous: [Post-Order Depth-First Search](/posts/servicenow-tree-traversal-post-order-depth-first)
 
-    View the complete code: [Tree.js](/code/servicenow/tree)
+View the complete code: [Tree.js](/docs/servicenow/tree)
 
 </Alert>
 
@@ -83,12 +83,12 @@ copying the `Tree.traversePreOrder` method to a new, private function named
 `_traverseDfs`.
 
 <Alert type="warning">
-  Be aware that prefixing functions and variables with an underscore is just a
-  convention. You will sometimes encounter JavaScript methods that are actually
-  public, even though the name starts with an underscore. In the script example
-  above, `_traverseDfs` is truly private because it is defined within our IIFE,
-  and we prefix with an underscore simply to convey intent to future devs
-  reading the code.
+	Be aware that prefixing functions and variables with an underscore is just a
+	convention. You will sometimes encounter JavaScript methods that are
+	actually public, even though the name starts with an underscore. In the
+	script example above, `_traverseDfs` is truly private because it is defined
+	within our IIFE, and we prefix with an underscore simply to convey intent to
+	future devs reading the code.
 </Alert>
 
 You should end up with a function that looks like below. Note we now check to
@@ -96,51 +96,51 @@ see If the callback function should be executed both pre-order and post-order.
 
 ```js
 function _traverseDfs({
-  node,
-  parentField = "parent",
-  preOrder = false,
-  postOrder = false,
-  stackPath = [],
-  callback,
+	node,
+	parentField = 'parent',
+	preOrder = false,
+	postOrder = false,
+	stackPath = [],
+	callback,
 }) {
-  if (!node) throw Error("missing required parameter: node");
-  if (!node.isValidRecord())
-    throw Error("node parameter must be a valid GlideRecord");
+	if (!node) throw Error('missing required parameter: node');
+	if (!node.isValidRecord())
+		throw Error('node parameter must be a valid GlideRecord');
 
-  // ensure the current node is not already in the path
-  let nodeId = node.getUniqueValue();
-  let tableName = node.getTableName();
-  if (stackPath.includes(nodeId))
-    throw Error(
-      "recursive reference found in path: " +
-        stackPath.concat(nodeId).join("-->"),
-    );
-  stackPath.push(nodeId);
+	// ensure the current node is not already in the path
+	let nodeId = node.getUniqueValue();
+	let tableName = node.getTableName();
+	if (stackPath.includes(nodeId))
+		throw Error(
+			'recursive reference found in path: ' +
+				stackPath.concat(nodeId).join('-->'),
+		);
+	stackPath.push(nodeId);
 
-  // pre-order callback for the current node
-  if (preOrder && callback && typeof callback === "function") callback(node);
+	// pre-order callback for the current node
+	if (preOrder && callback && typeof callback === 'function') callback(node);
 
-  // execute this function recursively for each child node
-  let children = new GlideRecord(tableName);
-  children.addQuery(parentField, nodeId);
-  children.query();
-  while (children.next()) {
-    let child = new GlideRecord(tableName);
-    child.get(children.getUniqueValue());
-    _traverseDfs({
-      node: child,
-      parentField,
-      preOrder,
-      postOrder,
-      stackPath,
-      callback,
-    });
-  }
+	// execute this function recursively for each child node
+	let children = new GlideRecord(tableName);
+	children.addQuery(parentField, nodeId);
+	children.query();
+	while (children.next()) {
+		let child = new GlideRecord(tableName);
+		child.get(children.getUniqueValue());
+		_traverseDfs({
+			node: child,
+			parentField,
+			preOrder,
+			postOrder,
+			stackPath,
+			callback,
+		});
+	}
 
-  // post-order callback for the current node
-  if (postOrder && callback && typeof callback === "function") callback(node);
+	// post-order callback for the current node
+	if (postOrder && callback && typeof callback === 'function') callback(node);
 
-  stackPath.pop();
+	stackPath.pop();
 }
 ```
 
@@ -157,15 +157,15 @@ default values, but also having a named object containing all the parameters.
 
 ```js
 function _traverseDfs(params = {}) {
-  params = {
-    parentField: "parent",
-    preOrder: false,
-    postOrder: false,
-    stackPath: [],
-    ...params,
-  };
-  const { node, callback, parentField, preOrder, postOrder, stackPath } =
-    params;
+	params = {
+		parentField: 'parent',
+		preOrder: false,
+		postOrder: false,
+		stackPath: [],
+		...params,
+	};
+	const { node, callback, parentField, preOrder, postOrder, stackPath } =
+		params;
 }
 ```
 
@@ -176,9 +176,9 @@ params object by setting our default values and applying the input params with
 user provided inputs and our default values.
 
 <Alert type="note">
-  Order of operations is important here - our defaults are overridden by the
-  input params. If we instead wanted our defaults to override the inputs, we
-  could move `...params` above where we set the defaults.
+	Order of operations is important here - our defaults are overridden by the
+	input params. If we instead wanted our defaults to override the inputs, we
+	could move `...params` above where we set the defaults.
 </Alert>
 
 Finally, to keep our code clear and concise, we destructure the consolidated
@@ -187,46 +187,46 @@ what our final private function should look like.
 
 ```js
 function _traverseDfs(params = {}) {
-  params = {
-    parentField: "parent",
-    preOrder: false,
-    postOrder: false,
-    stackPath: [],
-    ...params,
-  };
-  const { node, callback, parentField, preOrder, postOrder, stackPath } =
-    params;
-  if (!node) throw Error("missing required parameter: node");
-  if (!node.isValidRecord())
-    throw Error("node parameter must be a valid GlideRecord");
+	params = {
+		parentField: 'parent',
+		preOrder: false,
+		postOrder: false,
+		stackPath: [],
+		...params,
+	};
+	const { node, callback, parentField, preOrder, postOrder, stackPath } =
+		params;
+	if (!node) throw Error('missing required parameter: node');
+	if (!node.isValidRecord())
+		throw Error('node parameter must be a valid GlideRecord');
 
-  // ensure the current node is not already in the path
-  let nodeId = node.getUniqueValue();
-  let tableName = node.getTableName();
-  if (stackPath.includes(nodeId))
-    throw Error(
-      "recursive reference found in path: " +
-        stackPath.concat(nodeId).join("-->"),
-    );
-  stackPath.push(nodeId);
+	// ensure the current node is not already in the path
+	let nodeId = node.getUniqueValue();
+	let tableName = node.getTableName();
+	if (stackPath.includes(nodeId))
+		throw Error(
+			'recursive reference found in path: ' +
+				stackPath.concat(nodeId).join('-->'),
+		);
+	stackPath.push(nodeId);
 
-  // pre-order callback for the current node
-  if (preOrder && callback && typeof callback === "function") callback(node);
+	// pre-order callback for the current node
+	if (preOrder && callback && typeof callback === 'function') callback(node);
 
-  // execute this function recursively for each child node
-  let children = new GlideRecord(tableName);
-  children.addQuery(parentField, nodeId);
-  children.query();
-  while (children.next()) {
-    let child = new GlideRecord(tableName);
-    child.get(children.getUniqueValue());
-    _traverseDfs({ ...params, node: child });
-  }
+	// execute this function recursively for each child node
+	let children = new GlideRecord(tableName);
+	children.addQuery(parentField, nodeId);
+	children.query();
+	while (children.next()) {
+		let child = new GlideRecord(tableName);
+		child.get(children.getUniqueValue());
+		_traverseDfs({ ...params, node: child });
+	}
 
-  // post-order callback for the current node
-  if (postOrder && callback && typeof callback === "function") callback(node);
+	// post-order callback for the current node
+	if (postOrder && callback && typeof callback === 'function') callback(node);
 
-  stackPath.pop();
+	stackPath.pop();
 }
 ```
 
@@ -245,11 +245,11 @@ call `_traverseDfs` with the correct parameters.
 
 ```js
 Tree.traversePreOrder = (params) => {
-  _traverseDfs({ ...params, preOrder: true });
+	_traverseDfs({ ...params, preOrder: true });
 };
 
 Tree.traversePostOrder = (params) => {
-  _traverseDfs({ ...params, postOrder: true });
+	_traverseDfs({ ...params, postOrder: true });
 };
 ```
 
@@ -277,11 +277,11 @@ positional argument, so let's update the public function signatures.
 
 ```js
 Tree.traversePreOrder = (params, callback) => {
-  _traverseDfs({ ...params, callback, preOrder: true });
+	_traverseDfs({ ...params, callback, preOrder: true });
 };
 
 Tree.traversePostOrder = (params, callback) => {
-  _traverseDfs({ ...params, callback, postOrder: true });
+	_traverseDfs({ ...params, callback, postOrder: true });
 };
 ```
 
@@ -290,10 +290,10 @@ this:
 
 ```js
 Tree.traversePreOrder({
-  node,
-  callback: (node) => {
-    // callback logic
-  },
+	node,
+	callback: (node) => {
+		// callback logic
+	},
 });
 ```
 
@@ -301,7 +301,7 @@ To this:
 
 ```js
 Tree.traversePreOrder(params, (node) => {
-  //callback logic
+	//callback logic
 });
 ```
 

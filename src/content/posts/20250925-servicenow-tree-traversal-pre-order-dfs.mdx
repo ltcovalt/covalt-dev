@@ -1,15 +1,15 @@
 ---
-title: "ServiceNow Tree Traversal: Pre-Order Depth-First Search"
+title: 'ServiceNow Tree Traversal: Pre-Order Depth-First Search'
 slug: servicenow-tree-traversal-pre-order-depth-first-search
 description:
-  Implementing a pre order depth first search algorithm to traverse an
-  n-ary/generic tree
-author: "Luke Covalt"
+    Implementing a pre order depth first search algorithm to traverse an
+    n-ary/generic tree
+author: 'Luke Covalt'
 date: 2025-09-25
 updated: 2025-09-26
 draft: false
 tags:
-  [blog, servicenow, tree, algorithm, recursion, pre-order, depth-first, dfs]
+    [blog, servicenow, tree, algorithm, recursion, pre-order, depth-first, dfs]
 ---
 
 <Alert type="info">
@@ -18,7 +18,7 @@ tags:
 	Previous: [Traverse to the Root](/posts/servicenow-tree-traversal-to-root-node) |  
 	Next: [Post-Order Depth-First Search](/posts/servicenow-tree-traversal-post-order-depth-first)
 
-    View the complete code: [Tree.js](/code/servicenow/tree)
+    View the complete code: [Tree.js](/docs/servicenow/tree)
 
 </Alert>
 
@@ -58,34 +58,34 @@ consistent on exactly which traversal type is being used if we add
  * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
  */
 Tree.traversePreOrder = ({
-  node,
-  parentField = "parent",
-  stackPath = [],
-  callback,
+	node,
+	parentField = 'parent',
+	stackPath = [],
+	callback,
 }) => {
-  if (!node) throw Error("missing required parameter: node");
-  if (!node.isValidRecord())
-    throw Error("node parameter must be a valid GlideRecord");
+	if (!node) throw Error('missing required parameter: node');
+	if (!node.isValidRecord())
+		throw Error('node parameter must be a valid GlideRecord');
 
-  // ensure the current node is not already in the path
-  let nodeId = node.getUniqueValue();
-  if (stackPath.includes(nodeId))
-    throw Error(
-      "recursive reference found in path: " +
-        stackPath.concat(nodeId).join("-->"),
-    );
-  stackPath.push(nodeId);
+	// ensure the current node is not already in the path
+	let nodeId = node.getUniqueValue();
+	if (stackPath.includes(nodeId))
+		throw Error(
+			'recursive reference found in path: ' +
+				stackPath.concat(nodeId).join('-->'),
+		);
+	stackPath.push(nodeId);
 
-  // execute the callback function for the current node
-  if (callback && typeof callback === "function") callback(node);
+	// execute the callback function for the current node
+	if (callback && typeof callback === 'function') callback(node);
 
-  /**
-   * TODO: implement pre-order depth first search logic
-   * 1. get all child nodes of the current node
-   * 2. call traversePreOrder for each child node
-   * 3. return when all child nodes have been processed
-   */
-  stackPath.pop();
+	/**
+	 * TODO: implement pre-order depth first search logic
+	 * 1. get all child nodes of the current node
+	 * 2. call traversePreOrder for each child node
+	 * 3. return when all child nodes have been processed
+	 */
+	stackPath.pop();
 };
 ```
 
@@ -109,12 +109,12 @@ let children = new GlideRecord(tableName);
 children.addQuery(parentField, nodeId);
 children.query();
 while (children.next()) {
-  Tree.traversePreOrder({
-    node: children,
-    parentField,
-    stackPath,
-    callback,
-  });
+	Tree.traversePreOrder({
+		node: children,
+		parentField,
+		stackPath,
+		callback,
+	});
 }
 ```
 
@@ -142,44 +142,44 @@ node before making the recursive call. The final script is below.
  * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
  */
 Tree.traversePreOrder = ({
-  node,
-  parentField = "parent",
-  stackPath = [],
-  callback,
+	node,
+	parentField = 'parent',
+	stackPath = [],
+	callback,
 }) => {
-  if (!node) throw Error("missing required parameter: node");
-  if (!node.isValidRecord())
-    throw Error("node parameter must be a valid GlideRecord");
+	if (!node) throw Error('missing required parameter: node');
+	if (!node.isValidRecord())
+		throw Error('node parameter must be a valid GlideRecord');
 
-  // ensure the current node is not already in the path
-  let nodeId = node.getUniqueValue();
-  let tableName = node.getTableName();
-  if (stackPath.includes(nodeId))
-    throw Error(
-      "recursive reference found in path: " +
-        stackPath.concat(nodeId).join("-->"),
-    );
-  stackPath.push(nodeId);
+	// ensure the current node is not already in the path
+	let nodeId = node.getUniqueValue();
+	let tableName = node.getTableName();
+	if (stackPath.includes(nodeId))
+		throw Error(
+			'recursive reference found in path: ' +
+				stackPath.concat(nodeId).join('-->'),
+		);
+	stackPath.push(nodeId);
 
-  // execute the callback function for the current node
-  if (callback && typeof callback === "function") callback(node);
+	// execute the callback function for the current node
+	if (callback && typeof callback === 'function') callback(node);
 
-  // execute this function recursively for each child node
-  let children = new GlideRecord(tableName);
-  children.addQuery(parentField, nodeId);
-  children.query();
-  while (children.next()) {
-    let child = new GlideRecord(tableName);
-    child.get(children.getUniqueValue());
-    Tree.traversePreOrder({
-      node: child,
-      parentField,
-      stackPath,
-      callback,
-    });
-  }
+	// execute this function recursively for each child node
+	let children = new GlideRecord(tableName);
+	children.addQuery(parentField, nodeId);
+	children.query();
+	while (children.next()) {
+		let child = new GlideRecord(tableName);
+		child.get(children.getUniqueValue());
+		Tree.traversePreOrder({
+			node: child,
+			parentField,
+			stackPath,
+			callback,
+		});
+	}
 
-  stackPath.pop();
+	stackPath.pop();
 };
 ```
 
@@ -213,11 +213,11 @@ Root Group
 #### Background script
 
 ```js
-let root = new GlideRecord("sys_user_group");
-root.get("9ef89dea2b04ba907f83fedba291bf14");
+let root = new GlideRecord('sys_user_group');
+root.get('9ef89dea2b04ba907f83fedba291bf14');
 Tree.traversePreOrder({
-  node: root,
-  callback: (node) => gs.info(node.getDisplayValue()),
+	node: root,
+	callback: (node) => gs.info(node.getDisplayValue()),
 });
 /** output:
  * Root Group

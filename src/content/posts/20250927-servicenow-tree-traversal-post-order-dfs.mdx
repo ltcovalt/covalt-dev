@@ -1,14 +1,14 @@
 ---
-title: "ServiceNow Tree Traversal: Post-Order Depth-First Search"
+title: 'ServiceNow Tree Traversal: Post-Order Depth-First Search'
 slug: servicenow-tree-traversal-post-order-depth-first
 description:
-  Use Depth-first search to traverse a tree and process nodes in post-order
-author: "Luke Covalt"
+    Use Depth-first search to traverse a tree and process nodes in post-order
+author: 'Luke Covalt'
 date: 2025-09-27
 updated: 2025-09-27
 draft: false
 tags:
-  [blog, servicenow, tree, algorithm, recursion, post-order, depth-first, dfs]
+    [blog, servicenow, tree, algorithm, recursion, post-order, depth-first, dfs]
 ---
 
 <Alert type="info">
@@ -16,7 +16,7 @@ tags:
 	
 	Previous: [Pre-Order Depth-First Search](/posts/servicenow-tree-traversal-pre-order-depth-first-search)
 
-    View the complete code: [Tree.js](/code/servicenow/tree)
+    View the complete code: [Tree.js](/docs/servicenow/tree)
 
 </Alert>
 
@@ -42,44 +42,44 @@ function to be executed after the while loop.
  * @param {array} [params.stackPath=[]] - array of node sys_ids representing the current path of nodes already visited
  */
 Tree.traversePostOrder = ({
-  node,
-  parentField = "parent",
-  stackPath = [],
-  callback,
+	node,
+	parentField = 'parent',
+	stackPath = [],
+	callback,
 }) => {
-  if (!node) throw Error("missing required parameter: node");
-  if (!node.isValidRecord())
-    throw Error("node parameter must be a valid GlideRecord");
+	if (!node) throw Error('missing required parameter: node');
+	if (!node.isValidRecord())
+		throw Error('node parameter must be a valid GlideRecord');
 
-  // ensure the current node is not already in the path
-  let nodeId = node.getUniqueValue();
-  let tableName = node.getTableName();
-  if (stackPath.includes(nodeId))
-    throw Error(
-      "recursive reference found in path: " +
-        stackPath.concat(nodeId).join("-->"),
-    );
-  stackPath.push(nodeId);
+	// ensure the current node is not already in the path
+	let nodeId = node.getUniqueValue();
+	let tableName = node.getTableName();
+	if (stackPath.includes(nodeId))
+		throw Error(
+			'recursive reference found in path: ' +
+				stackPath.concat(nodeId).join('-->'),
+		);
+	stackPath.push(nodeId);
 
-  // execute this function recursively for each child node
-  let children = new GlideRecord(tableName);
-  children.addQuery(parentField, nodeId);
-  children.query();
-  while (children.next()) {
-    let child = new GlideRecord(tableName);
-    child.get(children.getUniqueValue());
-    Tree.traversePostOrder({
-      node: child,
-      parentField,
-      stackPath,
-      callback,
-    });
-  }
+	// execute this function recursively for each child node
+	let children = new GlideRecord(tableName);
+	children.addQuery(parentField, nodeId);
+	children.query();
+	while (children.next()) {
+		let child = new GlideRecord(tableName);
+		child.get(children.getUniqueValue());
+		Tree.traversePostOrder({
+			node: child,
+			parentField,
+			stackPath,
+			callback,
+		});
+	}
 
-  // execute the callback function for the current node
-  if (callback && typeof callback === "function") callback(node);
+	// execute the callback function for the current node
+	if (callback && typeof callback === 'function') callback(node);
 
-  stackPath.pop();
+	stackPath.pop();
 };
 ```
 
@@ -109,11 +109,11 @@ Root Group
 #### Background Script
 
 ```js
-let root = new GlideRecord("sys_user_group");
-root.get("9ef89dea2b04ba907f83fedba291bf14"); // root group
+let root = new GlideRecord('sys_user_group');
+root.get('9ef89dea2b04ba907f83fedba291bf14'); // root group
 Tree.traversePostOrder({
-  node: root,
-  callback: (node) => gs.info(node.getDisplayValue()),
+	node: root,
+	callback: (node) => gs.info(node.getDisplayValue()),
 });
 
 /** OUTPUT:
@@ -151,7 +151,7 @@ function call is made.
 
 ## Future clean-up and enhancements
 
-For now, I've updated the [Tree](/code/servicenow/tree) utility with the
+For now, I've updated the [Tree](/docs/servicenow/tree) utility with the
 `traversePostOrder` function exactly as is was covered in this post. If you're
 anything like me though, there's a good chance that you were highly bothered by
 copying and pasting ~30 lines of code only to move a single line. This is
