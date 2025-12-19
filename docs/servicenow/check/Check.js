@@ -1,5 +1,8 @@
 /**
  * Input validation and error handling library that that uses a fluent, chainable API.
+ * Leverages a standard JavaScript class and public factory function rather than Prototype.js.
+ * Multiple validations can be chained together and a validation chain can be configured to
+ * throw an error or simply return a result object containing details on the checks performed.
  * Leverages a standard JavaScript class instead of Prototype.js.
  * @module
  */
@@ -308,20 +311,6 @@ class Checker {
 		return this.typeDetail('number (Infinity)');
 	}
 
-	/**
-	 * Checks if a value is a finite number
-	 * @returns {this}
-	 */
-	finite() {
-		this.evaluate(this.typeofDetail === 'number (Integer)' || this.typeofDetail === 'number (Float)', {
-			actual: this.typeofDetail,
-			predicate: 'finite',
-			label: 'finite number',
-			expected: 'number (Integer) or number (Float)',
-		});
-		return this;
-	}
-
 	// NOTE: Truthy/Falsy checks
 
 	/**
@@ -463,10 +452,13 @@ class Checker {
 		return this.equal(expected);
 	}
 
+	// NOTE: array checks
+
 	/**
 	 * Checks if a value is present in an array of values
 	 * @param {any[]} array of values
 	 * @returns {this}
+	 *
 	 * @example
 	 * Check(3).is.oneOf([1, 2, 3]).ok(); // true
 	 * Check(4).is.oneOf([1, 2]).ok(); // fals
@@ -485,6 +477,7 @@ class Checker {
 	 * Checks if a value is not present in an array of values
 	 * @param {any[]} array of values
 	 * @returns {this}
+	 *
 	 * @example
 	 * Check(3).is.noneOf([1, 2, 3]).ok(); // false
 	 * Check(4).is.noneOf([1, 2, 3]).ok(); // true
@@ -499,11 +492,62 @@ class Checker {
 		return this;
 	}
 
+	/**
+	 * Checks if the length is greater than or equal to the expected minimum value.
+	 * Intended for use with Arrays and strings, but works with any object containing a length property.
+	 * @param {number} expected - the minimum expected length
+	 * @returns {this}
+	 */
+	minLength(expected) {
+		this.evaluate(this.value?.length >= expected, {
+			actual: this.value,
+			predicate: 'minLength',
+			label: 'minimum length',
+			expected,
+		});
+		return this;
+	}
+
+	/**
+	 * Checks if the length is less than or equal to the expected maximum value.
+	 * Intended for use with Arrays and strings, but works with any object containing a length property.
+	 * @param {number} expected - the maximum expected length
+	 * @returns {this}
+	 */
+	maxLength(expected) {
+		this.evaluate(this.value?.length <= expected, {
+			actual: this.value,
+			predicate: 'maxLength',
+			label: 'maximum length',
+			expected,
+		});
+		return this;
+	}
+
 	// NOTE: numeric constraints
+
+	/**
+	 * Checks if a value is a finite number
+	 * @returns {this}
+	 */
+	finite() {
+		this.evaluate(this.typeofDetail === 'number (Integer)' || this.typeofDetail === 'number (Float)', {
+			actual: this.typeofDetail,
+			predicate: 'finite',
+			label: 'finite number',
+			expected: 'number (Integer) or number (Float)',
+		});
+		return this;
+	}
 
 	/**
 	 * Checks if a value is a positive number
 	 * @returns {this}
+	 *
+	 * @example
+	 * Check(3, 'Positive').is.positive(); // true
+	 * Check(-3, 'Negative').is.positive(); // false
+	 * Check(0, 'Zero').is.positive(); // false
 	 */
 	positive() {
 		return this.greaterThan(0);
@@ -512,9 +556,33 @@ class Checker {
 	/**
 	 * Checks if a value is a negative number
 	 * @returns {this}
+	 *
+	 * @example
+	 * Check(3, 'Positive').is.negative(); // false
+	 * Check(-3, 'Negative').is.negative(); // true
+	 * Check(0, 'Zero').is.negative(); // false
 	 */
 	negative() {
 		return this.lessThan(0);
+	}
+
+	/**
+	 * Checks if a value is between or equal to a min and max value
+	 * @returns {this}
+	 *
+	 * @example
+	 * Check(3, 'Positive').is.between(0, 5); // true
+	 * Check(-3, 'Negative').is.between(0, 5); // false
+	 * Check(0, 'Zero').is.between(0, 5); // true
+	 */
+	between(min, max) {
+		this.evaluate(this.value >= min && this.value <= max, {
+			actual: this.value,
+			predicate: 'between',
+			label: 'between',
+			expected: `value >= ${min} and <= ${max}`,
+		});
+		return this;
 	}
 
 	/**
