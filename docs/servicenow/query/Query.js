@@ -1,3 +1,11 @@
+/**
+ * Server-side namespace for performing arbitrary GlideRecordSecure queries.
+ * Should not typically be invoked directly. This script primarily exists to
+ * adapt queries from the QueryAjax utility to a standard GlideRecordSecure query,
+ * allowing clients to retrieve server data without bespoke AJAX script includes.
+ * Records are returned as plain JavaScript objects containing only the specified fields.
+ * @namespace
+ */
 const Query = {
 	/**
 	 * @param {object} params - object containing parameters used by the Query API
@@ -22,8 +30,8 @@ const Query = {
 			Check({table}).is.string().is.validTable()
 			.check({query}).is.string()
 			.check({columns}).is.array().has.minLength(1)
-			.check({limit}).is.number().is.gte(0).is.lte(MAX_ROWS)
-			.check({orderBy}).optional.string().is.oneOf(columns)
+			.check({limit}).is.a.number().between(0, MAX_ROWS)
+			.check({orderBy}).is.an.optional.string().is.oneOf(columns)
 			.check({orderByDesc}).optional.string().is.oneOf(columns)
 			.result();
 		if (!validation.ok) throw TypeError(validation.errors.join('\n'));

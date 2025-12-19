@@ -102,6 +102,13 @@
 	/* 
    * list styles 
    */
+
+	/* All list items inside docs prose */
+	.prose-docs :where(ul > li, ol > li) {
+		margin-top: 0 !important;
+		margin-bottom: 0 !important;
+	}
+
 	.prose-docs ul,
 	.prose-docs ol {
 		@apply my-0;
@@ -124,11 +131,6 @@
 		@apply my-1;
 	}
 
-	.prose-docs ul > li + li {
-		margin-top: 0px !important;
-		margin-bottom: 0px !important;
-	}
-
 	/* Nested TOC lists (indent cleanup) */
 	.prose-docs h2 + ul ul,
 	.prose-docs h3 + ul ul,
@@ -141,7 +143,13 @@
 		@apply my-1;
 	}
 
-	/* 
+	/* Bold only top-level TOC categories */
+	.prose-docs h2 + ul > li > a,
+	.prose-docs h2 + ul > li > p {
+		@apply font-extrabold;
+	}
+	f
+  /* 
    * Block quote styles - used for function/accessor signatures
    */
 	.prose-docs blockquote {

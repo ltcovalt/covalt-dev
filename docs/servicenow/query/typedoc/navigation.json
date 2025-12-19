@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Namespaces",
+    "children": [
+      {
+        "title": "Query",
+        "kind": 4,
+        "path": "Query/namespaces/Query/README.md",
+        "isDeprecated": false,
+        "children": [
+          {
+            "title": "Functions",
+            "children": [
+              {
+                "title": "record",
+                "kind": 64,
+                "path": "Query/namespaces/Query/functions/record.md",
+                "isDeprecated": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

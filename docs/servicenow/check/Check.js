@@ -119,7 +119,15 @@ class Checker {
 	 * No-op helper used solely to make fluent chaining more readable
 	 * @returns {this}
 	 */
-	get is() {
+	get a() {
+		return this;
+	}
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
+
+	get an() {
 		return this;
 	}
 
@@ -128,14 +136,6 @@ class Checker {
 	 * @returns {this}
 	 */
 	get are() {
-		return this;
-	}
-
-	/**
-	 * No-op helper used solely to make fluent chaining more readable
-	 * @returns {this}
-	 */
-	get to() {
 		return this;
 	}
 
@@ -152,6 +152,22 @@ class Checker {
 	 * @returns {this}
 	 */
 	get has() {
+		return this;
+	}
+
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
+	get is() {
+		return this;
+	}
+
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
+	get to() {
 		return this;
 	}
 
@@ -272,6 +288,20 @@ class Checker {
 	}
 
 	/**
+	 * Checks if a value is null or undefined
+	 * @returns {this}
+	 */
+	nil() {
+		this.evaluate(this.value === null || this.value === undefined, {
+			actual: this.typeof,
+			predicate: 'nil',
+			label: 'nil',
+			expected: 'null or undefined',
+		});
+		return this;
+	}
+
+	/**
 	 * Checks if a value is a symbol
 	 * @returns {this}
 	 */
@@ -383,21 +413,6 @@ class Checker {
 	 */
 	date() {
 		return this.typeDetail('object (Date)');
-	}
-
-	/**
-	 * Checks if a value is null or undefined
-	 * @returns {this}
-	 */
-	nil() {
-		let pass = this.value === null || this.value === undefined ? true : false;
-		this.evaluate(pass, {
-			actual: this.typeof,
-			predicate: 'nil',
-			label: 'null or undefined',
-			expected: 'null or undefined',
-		});
-		return this;
 	}
 
 	/**
@@ -524,7 +539,7 @@ class Checker {
 		return this;
 	}
 
-	// NOTE: numeric constraints
+	// NOTE: number checks
 
 	/**
 	 * Checks if a value is a finite number
@@ -736,6 +751,38 @@ class Checker {
 			predicate: 'multipleOf',
 			label: 'multiple of',
 			expected: `multiple of ${expected}`,
+		});
+		return this;
+	}
+
+	// NOTE: ServiceNow/Glide API checks
+
+	validTable() {
+		let pass = this.typeof === 'string';
+		let gr;
+		if (pass) {
+			gr = new GlideRecord(this.value);
+			pass = gr.isValid();
+		}
+		this.evaluate(pass, {
+			actual: this.value,
+			predicate: 'validTable',
+			label: 'valid table',
+			expected: 'valid table name',
+		});
+		return this;
+	}
+
+	validRecord() {
+		let pass = this.typeofDetail === 'object (GlideRecord)' || this.typeofDetail === 'object (GlideRecordSecure)';
+		if (pass) {
+			pass = this.value.isValidRecord();
+		}
+		this.evaluate(pass, {
+			actual: this.value,
+			predicate: 'validRecord',
+			label: 'valid record',
+			expected: 'valid GlideRecord',
 		});
 		return this;
 	}

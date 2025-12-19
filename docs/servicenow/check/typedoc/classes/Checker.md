@@ -10,6 +10,8 @@ Performs runtime type validation and error handling
   * [Constructor](#constructor)
 * [Properties](#properties)
 * [Accessors](#accessors)
+  * [a](#a)
+  * [an](#an)
   * [are](#are)
   * [be](#be)
   * [has](#has)
@@ -20,6 +22,7 @@ Performs runtime type validation and error handling
   * [to](#to)
 * [Methods](#methods)
   * [array()](#array)
+  * [between()](#between)
   * [bigint()](#bigint)
   * [boolean()](#boolean)
   * [check()](#check)
@@ -46,6 +49,8 @@ Performs runtime type validation and error handling
   * [lessThanOrEqual()](#lessthanorequal)
   * [lt()](#lt)
   * [lte()](#lte)
+  * [maxLength()](#maxlength)
+  * [minLength()](#minlength)
   * [multipleOf()](#multipleof)
   * [nan()](#nan)
   * [negative()](#negative)
@@ -66,6 +71,8 @@ Performs runtime type validation and error handling
   * [type()](#type)
   * [typeDetail()](#typedetail)
   * [undefined()](#undefined)
+  * [validRecord()](#validrecord)
+  * [validTable()](#validtable)
 
 ## Constructors
 
@@ -100,6 +107,34 @@ Creates a new TypeChecker object instance
 | <a id="value"></a> `value` | `any` | the current value being processed |
 
 ## Accessors
+
+### a
+
+#### Get Signature
+
+> **get** **a**(): `this`
+
+No-op helper used solely to make fluent chaining more readable
+
+##### Returns
+
+`this`
+
+***
+
+### an
+
+#### Get Signature
+
+> **get** **an**(): `this`
+
+No-op helper used solely to make fluent chaining more readable
+
+##### Returns
+
+`this`
+
+***
 
 ### are
 
@@ -222,6 +257,33 @@ Checks if a value is an Array
 #### Returns
 
 `Checker`
+
+***
+
+### between()
+
+> **between**(`min`, `max`): `Checker`
+
+Checks if a value is between or equal to a min and max value
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `min` | `any` |
+| `max` | `any` |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(3, 'Positive').is.between(0, 5); // true
+Check(-3, 'Negative').is.between(0, 5); // false
+Check(0, 'Zero').is.between(0, 5); // true
+```
 
 ***
 
@@ -679,6 +741,44 @@ Alias for [lessThanOrEqual](#lessthanorequal).
 
 ***
 
+### maxLength()
+
+> **maxLength**(`expected`): `Checker`
+
+Checks if the length is less than or equal to the expected maximum value.
+Intended for use with Arrays and strings, but works with any object containing a length property.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the maximum expected length |
+
+#### Returns
+
+`Checker`
+
+***
+
+### minLength()
+
+> **minLength**(`expected`): `Checker`
+
+Checks if the length is greater than or equal to the expected minimum value.
+Intended for use with Arrays and strings, but works with any object containing a length property.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the minimum expected length |
+
+#### Returns
+
+`Checker`
+
+***
+
 ### multipleOf()
 
 > **multipleOf**(`expected`): `Checker`
@@ -718,6 +818,14 @@ Checks if a value is a negative number
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(3, 'Positive').is.negative(); // false
+Check(-3, 'Negative').is.negative(); // true
+Check(0, 'Zero').is.negative(); // false
+```
 
 ***
 
@@ -863,6 +971,14 @@ Checks if a value is a positive number
 
 `Checker`
 
+#### Example
+
+```ts
+Check(3, 'Positive').is.positive(); // true
+Check(-3, 'Negative').is.positive(); // false
+Check(0, 'Zero').is.positive(); // false
+```
+
 ***
 
 ### regex()
@@ -998,6 +1114,26 @@ let pass = Check({ testValue }).is.typeDetail('object (Object)'); // true
 > **undefined**(): `Checker`
 
 Checks if a value is undefined
+
+#### Returns
+
+`Checker`
+
+***
+
+### validRecord()
+
+> **validRecord**(): `Checker`
+
+#### Returns
+
+`Checker`
+
+***
+
+### validTable()
+
+> **validTable**(): `Checker`
 
 #### Returns
 
