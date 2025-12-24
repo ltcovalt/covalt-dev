@@ -5,7 +5,7 @@
 	"plugin": ["typedoc-plugin-markdown", "typedoc-plugin-remark", "typedoc-plugin-frontmatter"],
 
 	"navigation": true,
-
+	"indexFormat": "table",
 	"readme": "none",
 	"disableSources": true,
 	"skipErrorChecking": true,
