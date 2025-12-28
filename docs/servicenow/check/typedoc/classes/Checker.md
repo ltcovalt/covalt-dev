@@ -18,7 +18,6 @@ Performs runtime type validation and error handling
   * [have](#have)
   * [is](#is)
   * [not](#not)
-  * [prefix](#prefix)
   * [to](#to)
 * [Methods](#methods)
   * [array()](#array)
@@ -29,10 +28,10 @@ Performs runtime type validation and error handling
   * [date()](#date)
   * [equal()](#equal)
   * [equals()](#equals)
-  * [evaluate()](#evaluate)
   * [falsy()](#falsy)
   * [finite()](#finite)
   * [float()](#float)
+  * [formatError()](#formaterror)
   * [function()](#function)
   * [greater()](#greater)
   * [greaterOrEqual()](#greaterorequal)
@@ -61,10 +60,14 @@ Performs runtime type validation and error handling
   * [object()](#object)
   * [ok()](#ok)
   * [oneOf()](#oneof)
+  * [opt()](#opt)
+  * [optional()](#optional)
   * [plainObject()](#plainobject)
   * [positive()](#positive)
   * [regex()](#regex)
+  * [required()](#required)
   * [result()](#result)
+  * [run()](#run)
   * [string()](#string)
   * [symbol()](#symbol)
   * [truthy()](#truthy)
@@ -80,7 +83,7 @@ Performs runtime type validation and error handling
 
 > **new Checker**(`value`, `name`): `Checker`
 
-Creates a new TypeChecker object instance
+Creates a new Checker object instance
 
 #### Parameters
 
@@ -97,6 +100,7 @@ Creates a new TypeChecker object instance
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
+| <a id="abort"></a> `abort` | `boolean` | - |
 | <a id="checkcount"></a> `checkCount` | `number` | - |
 | <a id="checks"></a> `checks` | [`CheckDetail`](../interfaces/CheckDetail.md)\[] | array of objects detailing each check that was performed |
 | <a id="errors"></a> `errors` | `string`\[] | array of objects detailing validation errors |
@@ -220,20 +224,6 @@ Inverts the result when the next set of validations is evaluated
 
 ***
 
-### prefix
-
-#### Get Signature
-
-> **get** **prefix**(): `string`
-
-Returns the prefix to be used for crafting user-readable strings
-
-##### Returns
-
-`string`
-
-***
-
 ### to
 
 #### Get Signature
@@ -315,7 +305,7 @@ Checks if a value is a boolean
 
 > **check**(`value`, `name`): `Checker`
 
-used to append additional checks to an existing TypeChecker
+Used to append additional checks to an existing Checker
 
 #### Parameters
 
@@ -328,7 +318,7 @@ used to append additional checks to an existing TypeChecker
 
 `Checker`
 
-the current TypeChecker instance
+the current Checker instance
 
 ***
 
@@ -397,27 +387,6 @@ Check('1', 'number').equals(1).ok(); // false
 
 ***
 
-### evaluate()
-
-> **evaluate**(`pass`, `detail`): `Checker`
-
-evaluates a Type.check() call chain, finalizes pass/fail,
-records full check details, and logs/throws errors,
-and resets the inversion flag for the next check
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `pass` | `any` |
-| `detail` | `any` |
-
-#### Returns
-
-`Checker`
-
-***
-
 ### falsy()
 
 > **falsy**(): `Checker`
@@ -464,6 +433,26 @@ Checks if a value is a float/decimal number
 #### Returns
 
 `Checker`
+
+***
+
+### formatError()
+
+> **formatError**(`detail`): `string`
+
+Generates an error message from a CheckDetail object
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `detail` | [`CheckDetail`](../interfaces/CheckDetail.md) | detail object for the current check/predicate |
+
+#### Returns
+
+`string`
+
+returns the formatted error message
 
 ***
 
@@ -601,7 +590,7 @@ Checks the current validation status and throws a TypeError if not ok
 
 `Checker`
 
-the current TypeChecker instance
+the current Checker instance
 
 ***
 
@@ -926,7 +915,7 @@ Checks if a value is present in an array of values
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `array` | `any`\[] | of values |
+| `array` | `any`\[] | array of allowed values |
 
 #### Returns
 
@@ -936,8 +925,34 @@ Checks if a value is present in an array of values
 
 ```ts
 Check(3).is.oneOf([1, 2, 3]).ok(); // true
-Check(4).is.oneOf([1, 2]).ok(); // fals
+Check(4).is.oneOf([1, 2]).ok(); // false
 ```
+
+***
+
+### opt()
+
+> **opt**(): `Checker`
+
+Sets the current value being checked as optional.
+Alias for [optional](#optional)
+
+#### Returns
+
+`Checker`
+
+***
+
+### optional()
+
+> **optional**(): `Checker`
+
+Sets the current value being checked as optional.
+If invoked as `not.optional()`, delegates to [required()](#required).
+
+#### Returns
+
+`Checker`
 
 ***
 
@@ -993,6 +1008,19 @@ Checks if a value is a Regular Expression
 
 ***
 
+### required()
+
+> **required**(): `Checker`
+
+Sets the current value being checked as required.
+If invoked as not.required(), delegates to [optional()](#optional).
+
+#### Returns
+
+`Checker`
+
+***
+
 ### result()
 
 > **result**(): `any`
@@ -1004,6 +1032,27 @@ Returns the type validation result
 `any`
 
 result summary
+
+***
+
+### run()
+
+> **run**(`detail`, `predicate`): `Checker`
+
+evaluates a Type.check() call chain, finalizes pass/fail,
+records full check details, and logs/throws errors,
+and resets the inversion flag for the next check
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `detail` | `any` | object containing details on the current check chain |
+| `predicate` | `Function` | callback function to determine if a check passed - must return a Boolean |
+
+#### Returns
+
+`Checker`
 
 ***
 

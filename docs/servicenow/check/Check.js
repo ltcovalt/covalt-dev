@@ -10,11 +10,12 @@
 /**
  * @typedef {Object} CheckDetail - details the results of each predicate check performed
  * @property {boolean} pass - true if the check was passed
- * @property {boolean} inverse - true if the check result should be inverted
+ * @property {'pass'|'fail'|'skip'|'error'} status - status of a predicate evaluation
+ * @property {string} [message] - additional information about the status
+ * @property {boolean} invert - true if the check result should be inverted
+ * @property {boolean} abort - set to true when a predicate fails, skipping remaining predicates for the current check
  * @property {any} actual - the actual value received
  * @property {string} predicate - name of the predicate function that was ran
- * @property {string} prefix - prefix to append to the label
- * @property {string} label - user readable label for the predicate
  * @property {any} expected - the expected value
  */
 
@@ -36,28 +37,6 @@ const Check = (value, name) => {
 };
 
 /**
- * Template formatter functions
- * @hidden
- * prettier-ignore
- */
-const TEMPLATE_MAP = Object.freeze({
-	type: (o) => `${o.name}: expected ${o.label} ${o.prefix}${o.expected}, received ${o.actual}`,
-	truthy: (o) => `${o.name}: expected value to ${o.prefix}be ${o.predicate}, received ${o.actual}`,
-	DEFAULT: (o) => `${o.name}: expected value to ${o.prefix}be ${o.expected}, received ${o.actual}`,
-});
-
-/**
- * Maps predicates to templates
- * @hidden
- */
-const PREDICATE_TEMPLATE = Object.freeze({
-	type: 'type',
-	typeDetail: 'type',
-	truthy: 'truthy',
-	falsy: 'truthy',
-});
-
-/**
  * Performs runtime type validation and error handling
  *
  * @property {any} value - the current value being processed
@@ -70,7 +49,7 @@ const PREDICATE_TEMPLATE = Object.freeze({
  */
 class Checker {
 	/**
-	 * Creates a new TypeChecker object instance
+	 * Creates a new Checker object instance
 	 * @param {*} value - the value to be checked
 	 * @param {string} name - the name or label of the value being checked
 	 */
@@ -91,17 +70,12 @@ class Checker {
 		this.checks = [];
 		/** @type {string[]} */
 		this.errors = [];
+
+		/** @type {boolean} */
+		this.abort = false;
 	}
 
-	/**
-	 * Returns the prefix to be used for crafting user-readable strings
-	 * @returns {string}
-	 */
-	get prefix() {
-		return this.invert ? 'NOT ' : '';
-	}
-
-	// NOTE: modifiers
+	// NOTE: modifier properties
 
 	/**
 	 * Inverts the result when the next set of validations is evaluated
@@ -112,7 +86,7 @@ class Checker {
 		return this;
 	}
 
-	// TODO: passthrough getters to make API calls grammically accurate
+	// TODO: no-op passthrough getters to make API calls grammically accurate
 	// consider limiting which predicates are available for each getter
 
 	/**
@@ -179,6 +153,65 @@ class Checker {
 		return this;
 	}
 
+	// NOTE: behavior modifiers
+
+	/**
+	 * Sets the current value being checked as required.
+	 * If invoked as not.required(), delegates to [optional()](#optional).
+	 * @returns {this}
+	 */
+	required() {
+		if (this.invert) {
+			this.invert = false;
+			return this.optional();
+		}
+
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'required',
+				expected: 'value must not be nil',
+			},
+			() => !Type.isNil(this.value),
+		);
+	}
+
+	/**
+	 * Sets the current value being checked as optional.
+	 * If invoked as `not.optional()`, delegates to [required()](#required).
+	 * @returns {this}
+	 */
+	optional() {
+		if (this.invert) {
+			this.invert = false;
+			return this.required();
+		}
+
+		let detail = {
+			actual: this.value,
+			predicate: 'optional',
+			expected: 'value may be nil',
+		};
+
+		return this.run(detail, () => {
+			if (Type.isNil(this.value)) {
+				this.abort = true;
+				detail.status = 'skip';
+				return true;
+			}
+			return true;
+		});
+	}
+
+	/**
+	 * Sets the current value being checked as optional.
+	 * Alias for [optional](#optional)
+	 * @returns {this}
+	 */
+	opt() {
+		return this.optional();
+	}
+
 	// NOTE: core type predicates
 
 	/**
@@ -190,13 +223,14 @@ class Checker {
 	 * let pass = Check({ testValue }).is.type('string').ok(); // true
 	 */
 	type(expected) {
-		this.evaluate(this.typeof === expected, {
-			actual: this.typeof,
-			predicate: 'type',
-			label: 'type of',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.typeof,
+				predicate: 'type',
+				expected,
+			},
+			() => this.typeof === expected,
+		);
 	}
 
 	/**
@@ -212,13 +246,14 @@ class Checker {
 	 * let pass = Check({ testValue }).is.typeDetail('object (Object)'); // true
 	 */
 	typeDetail(expected) {
-		this.evaluate(this.typeofDetail === expected, {
-			actual: this.typeofDetail,
-			predicate: 'typeDetail',
-			label: 'detailed type of',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.typeofDetail,
+				predicate: 'typeDetail',
+				expected,
+			},
+			() => this.typeofDetail === expected,
+		);
 	}
 
 	// NOTE: basic type checks
@@ -292,13 +327,14 @@ class Checker {
 	 * @returns {this}
 	 */
 	nil() {
-		this.evaluate(this.value === null || this.value === undefined, {
-			actual: this.typeof,
-			predicate: 'nil',
-			label: 'nil',
-			expected: 'null or undefined',
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.typeof,
+				predicate: 'nil',
+				expected: 'null or undefined',
+			},
+			() => this.value === null || this.value === undefined,
+		);
 	}
 
 	/**
@@ -355,13 +391,14 @@ class Checker {
 	 * Check(null, name).is.truthy().ok() // false
 	 */
 	truthy() {
-		this.evaluate(!!this.value === true, {
-			actual: !!this.value,
-			predicate: 'truthy',
-			label: 'truthy',
-			expected: 'true',
-		});
-		return this;
+		return this.run(
+			{
+				actual: !!this.value,
+				predicate: 'truthy',
+				expected: 'true',
+			},
+			() => !!this.value === true,
+		);
 	}
 
 	/**
@@ -378,13 +415,14 @@ class Checker {
 	 * Check(null, name).is.falsy().ok() // true
 	 */
 	falsy() {
-		this.evaluate(!!this.value === false, {
-			actual: !!this.value,
-			predicate: 'falsy',
-			label: 'falsy',
-			expected: 'false',
-		});
-		return this;
+		return this.run(
+			{
+				actual: !!this.value,
+				predicate: 'falsy',
+				expected: 'false',
+			},
+			() => !!this.value === false,
+		);
 	}
 
 	// NOTE: complex object checks
@@ -427,13 +465,14 @@ class Checker {
 	plainObject() {
 		// TODO: consider updating actual/expected to indicate the prototype as well,
 		// as there are cases where object (Object) uses a custom class/prototype
-		this.evaluate(Type.isPlainObject(this.value), {
-			actual: this.typeofDetail,
-			predicate: 'plainObject',
-			label: 'plain object',
-			expected: 'object (Object)',
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.typeofDetail,
+				predicate: 'plainObject',
+				expected: 'object (Object)',
+			},
+			() => Type.isPlainObject(this.value),
+		);
 	}
 
 	// NOTE: equality checks
@@ -446,13 +485,14 @@ class Checker {
 	 * Check('1', 'number').is.equal(1).ok(); // false
 	 */
 	equal(expected) {
-		this.evaluate(this.value === expected, {
-			actual: this.value,
-			predicate: 'equal',
-			label: 'equal to',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'equal',
+				expected,
+			},
+			() => this.value === expected,
+		);
 	}
 
 	/**
@@ -471,21 +511,25 @@ class Checker {
 
 	/**
 	 * Checks if a value is present in an array of values
-	 * @param {any[]} array of values
+	 * @param {any[]} array - array of allowed values
 	 * @returns {this}
 	 *
 	 * @example
 	 * Check(3).is.oneOf([1, 2, 3]).ok(); // true
-	 * Check(4).is.oneOf([1, 2]).ok(); // fals
+	 * Check(4).is.oneOf([1, 2]).ok(); // false
 	 */
 	oneOf(array) {
-		this.evaluate(array.indexOf(this.value) !== -1, {
-			actual: this.value,
-			predicate: 'oneOf',
-			label: 'one of',
-			expected: array,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'oneOf',
+				expected: array,
+			},
+			() => {
+				if (!Array.isArray(array)) throw TypeError('oneOf(array) requires input to be an Array.');
+				return array.indexOf(this.value) !== -1;
+			},
+		);
 	}
 
 	/**
@@ -498,13 +542,17 @@ class Checker {
 	 * Check(4).is.noneOf([1, 2, 3]).ok(); // true
 	 */
 	noneOf(array) {
-		this.evaluate(array.indexOf(this.value) === -1, {
-			actual: this.value,
-			predicate: 'noneOf',
-			label: 'none of',
-			expected: array,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'noneOf',
+				expected: array,
+			},
+			() => {
+				if (!Array.isArray(array)) throw TypeError('noneOf(array) requires input to be an Array.');
+				return array.indexOf(this.value) === -1;
+			},
+		);
 	}
 
 	/**
@@ -514,13 +562,14 @@ class Checker {
 	 * @returns {this}
 	 */
 	minLength(expected) {
-		this.evaluate(this.value?.length >= expected, {
-			actual: this.value,
-			predicate: 'minLength',
-			label: 'minimum length',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value?.length,
+				predicate: 'minLength',
+				expected,
+			},
+			() => this.value?.length >= expected,
+		);
 	}
 
 	/**
@@ -530,13 +579,14 @@ class Checker {
 	 * @returns {this}
 	 */
 	maxLength(expected) {
-		this.evaluate(this.value?.length <= expected, {
-			actual: this.value,
-			predicate: 'maxLength',
-			label: 'maximum length',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value?.length,
+				predicate: 'maxLength',
+				expected,
+			},
+			() => this.value?.length <= expected,
+		);
 	}
 
 	// NOTE: number checks
@@ -546,13 +596,14 @@ class Checker {
 	 * @returns {this}
 	 */
 	finite() {
-		this.evaluate(this.typeofDetail === 'number (Integer)' || this.typeofDetail === 'number (Float)', {
-			actual: this.typeofDetail,
-			predicate: 'finite',
-			label: 'finite number',
-			expected: 'number (Integer) or number (Float)',
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.typeofDetail,
+				predicate: 'finite',
+				expected: 'number (Integer) or number (Float)',
+			},
+			() => this.typeofDetail === 'number (Integer)' || this.typeofDetail === 'number (Float)',
+		);
 	}
 
 	/**
@@ -591,13 +642,14 @@ class Checker {
 	 * Check(0, 'Zero').is.between(0, 5); // true
 	 */
 	between(min, max) {
-		this.evaluate(this.value >= min && this.value <= max, {
-			actual: this.value,
-			predicate: 'between',
-			label: 'between',
-			expected: `value >= ${min} and <= ${max}`,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'between',
+				expected: `value >= ${min} and <= ${max}`,
+			},
+			() => this.value >= min && this.value <= max,
+		);
 	}
 
 	/**
@@ -606,13 +658,14 @@ class Checker {
 	 * @returns {this}
 	 */
 	lessThan(expected) {
-		this.evaluate(this.value < expected, {
-			actual: this.value,
-			predicate: 'lessThan',
-			label: 'less than',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'lessThan',
+				expected,
+			},
+			() => this.value < expected,
+		);
 	}
 
 	/**
@@ -641,13 +694,14 @@ class Checker {
 	 * @returns {this}
 	 */
 	lessThanOrEqual(expected) {
-		this.evaluate(this.value <= expected, {
-			actual: this.value,
-			predicate: 'lessThanOrEqual',
-			label: 'less than or equal to',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'lessThanOrEqual',
+				expected,
+			},
+			() => this.value <= expected,
+		);
 	}
 
 	/**
@@ -676,13 +730,14 @@ class Checker {
 	 * @returns {this}
 	 */
 	greaterThan(expected) {
-		this.evaluate(this.value > expected, {
-			actual: this.value,
-			predicate: 'greaterThan',
-			label: 'greater than',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'greaterThan',
+				expected,
+			},
+			() => this.value > expected,
+		);
 	}
 
 	/**
@@ -711,13 +766,14 @@ class Checker {
 	 * @returns {this}
 	 */
 	greaterThanOrEqual(expected) {
-		this.evaluate(this.value >= expected, {
-			actual: this.value,
-			predicate: 'greaterThanOrEqual',
-			label: 'greater than or equal to',
-			expected,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'greaterThanOrEqual',
+				expected,
+			},
+			() => this.value >= expected,
+		);
 	}
 
 	/**
@@ -746,45 +802,52 @@ class Checker {
 	 * @returns {this}
 	 */
 	multipleOf(expected) {
-		this.evaluate(this.value % expected === 0, {
-			actual: this.value,
-			predicate: 'multipleOf',
-			label: 'multiple of',
-			expected: `multiple of ${expected}`,
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'multipleOf',
+				expected: `multiple of ${expected}`,
+			},
+			() => this.value % expected === 0,
+		);
 	}
 
 	// NOTE: ServiceNow/Glide API checks
 
 	validTable() {
-		let pass = this.typeof === 'string';
-		let gr;
-		if (pass) {
-			gr = new GlideRecord(this.value);
-			pass = gr.isValid();
-		}
-		this.evaluate(pass, {
-			actual: this.value,
-			predicate: 'validTable',
-			label: 'valid table',
-			expected: 'valid table name',
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'validTable',
+				expected: 'valid table name',
+			},
+			() => {
+				if (this.typeof !== 'string') return false;
+				let gr = new GlideRecord(this.value);
+				return gr.isValid();
+			},
+		);
 	}
 
 	validRecord() {
-		let pass = this.typeofDetail === 'object (GlideRecord)' || this.typeofDetail === 'object (GlideRecordSecure)';
-		if (pass) {
-			pass = this.value.isValidRecord();
-		}
-		this.evaluate(pass, {
-			actual: this.value,
-			predicate: 'validRecord',
-			label: 'valid record',
-			expected: 'valid GlideRecord',
-		});
-		return this;
+		return this.run(
+			{
+				actual: this.value,
+				predicate: 'validRecord',
+				expected: 'valid GlideRecord',
+			},
+			() => {
+				if (
+					!(
+						this.typeofDetail === 'object (GlideRecord)'
+						|| this.typeofDetail === 'object (GlideRecordSecure)'
+					)
+				) {
+					return false;
+				}
+				return this.value.isValidRecord();
+			},
+		);
 	}
 
 	// NOTE: terminal operation methods
@@ -806,14 +869,14 @@ class Checker {
 	result() {
 		return {
 			ok: this.ok(),
-			checks: [...this.checks],
-			errors: [...this.errors],
+			checks: this.checks.slice(),
+			errors: this.errors.slice(),
 		};
 	}
 
 	/**
 	 * Checks the current validation status and throws a TypeError if not ok
-	 * @returns {this} the current TypeChecker instance
+	 * @returns {this} the current Checker instance
 	 */
 	guard() {
 		if (!this.ok()) {
@@ -822,42 +885,77 @@ class Checker {
 		return this;
 	}
 
-	// NOTE: evaluation methods
+	// NOTE: execution/evaluation methods
 
 	/**
 	 * evaluates a Type.check() call chain, finalizes pass/fail,
 	 * records full check details, and logs/throws errors,
 	 * and resets the inversion flag for the next check
+	 * @param {object} detail - object containing details on the current check chain
+	 * @param {function} predicate - callback function to determine if a check passed - must return a Boolean
 	 */
-	evaluate(pass, detail) {
-		pass = this.invert ? !pass : pass;
+	run(detail, predicate) {
+		if (!predicate || typeof predicate !== 'function') throw TypeError('predicate parameter must be a function');
+		if (!detail || typeof detail !== 'object') throw TypeError('detail parameter must be an object');
+
+		/*
+		 * snapshot the user provided values before the predicate is ran,
+		 * as they may occasionally need to manipulate state, like optional()
+		 */
+		const invert = this.invert;
+
+		// skip remaining predicates in this check chain
+		if (this.abort) {
+			this.invert = false;
+			return this;
+		}
+
+		// pass, fail, skip, error
+		let pass = true;
+		let status = null;
+		let exception = false;
+		let exceptionMessage = null;
+
+		try {
+			pass = !!predicate();
+			if (invert) pass = !pass;
+			// predicate may override status (i.e., optional() sets status to "skip")
+			status = detail.status ?? (pass ? 'pass' : 'fail');
+			if (status === 'skip') pass = true;
+		} catch (ex) {
+			pass = false;
+			status = 'error';
+			exception = true;
+			exceptionMessage = 'predicate threw an exception: ' + ex.message;
+		}
 
 		detail = {
 			name: this.name,
 			pass,
-			inverse: this.invert,
-			prefix: this.prefix,
+			status,
+			exception,
+			invert,
 			...detail,
+			message: exceptionMessage ?? detail.message,
 		};
 
 		// add a new error message if the check failed
 		if (!pass) {
-			let template = PREDICATE_TEMPLATE[detail.predicate] || 'DEFAULT';
-			let formatFn = TEMPLATE_MAP[template] || TEMPLATE_MAP.DEFAULT;
-			this.errors.push(formatFn(detail));
+			this.abort = true;
+			this.errors.push(this.formatError(detail));
 		}
 		this.checks.push(detail);
 
-		// reset the result inversion flag
+		// reset result inversion flag
 		this.invert = false;
 		return this;
 	}
 
 	/**
-	 * used to append additional checks to an existing TypeChecker
+	 * Used to append additional checks to an existing Checker
 	 * @param {*} value - the value to be checked
 	 * @param {string} name - name or label of the value being checked
-	 * @returns {this} the current TypeChecker instance
+	 * @returns {this} the current Checker instance
 	 */
 	check(value, name) {
 		this.checkCount++;
@@ -866,6 +964,34 @@ class Checker {
 		this.typeof = typeof this.value;
 		this.typeofDetail = Type.detail(this.value);
 		this.invert = false;
+		this.abort = false;
 		return this;
+	}
+
+	// NOTE: Formatter functions
+
+	/**
+	 * Generates an error message from a CheckDetail object
+	 * @param {CheckDetail} detail - detail object for the current check/predicate
+	 * @return {string} returns the formatted error message
+	 */
+	formatError(detail) {
+		if (typeof detail.message === 'string') {
+			return `${detail.name}: ${detail.message}`;
+		}
+
+		switch (detail.predicate) {
+			case 'required':
+				return `${detail.name}: expected a required value, received ${detail.actual}`;
+			case 'type':
+				return `${detail.name}: expected type to ${detail.invert ? 'NOT ' : ''}be ${detail.expected}, received ${detail.actual}`;
+			case 'typeDetail':
+				return `${detail.name}: expected detailed type to ${detail.invert ? 'NOT ' : ''} be ${detail.expected}, received ${detail.actual}`;
+			case 'truthy':
+			case 'falsy':
+				return `${detail.name}: expected value to ${detail.invert ? 'NOT ' : ''}be ${detail.predicate}, received ${detail.actual}`;
+			default:
+				return `${detail.name}: expected value to ${detail.invert ? 'NOT ' : ''}be ${detail.expected}, received ${detail.actual}`;
+		}
 	}
 }

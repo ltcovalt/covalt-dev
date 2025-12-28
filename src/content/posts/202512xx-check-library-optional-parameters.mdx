@@ -1,0 +1,102 @@
+---
+title: Adding optional parameter support to the Check.js library
+slug: check-library-optional-parameters
+description:
+    Making required updates to the Check.js library to allow for optional
+    parameters. Also perform some minor refactoring of existing logic to reduce
+    boilerplate code and improve scalability and flexibility for when additional
+    types of checks need added in the future.
+author: 'Luke Covalt'
+date: 2025-12-28
+updated: 2025-12-28
+draft: false
+tags: [blog, Check.js, Check, validation, assert, ServiceNow, input]
+---
+
+I'm going to do my best to keep this brief, which usually doesn't work out for
+me when it comes to writing. But, it is the holiday season and I only have
+limited time to code with all the family activities going on, so I'll do my
+best.
+
+I was attempting to use the [Check.js](/docs/servicenow/check) library for the
+first time in a "production" utility I'm working on. I quickly realized that
+while my initial design was fine for an MVP, I need the ability to chain checks
+for optional parameters. Here's a hypothetical scenario of what I need to
+support.
+
+```js
+let obj = {};
+Check({ obj }).is.optional().object().has.property('prop');
+```
+
+## The problem
+
+There two problems I need to address - one that was immediately obvious and one
+that was a bit more subtle. First, in the above example, what happens if
+`obj == null`? The `property('prop')` check is going to throw an exception. So I
+need the `optional` parameters to short-circuit future predicates when the value
+is nil.
+
+Less trivial to implement, is the logic to actually skip the check. This is
+because I was perhaps a bit shortsighted when I originally built out the
+original backend logic, as this is the first time I've attempted to build a full
+featured assert style library like this. The example type check function below
+demonstrates the issue with my internal `evaluate` function that primarily
+exists to validate if a check was passed and format the result object.
+
+```js
+type(expected) {
+    this.evaluate(() => this.typeof === expected, {
+        actual: this.typeof,
+        predicate: 'type',
+        label: 'type of',
+        expected,
+    });
+    return this;
+}
+```
+
+The core problem is `evaluate` takes a Boolean as the first parameter, causing
+the expression to be immediately evaluated when `this.evaluate` is invoked. I
+could have each and every check (potentially hundreds!) look to see if
+`this.optional == true` before calling evaluate, but this leads to a ton of
+unnecessary boiler plate and is simply working around the core, underlying
+problem.
+
+## The solution
+
+Although it wasn't clear to me up front when I started building the library, the
+problem and the solution is painfully obvious now: `this.evaluate` should have
+never taken a Boolean parameter, it should accept a callback function that
+returns a Boolean, indicating if the check passed or not. After that, the
+optional logic only needs added to the `evaluate` function, which will simply
+not invoke the callback if the optional parameter is null or undefined.
+
+Since I need to refactor my existing checks anyway, I want to make a few other
+minor updates. The previous Boolean parameter was the first parameter, but it is
+common convention for callbacks to be the last parameter, so I will update the
+signature. I'll also be renaming the `evaluate` function to `run` - it's concise
+and more clearly indicates to future me that this function is what runs the
+callback. I did some other general cleanup, including changing how message
+templating is handled, but nothing too exciting.
+
+I did spend an unholy amount of time thinking about and testing solutions for
+how to handle negated optional and required parameters. For example, though I
+don't recommend it, users could call `not.optional()` or `not.required()`. This
+is different than `not` when used with standard predicates, which simply inverts
+the result. Here it is expected that `not` actually manipulates behavior. In the
+end, I decided to create standard predicates for `optional` and `required`
+rather than using a class property/getter, like I do with `not` and the other
+helper verbs. Since they are standard predicates, we get a nice, clean log in
+our result output object. Finally, the `optional` and `required` predicates each
+check if `this.invert` is true, resets the invert flag, and delegates to the
+appropriate predicate if so: `not.optional()` invokes `required()` and
+`not.required()` invokes `optional()`.
+
+## Conclusion
+
+That should be the last "major" feature needed to make this library truly
+usable. Of course I'll add many more predicates as I encounted the need for
+them, but this should make it ready for real-world use in my own libraries.
+Check out the most recent version of the library on the
+[Check.js](/docs/servicenow/check) documentation page.
