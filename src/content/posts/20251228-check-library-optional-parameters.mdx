@@ -80,23 +80,24 @@ and more clearly indicates to future me that this function is what runs the
 callback. I did some other general cleanup, including changing how message
 templating is handled, but nothing too exciting.
 
-I did spend an unholy amount of time thinking about and testing solutions for
+I also spent an unholy amount of time thinking about and testing solutions for
 how to handle negated optional and required parameters. For example, though I
 don't recommend it, users could call `not.optional()` or `not.required()`. This
 is different than `not` when used with standard predicates, which simply inverts
-the result. Here it is expected that `not` actually manipulates behavior. In the
-end, I decided to create standard predicates for `optional` and `required`
-rather than using a class property/getter, like I do with `not` and the other
-helper verbs. Since they are standard predicates, we get a nice, clean log in
-our result output object. Finally, the `optional` and `required` predicates each
-check if `this.invert` is true, resets the invert flag, and delegates to the
-appropriate predicate if so: `not.optional()` invokes `required()` and
-`not.required()` invokes `optional()`.
+the result. Here it is expected that `not` actually manipulates behavior, short
+circuiting further predicate evaluation if the parameter is null. In the end, I
+decided to create standard predicates for `optional` and `required` rather than
+using a class property/getter, like I do with `not` and the other helper verbs.
+Since they are standard predicates, we get a nice, clean log in our result
+output object. Finally, the `optional` and `required` predicates each check if
+`this.invert` is true, resets the invert flag, and delegates to the appropriate
+predicate if so: `not.optional()` invokes `required()` and `not.required()`
+invokes `optional()`.
 
 ## Conclusion
 
 That should be the last "major" feature needed to make this library truly
-usable. Of course I'll add many more predicates as I encounted the need for
+usable. Of course I'll add many more predicates as I encountered the need for
 them, but this should make it ready for real-world use in my own libraries.
 Check out the most recent version of the library on the
 [Check.js](/docs/servicenow/check) documentation page.
