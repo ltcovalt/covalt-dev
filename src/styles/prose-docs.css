@@ -102,6 +102,13 @@
 	/* 
    * list styles 
    */
+
+	/* All list items inside docs prose */
+	.prose-docs :where(ul > li, ol > li) {
+		margin-top: 0 !important;
+		margin-bottom: 0 !important;
+	}
+
 	.prose-docs ul,
 	.prose-docs ol {
 		@apply my-0;
@@ -113,7 +120,7 @@
 
 	/* ul immediately following an h2 is assumed to be a TOC */
 	.prose-docs h2 + ul {
-		@apply my-1;
+		@apply my-1 list-none;
 	}
 
 	/* Shrink spacing between items in all TOC levels */
@@ -122,11 +129,6 @@
 	.prose-docs h4 + ul li,
 	.prose-docs h5 + ul li {
 		@apply my-1;
-	}
-
-	.prose-docs ul > li + li {
-		margin-top: 0px !important;
-		margin-bottom: 0px !important;
 	}
 
 	/* Nested TOC lists (indent cleanup) */
@@ -141,15 +143,21 @@
 		@apply my-1;
 	}
 
+	/* Bold only top-level TOC categories */
+	.prose-docs h2 + ul > li > a,
+	.prose-docs h2 + ul > li > p {
+		@apply font-extrabold;
+	}
+
 	/* 
    * Block quote styles - used for function/accessor signatures
    */
 	.prose-docs blockquote {
-		@apply border-info my-2 ml-0 border-l-2 py-0.5 pl-3 font-mono not-italic;
+		@apply border-info my-3 ml-0 border-l-2 py-0.5 pl-3 font-mono not-italic;
 	}
 
 	.prose-docs blockquote p {
-		@apply my-3;
+		@apply my-1;
 	}
 
 	/* Turn off the default prose blockquote quotes */

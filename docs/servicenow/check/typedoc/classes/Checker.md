@@ -10,26 +10,28 @@ Performs runtime type validation and error handling
   * [Constructor](#constructor)
 * [Properties](#properties)
 * [Accessors](#accessors)
+  * [a](#a)
+  * [an](#an)
   * [are](#are)
   * [be](#be)
   * [has](#has)
   * [have](#have)
   * [is](#is)
   * [not](#not)
-  * [prefix](#prefix)
   * [to](#to)
 * [Methods](#methods)
   * [array()](#array)
+  * [between()](#between)
   * [bigint()](#bigint)
   * [boolean()](#boolean)
   * [check()](#check)
   * [date()](#date)
   * [equal()](#equal)
   * [equals()](#equals)
-  * [evaluate()](#evaluate)
   * [falsy()](#falsy)
   * [finite()](#finite)
   * [float()](#float)
+  * [formatError()](#formaterror)
   * [function()](#function)
   * [greater()](#greater)
   * [greaterOrEqual()](#greaterorequal)
@@ -46,6 +48,8 @@ Performs runtime type validation and error handling
   * [lessThanOrEqual()](#lessthanorequal)
   * [lt()](#lt)
   * [lte()](#lte)
+  * [maxLength()](#maxlength)
+  * [minLength()](#minlength)
   * [multipleOf()](#multipleof)
   * [nan()](#nan)
   * [negative()](#negative)
@@ -56,16 +60,22 @@ Performs runtime type validation and error handling
   * [object()](#object)
   * [ok()](#ok)
   * [oneOf()](#oneof)
+  * [opt()](#opt)
+  * [optional()](#optional)
   * [plainObject()](#plainobject)
   * [positive()](#positive)
   * [regex()](#regex)
+  * [required()](#required)
   * [result()](#result)
+  * [run()](#run)
   * [string()](#string)
   * [symbol()](#symbol)
   * [truthy()](#truthy)
   * [type()](#type)
   * [typeDetail()](#typedetail)
   * [undefined()](#undefined)
+  * [validRecord()](#validrecord)
+  * [validTable()](#validtable)
 
 ## Constructors
 
@@ -73,7 +83,7 @@ Performs runtime type validation and error handling
 
 > **new Checker**(`value`, `name`): `Checker`
 
-Creates a new TypeChecker object instance
+Creates a new Checker object instance
 
 #### Parameters
 
@@ -90,6 +100,7 @@ Creates a new TypeChecker object instance
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
+| <a id="abort"></a> `abort` | `boolean` | - |
 | <a id="checkcount"></a> `checkCount` | `number` | - |
 | <a id="checks"></a> `checks` | [`CheckDetail`](../interfaces/CheckDetail.md)\[] | array of objects detailing each check that was performed |
 | <a id="errors"></a> `errors` | `string`\[] | array of objects detailing validation errors |
@@ -100,6 +111,34 @@ Creates a new TypeChecker object instance
 | <a id="value"></a> `value` | `any` | the current value being processed |
 
 ## Accessors
+
+### a
+
+#### Get Signature
+
+> **get** **a**(): `this`
+
+No-op helper used solely to make fluent chaining more readable
+
+##### Returns
+
+`this`
+
+***
+
+### an
+
+#### Get Signature
+
+> **get** **an**(): `this`
+
+No-op helper used solely to make fluent chaining more readable
+
+##### Returns
+
+`this`
+
+***
 
 ### are
 
@@ -185,20 +224,6 @@ Inverts the result when the next set of validations is evaluated
 
 ***
 
-### prefix
-
-#### Get Signature
-
-> **get** **prefix**(): `string`
-
-Returns the prefix to be used for crafting user-readable strings
-
-##### Returns
-
-`string`
-
-***
-
 ### to
 
 #### Get Signature
@@ -222,6 +247,33 @@ Checks if a value is an Array
 #### Returns
 
 `Checker`
+
+***
+
+### between()
+
+> **between**(`min`, `max`): `Checker`
+
+Checks if a value is between or equal to a min and max value
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `min` | `any` |
+| `max` | `any` |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(3, 'Positive').is.between(0, 5); // true
+Check(-3, 'Negative').is.between(0, 5); // false
+Check(0, 'Zero').is.between(0, 5); // true
+```
 
 ***
 
@@ -253,7 +305,7 @@ Checks if a value is a boolean
 
 > **check**(`value`, `name`): `Checker`
 
-used to append additional checks to an existing TypeChecker
+Used to append additional checks to an existing Checker
 
 #### Parameters
 
@@ -266,7 +318,7 @@ used to append additional checks to an existing TypeChecker
 
 `Checker`
 
-the current TypeChecker instance
+the current Checker instance
 
 ***
 
@@ -335,27 +387,6 @@ Check('1', 'number').equals(1).ok(); // false
 
 ***
 
-### evaluate()
-
-> **evaluate**(`pass`, `detail`): `Checker`
-
-evaluates a Type.check() call chain, finalizes pass/fail,
-records full check details, and logs/throws errors,
-and resets the inversion flag for the next check
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `pass` | `any` |
-| `detail` | `any` |
-
-#### Returns
-
-`Checker`
-
-***
-
 ### falsy()
 
 > **falsy**(): `Checker`
@@ -402,6 +433,26 @@ Checks if a value is a float/decimal number
 #### Returns
 
 `Checker`
+
+***
+
+### formatError()
+
+> **formatError**(`detail`): `string`
+
+Generates an error message from a CheckDetail object
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `detail` | [`CheckDetail`](../interfaces/CheckDetail.md) | detail object for the current check/predicate |
+
+#### Returns
+
+`string`
+
+returns the formatted error message
 
 ***
 
@@ -539,7 +590,7 @@ Checks the current validation status and throws a TypeError if not ok
 
 `Checker`
 
-the current TypeChecker instance
+the current Checker instance
 
 ***
 
@@ -679,6 +730,44 @@ Alias for [lessThanOrEqual](#lessthanorequal).
 
 ***
 
+### maxLength()
+
+> **maxLength**(`expected`): `Checker`
+
+Checks if the length is less than or equal to the expected maximum value.
+Intended for use with Arrays and strings, but works with any object containing a length property.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the maximum expected length |
+
+#### Returns
+
+`Checker`
+
+***
+
+### minLength()
+
+> **minLength**(`expected`): `Checker`
+
+Checks if the length is greater than or equal to the expected minimum value.
+Intended for use with Arrays and strings, but works with any object containing a length property.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the minimum expected length |
+
+#### Returns
+
+`Checker`
+
+***
+
 ### multipleOf()
 
 > **multipleOf**(`expected`): `Checker`
@@ -718,6 +807,14 @@ Checks if a value is a negative number
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(3, 'Positive').is.negative(); // false
+Check(-3, 'Negative').is.negative(); // true
+Check(0, 'Zero').is.negative(); // false
+```
 
 ***
 
@@ -818,7 +915,7 @@ Checks if a value is present in an array of values
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `array` | `any`\[] | of values |
+| `array` | `any`\[] | array of allowed values |
 
 #### Returns
 
@@ -828,8 +925,34 @@ Checks if a value is present in an array of values
 
 ```ts
 Check(3).is.oneOf([1, 2, 3]).ok(); // true
-Check(4).is.oneOf([1, 2]).ok(); // fals
+Check(4).is.oneOf([1, 2]).ok(); // false
 ```
+
+***
+
+### opt()
+
+> **opt**(): `Checker`
+
+Sets the current value being checked as optional.
+Alias for [optional](#optional)
+
+#### Returns
+
+`Checker`
+
+***
+
+### optional()
+
+> **optional**(): `Checker`
+
+Sets the current value being checked as optional.
+If invoked as `not.optional()`, delegates to [required()](#required).
+
+#### Returns
+
+`Checker`
 
 ***
 
@@ -863,6 +986,14 @@ Checks if a value is a positive number
 
 `Checker`
 
+#### Example
+
+```ts
+Check(3, 'Positive').is.positive(); // true
+Check(-3, 'Negative').is.positive(); // false
+Check(0, 'Zero').is.positive(); // false
+```
+
 ***
 
 ### regex()
@@ -870,6 +1001,19 @@ Checks if a value is a positive number
 > **regex**(): `Checker`
 
 Checks if a value is a Regular Expression
+
+#### Returns
+
+`Checker`
+
+***
+
+### required()
+
+> **required**(): `Checker`
+
+Sets the current value being checked as required.
+If invoked as not.required(), delegates to [optional()](#optional).
 
 #### Returns
 
@@ -888,6 +1032,27 @@ Returns the type validation result
 `any`
 
 result summary
+
+***
+
+### run()
+
+> **run**(`detail`, `predicate`): `Checker`
+
+evaluates a Type.check() call chain, finalizes pass/fail,
+records full check details, and logs/throws errors,
+and resets the inversion flag for the next check
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `detail` | `any` | object containing details on the current check chain |
+| `predicate` | `Function` | callback function to determine if a check passed - must return a Boolean |
+
+#### Returns
+
+`Checker`
 
 ***
 
@@ -998,6 +1163,26 @@ let pass = Check({ testValue }).is.typeDetail('object (Object)'); // true
 > **undefined**(): `Checker`
 
 Checks if a value is undefined
+
+#### Returns
+
+`Checker`
+
+***
+
+### validRecord()
+
+> **validRecord**(): `Checker`
+
+#### Returns
+
+`Checker`
+
+***
+
+### validTable()
+
+> **validTable**(): `Checker`
 
 #### Returns
 

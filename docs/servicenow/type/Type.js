@@ -1,6 +1,6 @@
 /**
  * server-side namespace containing type checking utilities
- * @namespace
+ * @namespace Type
  */
 const Type = {
 	/**
@@ -103,6 +103,15 @@ const Type = {
 	 */
 	isNull(value) {
 		return value === null;
+	},
+
+	/**
+	 * Checks if a value is null or undefined
+	 * @param {any} value
+	 * @returns {boolean}
+	 */
+	isNil(value) {
+		return Type.isNull(value) || Type.isUndefined(value);
 	},
 
 	/**

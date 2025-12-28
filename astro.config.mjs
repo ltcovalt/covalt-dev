@@ -14,7 +14,13 @@ import path from 'node:path';
 
 export default defineConfig({
 	site: 'https://covalt.dev',
-	integrations: [mdx(), sitemap()],
+	integrations: [
+		mdx({
+			remarkPlugins: [remarkCodeImport, remarkCodeLang, remarkCodeStripPrettierIgnore, remarkLinkComponent],
+			rehypePlugins: [rehypeCodeHeader],
+		}),
+		sitemap(),
+	],
 	vite: {
 		plugins: [tailwindcss()],
 		resolve: {
@@ -35,4 +41,3 @@ export default defineConfig({
 		rehypePlugins: [rehypeCodeHeader],
 	},
 });
-

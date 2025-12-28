@@ -84,6 +84,12 @@
                 "isDeprecated": false
               },
               {
+                "title": "isNil",
+                "kind": 64,
+                "path": "Type/namespaces/Type/functions/isNil.md",
+                "isDeprecated": false
+              },
+              {
                 "title": "isNull",
                 "kind": 64,
                 "path": "Type/namespaces/Type/functions/isNull.md",

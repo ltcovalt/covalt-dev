@@ -4,4 +4,4 @@
 
 | Namespace | Description |
 | ------ | ------ |
-| [Type](Type/namespaces/Type/README.md) | server-side namespace containing type checking utilities |
+| [Type](Type/namespaces/Type/README.md) | server-side namespace containing type checking utilities Type |

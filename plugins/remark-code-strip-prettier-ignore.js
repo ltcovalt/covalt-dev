@@ -1,5 +1,7 @@
-// strips a leading "prettier-ignore" comment from fenced code blocks
-// works for MD/MDX; handles JS/TS/HTML-style comments
+/**
+ * Strips a leading "prettier-ignore" comment from fenced code blocks.
+ * Does not impact imported source files, only inline code fences.
+ */
 import { visit } from 'unist-util-visit';
 
 const patterns = [
@@ -11,6 +13,7 @@ const patterns = [
 export default function remarkCodeStripPrettierIgnore() {
 	return (tree) => {
 		visit(tree, 'code', (node) => {
+			if (node.meta?.includes('file=')) return; // don't process imported source
 			if (!node || typeof node.value !== 'string') return;
 			const lines = node.value.split('\n');
 

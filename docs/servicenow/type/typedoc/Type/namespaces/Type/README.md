@@ -3,6 +3,7 @@
 # Type
 
 server-side namespace containing type checking utilities
+Type
 
 ## Functions
 
@@ -20,6 +21,7 @@ server-side namespace containing type checking utilities
 | [isInfinite](functions/isInfinite.md) | Checks if a value is a infinite |
 | [isInteger](functions/isInteger.md) | Checks if a value is an integer |
 | [isNaN](functions/isNaN.md) | Checks if a value is a Not a Number (NaN) |
+| [isNil](functions/isNil.md) | Checks if a value is null or undefined |
 | [isNull](functions/isNull.md) | Checks if a value is null |
 | [isNumber](functions/isNumber.md) | Checks if a value is a number |
 | [isObject](functions/isObject.md) | Checks if a value is an object |
