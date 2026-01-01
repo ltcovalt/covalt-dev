@@ -26,7 +26,8 @@
  * @returns {Checker} a new Checker instance
  */
 const Check = (value, name) => {
-	// if a name isn't provided, accept an object with a single name:value pair to use as the name and value for the Checker instance
+	// if a name isn't provided, accept an object with a single name:value pair
+	// to use as the name and value for the Checker instance
 	if (!name && value && Type.isPlainObject(value)) {
 		let keys = Object.keys(value);
 		if (keys.length === 1) {
@@ -959,8 +960,20 @@ class Checker {
 	 */
 	check(value, name) {
 		this.checkCount++;
-		this.value = value;
-		this.name = name ?? `value #${this.checkCount}`;
+
+		// if a name isn't provided, accept an object with a single name:value pair
+		// to use as the name and value for the Checker instance
+		if (!name && value && Type.isPlainObject(value)) {
+			let keys = Object.keys(value);
+			if (keys.length === 1) {
+				this.value = value[keys[0]];
+				this.name = keys[0];
+			}
+		} else {
+			this.value = value;
+			this.name = name ?? `value #${this.checkCount}`;
+		}
+
 		this.typeof = typeof this.value;
 		this.typeofDetail = Type.detail(this.value);
 		this.invert = false;
