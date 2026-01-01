@@ -183,8 +183,7 @@ const Type = {
 		if (Type.detail(value) !== 'object (Object)') return false;
 
 		let prototype = Object.getPrototypeOf(value);
-		if (!prototype || prototype === Object.prototype) return false;
-		return true;
+		return prototype === null || prototype === Object.prototype;
 	},
 
 	/**
