@@ -12,6 +12,7 @@ Performs runtime type validation and error handling
 * [Accessors](#accessors)
   * [a](#a)
   * [an](#an)
+  * [and](#and)
   * [are](#are)
   * [be](#be)
   * [has](#has)
@@ -42,6 +43,8 @@ Performs runtime type validation and error handling
   * [guard()](#guard)
   * [infinity()](#infinity)
   * [integer()](#integer)
+  * [length()](#length)
+  * [lengthBetween()](#lengthbetween)
   * [less()](#less)
   * [lessOrEqual()](#lessorequal)
   * [lessThan()](#lessthan)
@@ -131,6 +134,20 @@ No-op helper used solely to make fluent chaining more readable
 #### Get Signature
 
 > **get** **an**(): `this`
+
+No-op helper used solely to make fluent chaining more readable
+
+##### Returns
+
+`this`
+
+***
+
+### and
+
+#### Get Signature
+
+> **get** **and**(): `this`
 
 No-op helper used solely to make fluent chaining more readable
 
@@ -611,6 +628,45 @@ Checks if a value is Infinity
 > **integer**(): `Checker`
 
 Checks if a value is an integer
+
+#### Returns
+
+`Checker`
+
+***
+
+### length()
+
+> **length**(`expected`): `Checker`
+
+Checks if the length is equal to the expected value.
+Intended for use with Arrays and strings, but works with any object containing a length property.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `number` | the expected length |
+
+#### Returns
+
+`Checker`
+
+***
+
+### lengthBetween()
+
+> **lengthBetween**(`min`, `max`): `Checker`
+
+Checks if the length is between an expected min and max value.
+Intended for use with Arrays and strings, but works with any object containing a length property.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `min` | `number` | the minimum expected length |
+| `max` | `number` | the maximum expected length |
 
 #### Returns
 

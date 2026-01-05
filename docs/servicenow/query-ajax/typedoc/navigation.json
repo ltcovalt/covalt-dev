@@ -1,0 +1,48 @@
+[
+  {
+    "title": "Namespaces",
+    "children": [
+      {
+        "title": "QueryAjaxAPI",
+        "kind": 4,
+        "path": "QueryAjax/namespaces/QueryAjaxAPI/README.md",
+        "isDeprecated": false,
+        "children": [
+          {
+            "title": "Variables",
+            "children": [
+              {
+                "title": "type",
+                "kind": 32,
+                "path": "QueryAjax/namespaces/QueryAjaxAPI/variables/type.md",
+                "isDeprecated": false
+              }
+            ]
+          },
+          {
+            "title": "Functions",
+            "children": [
+              {
+                "title": "records",
+                "kind": 64,
+                "path": "QueryAjax/namespaces/QueryAjaxAPI/functions/records.md",
+                "isDeprecated": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Interfaces",
+    "children": [
+      {
+        "title": "QueryParams",
+        "kind": 256,
+        "path": "interfaces/QueryParams.md",
+        "isDeprecated": false
+      }
+    ]
+  }
+]

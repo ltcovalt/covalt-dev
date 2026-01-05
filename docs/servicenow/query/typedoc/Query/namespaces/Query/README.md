@@ -12,4 +12,4 @@ Records are returned as plain JavaScript objects containing only the specified f
 
 | Function | Description |
 | ------ | ------ |
-| [record](functions/record.md) | - |
+| [records](functions/records.md) | Executes a GlideRecord query and returns an array of objects containing only the requested columns. Can also be used to retrieve dotwalked values. |

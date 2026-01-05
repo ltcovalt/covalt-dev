@@ -11,6 +11,7 @@
 	"cleanOutputDir": false,
 	"hidePageHeader": true,
 	"hideBreadcrumbs": false,
+	"excludeInternal": true,
 
 	"indexFormat": "table",
 	"parametersFormat": "table",
@@ -28,7 +29,7 @@
 					{
 						"text": "Contents",
 						"position": "start",
-						"minHeadingCount": 2
+						"minHeadingCount": 3
 					}
 				],
 				[

@@ -97,12 +97,20 @@ class Checker {
 	get a() {
 		return this;
 	}
+
 	/**
 	 * No-op helper used solely to make fluent chaining more readable
 	 * @returns {this}
 	 */
-
 	get an() {
+		return this;
+	}
+
+	/**
+	 * No-op helper used solely to make fluent chaining more readable
+	 * @returns {this}
+	 */
+	get and() {
 		return this;
 	}
 
@@ -508,7 +516,7 @@ class Checker {
 		return this.equal(expected);
 	}
 
-	// NOTE: array checks
+	// NOTE: array/iterable checks
 
 	/**
 	 * Checks if a value is present in an array of values
@@ -556,6 +564,40 @@ class Checker {
 		);
 	}
 
+	/**
+	 * Checks if the length is equal to the expected value.
+	 * Intended for use with Arrays and strings, but works with any object containing a length property.
+	 * @param {number} expected - the expected length
+	 * @returns {this}
+	 */
+	length(expected) {
+		return this.run(
+			{
+				actual: this.value?.length,
+				predicate: 'length',
+				expected,
+			},
+			() => this.value?.length >= expected,
+		);
+	}
+
+	/**
+	 * Checks if the length is between an expected min and max value.
+	 * Intended for use with Arrays and strings, but works with any object containing a length property.
+	 * @param {number} min - the minimum expected length
+	 * @param {number} max - the maximum expected length
+	 * @returns {this}
+	 */
+	lengthBetween(min, max) {
+		return this.run(
+			{
+				actual: this.value?.length,
+				predicate: 'length',
+				expected: `length to be between ${min} and ${max}`,
+			},
+			() => this.value?.length >= min && this.value?.length <= max,
+		);
+	}
 	/**
 	 * Checks if the length is greater than or equal to the expected minimum value.
 	 * Intended for use with Arrays and strings, but works with any object containing a length property.
