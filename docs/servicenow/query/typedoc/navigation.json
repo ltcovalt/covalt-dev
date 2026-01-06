@@ -12,9 +12,9 @@
             "title": "Functions",
             "children": [
               {
-                "title": "record",
+                "title": "records",
                 "kind": 64,
-                "path": "Query/namespaces/Query/functions/record.md",
+                "path": "Query/namespaces/Query/functions/records.md",
                 "isDeprecated": false
               }
             ]

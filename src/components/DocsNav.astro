@@ -2,6 +2,7 @@
 import { buildMenu } from '@utils/docsMenu';
 import { getCollection } from 'astro:content';
 import { Link } from '@components';
+import ClientIcon from '@icons/computer-desktop.svg';
 import ServerIcon from '@icons/server-stack.svg';
 import ServiceNowIcon from '@icons/user-circle-solid.svg';
 import MenuIcon from '@icons/book-open.svg'
@@ -34,7 +35,8 @@ const isCurrentPage = (href) => {
               <li>
                 <details open>
                   <summary>
-                    {runtime.label == 'Server' && <ServerIcon class="w-4"/>}
+                    {runtime.label === 'Server' && <ServerIcon class="w-4"/>}
+                    {runtime.label === 'Client' && <ClientIcon class="w-4"/>}
                     {runtime.label}
                   </summary>
                   <!-- API names, leaf node menu items -->

@@ -1,0 +1,23 @@
+---
+description: AJAX script-include for performing arbitrary GlideRecordSecure
+    queries. QueryAjax is a thin wrapper for the Query server-side namespace to
+    expose methods to client-side scripts. Query results are returned as a JSON
+    string.
+
+    This utility should not typically invoked directly. The Query UI script
+    exposes a simplified interface, error handling, and response parsing that
+    should be used instead.
+
+requires:
+    - ServiceNow/Check
+env:
+    api: QueryAjax
+    platform: ServiceNow
+    runtime: Client
+    resource: Script Include
+tags: [api, servicenow, server, query]
+---
+
+import Readme from '@components/TypeDocReadme.astro';
+
+<Readme platform={frontmatter.env.platform} api={'query-ajax'} />
