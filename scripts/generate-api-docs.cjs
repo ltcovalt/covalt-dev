@@ -10,10 +10,11 @@ const docsRoot = path.join(repoRoot, 'docs');
 const typedocConfigPath = path.join(repoRoot, 'typedoc.json');
 const typedocTsconfigBasePath = path.join(repoRoot, 'tsconfig.typedoc.json');
 
-const KEEP_TEMP =
-	process.argv.includes('--keep-temp')
-	|| process.env.TYPEDOC_KEEP_TEMP === '1'
-	|| process.env.TYPEDOC_KEEP_TEMP === 'true';
+/**
+ * If true, temporary TypeDoc generation folders will not be cleaned up after running.
+ * If false, temporary directories and all contents will be deleted on script completion.
+ */
+const KEEP_TEMP = process.argv.includes('--keep-temp');
 
 /**
  * Checks if a path is a directory
@@ -41,6 +42,9 @@ function isFile(p) {
 	}
 }
 
+/**
+ * Convertes a windows formatted path to POSIX compliant path
+ */
 function toPosixPath(p) {
 	return p.split(path.sep).join('/');
 }
@@ -78,8 +82,11 @@ function listChildDirs(dir) {
 }
 
 /**
- * Recursively discover API targets as directories under docs/<platform>/... that contain at least one .js file directly inside them.
- * Stops recursing once a directory is treated as an API dir (so helper subfolders under an API won't become separate APIs).
+ * Recursively discover API targets as directories under docs/<platform>/...
+ * API targets are any directory that contain at least one .js file.
+ * Stops recursing once an API directory is discovered. This allows sub-directories
+ * to contain additional helper functions, docs, etc. without TypeDoc attempting to parse.
+ * @returns {object[]} - returns an array of API targets. Includes rel, entryFilePath, entryFileBaseName, and outDirPath string properties.
  */
 function discoverApiTargets() {
 	/** @type {Array<{ rel: string, entryFilePath: string, entryFileBaseName: string, outDirPath: string }>} */
@@ -87,53 +94,41 @@ function discoverApiTargets() {
 
 	if (!isDirectory(docsRoot)) return targets;
 
-	// Discover platform names from directory names - i.e., /docs/<platform>/
-	const platforms = fs
-		.readdirSync(docsRoot)
-		.map((platformDirName) => ({
-			dirName: platformDirName,
-			platformDirPath: path.join(docsRoot, platformDirName),
-		}))
-		.filter((platform) => isDirectory(platform.platformDirPath))
-		.filter((platform) => !platform.dirName.startsWith('.'));
+	/** @param {string} dir */
+	function walk(dir) {
+		const jsFiles = listJsFilesInDir(dir);
 
-	for (const platform of platforms) {
-		/** @param {string} dir */
-		function walk(dir) {
-			const jsFiles = listJsFilesInDir(dir);
+		// If this directory contains JS files, treat it as an API dir and do not recurse into children.
+		if (jsFiles.length > 0) {
+			const entryFilePath = jsFiles[0];
+			const entryFileBaseName = path.basename(entryFilePath, path.extname(entryFilePath));
+			const rel = path.relative(docsRoot, dir);
 
-			// If this directory contains JS files, treat it as an API dir and do not recurse into children.
-			if (jsFiles.length > 0) {
-				const entryFilePath = jsFiles[0];
-				const entryFileBaseName = path.basename(entryFilePath, path.extname(entryFilePath));
-
-				const rel = path.relative(docsRoot, dir);
-
-				if (jsFiles.length > 1) {
-					console.warn(
-						`[typedoc] ${rel} has multiple JS files:\n  ${jsFiles
-							.map((p) => path.relative(repoRoot, p))
-							.join('\n  ')}\n  -> Using ${path.relative(repoRoot, entryFilePath)} as the entry point.`,
-					);
-				}
-
-				targets.push({
-					rel,
-					entryFilePath,
-					entryFileBaseName,
-					outDirPath: dir,
-				});
-				return;
+			if (jsFiles.length > 1) {
+				console.warn(
+					`[typedoc] ${rel} has multiple JS files:\n  ${jsFiles
+						.map((p) => path.relative(repoRoot, p))
+						.join('\n  ')}\n  -> Using ${path.relative(repoRoot, entryFilePath)} as the entry point.`,
+				);
 			}
 
-			// Otherwise, recurse into subdirectories
-			for (const child of listChildDirs(dir)) walk(child);
+			targets.push({
+				rel,
+				entryFilePath,
+				entryFileBaseName,
+				outDirPath: dir,
+			});
+			return;
 		}
 
-		walk(platform.platformDirPath);
+		// Otherwise, recurse into subdirectories
+		for (const child of listChildDirs(dir)) walk(child);
 	}
 
-	// Deterministic build order
+	// Start walking at docs/* (skip hidden / typedoc via listChildDirs)
+	for (const root of listChildDirs(docsRoot)) walk(root);
+
+	// Sort targets to ensure deterministic build order
 	targets.sort((a, b) => a.rel.localeCompare(b.rel));
 	return targets;
 }
@@ -202,9 +197,7 @@ if (apiTargets.length === 0) {
 
 for (const target of apiTargets) {
 	const { rel, entryFilePath, entryFileBaseName, outDirPath } = target;
-
 	console.log(`\n[typedoc] Building docs for ${rel} (${path.relative(repoRoot, entryFilePath)})`);
-
 	// Ensure API directory exists
 	fs.mkdirSync(outDirPath, { recursive: true });
 
@@ -220,17 +213,13 @@ for (const target of apiTargets) {
 	const args = [
 		'--options',
 		toPosixPath(typedocConfigPath),
-
 		// Override tsconfig per run to avoid cross-file global collisions.
 		'--tsconfig',
 		toPosixPath(tmpTsconfigPath),
-
 		'--entryPointStrategy',
 		'expand',
-
 		'--entryPoints',
 		toPosixPath(entryFilePath),
-
 		'--out',
 		toPosixPath(outDir),
 		'--name',
@@ -238,10 +227,6 @@ for (const target of apiTargets) {
 		'--navigationJson',
 		toPosixPath(navJson),
 	];
-
-	console.log('[typedoc] argv:', JSON.stringify(['npx', 'typedoc', ...args], null, 2));
-	console.log('[typedoc] cmd:', 'npx typedoc', args.join(' '));
-	console.log('[typedoc] cwd:', repoRoot);
 
 	const result = spawnSync('npx', ['typedoc', ...args], {
 		stdio: 'inherit',

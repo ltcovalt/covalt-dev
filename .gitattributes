@@ -1,0 +1,3 @@
+# Keep generated TypeDoc output stable across OSes
+docs/**/typedoc/**/*.md   text eol=lf
+docs/**/typedoc/**/*.json text eol=lf
