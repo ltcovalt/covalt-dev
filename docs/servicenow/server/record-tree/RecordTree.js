@@ -1,5 +1,5 @@
 /**
- * namespace containing tree traversal functions
+ * Server namespace for traversing and processing hierarchical GlideRecord relationships.
  * @namespace
  */
 const RecordTree = {

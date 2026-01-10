@@ -1,30 +1,31 @@
 ---
 const { apiPath } = Astro.props;
-
 const rel = String(apiPath).replace(/^\/+|\/+$/g, '');
 const modules = import.meta.glob('/docs/**/typedoc/README.md');
 const typedocPath = `/docs/${rel}/typedoc/README.md`;
-const loader = modules[typedocPath];
 
-if (!loader) {
-	throw new Error(`No TypeDoc README found at: ${typedocPath}`);
-}
+const loader = modules[typedocPath];
+if (!loader) throw new Error(`No TypeDoc README found at: ${typedocPath}`);
 
 const mod = await loader();
 const rawHtml = await mod.compiledContent?.();
-
-if (!rawHtml) {
-	throw new Error(`No compiledContent() for TypeDoc README: ${typedocPath}`);
-}
+if (!rawHtml) throw new Error(`No compiledContent() for TypeDoc README: ${typedocPath}`);
 
 const baseUrl = `/docs/${rel}`;
 
 function rewriteRelativeLinks(html, base) {
-	const regex = /href="(?!https?:\/\/|\/|#)([^"]+)"/g;
+	// neovim highlighting doesn't play nice with regex literals containing "double quotes"
+	const regex = new RegExp(String.raw`href="(?!https?:\/\/|\/|#)([^"]+)"`, 'g');
 	return html.replace(regex, (_m, relHref) => `href="${base}/${relHref}"`);
 }
 
-const fixedHtml = rewriteRelativeLinks(rawHtml, baseUrl);
+function stripFirstH1(html) {
+	// removes the first <h1 ...>...</h1>, non-greedy
+	return html.replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/i, '');
+}
+
+let fixedHtml = rewriteRelativeLinks(rawHtml, baseUrl);
+fixedHtml = stripFirstH1(fixedHtml);
 ---
 
 <div set:html={fixedHtml} />

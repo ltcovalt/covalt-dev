@@ -1,7 +1,4 @@
 ---
-description:
-    Tree traversal utility functions used for searching and processing nodes in
-    hierachical GlideRecord relationships
 env:
     api: RecordTree
     platform: ServiceNow
@@ -12,5 +9,13 @@ tags:
 ---
 
 import Readme from '@components/TypeDocReadme.astro';
+
+# RecordTree
+
+`RecordTree` is a server-side utility for traversing and processing hierarchical
+`GlideRecord` relationships. It provides reusable traversal patterns for working
+with parent–child and tree structures that would otherwise require repetitive
+and error-prone recursive logic. By centralizing recursive traversal logic into
+well-defined methods, other scripts can focus on business logic.
 
 <Readme apiPath="servicenow/server/record-tree" />

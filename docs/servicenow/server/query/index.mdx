@@ -1,10 +1,4 @@
 ---
-description:
-    Server-side namespace for performing arbitrary GlideRecordSecure queries,
-    Should not typically be invoked directly. This script primarily exists to
-    adapt queries from the QueryAjax utility to a standard GlideRecordSecure
-    query. Records are returned as plain JavaScript objects containing only the
-    specified fields.
 requires:
     - ServiceNow/Check
 env:
@@ -16,5 +10,25 @@ tags: [api, servicenow, server, query]
 ---
 
 import Readme from '@components/TypeDocReadme.astro';
+
+# Check
+
+`Query` is a server-side namespace responsible for executing secure, read-only
+queries using `GlideRecordSecure`, reducing the need for bespoke AJAX scripts to
+retrieve server data. Queries are evaluated under the context of the current
+user, ensuring access controls and security rules are enforced.
+
+<Alert>
+	This namespace primarily exists as an adapter between the `QueryAjax` and
+	`GlideRecordSecure` APIs and not usually be invoked directly. The
+	[client-side Query](/docs/servicenow/client/query) namespace should
+	typically be used instead of directly interfacing with either this API or
+	the `QueryAjax` API.
+</Alert>
+
+Results are returned as an array of plain JavaScript objects containing only the
+explicitly requested fields. This avoids leaking full GlideRecord instances,
+keeps responses predictable and serializable, and provides a consistent shape
+for downstream consumers.
 
 <Readme apiPath="/servicenow/server/query" />

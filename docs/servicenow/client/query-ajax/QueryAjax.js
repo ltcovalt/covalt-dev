@@ -1,13 +1,4 @@
 /**
- * Module containing methods for securely retrieving data from the server.
- * Queries are executed under the context of the current user via GlideRecordSecure.
- * Methods in the QueryAjaxAPI can be invoked directly, but most users should typically
- * use the client-side Query namespace defined in the global Query UI script, as it
- * provides a simplified interface, response parsing, and uniform error-handling.
- * @module
- */
-
-/**
  * @typedef {object} QueryParams - JSON Payload carried in 'sysparm_params' that define the query
  * @property {string} table - table name to query
  * @property {string} query - encoded query string
@@ -18,7 +9,8 @@
  */
 
 /**
- * Defines properties and methods assigned to the QueryAjax class
+ * Namespace defining server-side methods exposed by the QueryAjax GlideAjax class.
+ * Executes secure GlideRecordSecure queries under the current user context.
  * @namespace
  */
 const QueryAjaxAPI = {

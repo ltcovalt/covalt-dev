@@ -4,7 +4,7 @@
 
 | Namespace | Description |
 | ------ | ------ |
-| [RecordTree](RecordTree/namespaces/RecordTree/README.md) | namespace containing tree traversal functions |
+| [RecordTree](RecordTree/namespaces/RecordTree/README.md) | Server namespace for traversing and processing hierarchical GlideRecord relationships. |
 
 ## Functions
 

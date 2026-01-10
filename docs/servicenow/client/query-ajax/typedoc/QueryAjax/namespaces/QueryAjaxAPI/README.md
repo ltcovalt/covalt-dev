@@ -2,7 +2,8 @@
 
 # QueryAjaxAPI
 
-Defines properties and methods assigned to the QueryAjax class
+Namespace defining server-side methods exposed by the QueryAjax GlideAjax class.
+Executes secure GlideRecordSecure queries under the current user context.
 
 ## Variables
 

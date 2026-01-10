@@ -2,7 +2,8 @@
 
 # Class: Checker
 
-Performs runtime type validation and error handling
+Fluent validation builder for composing multiple validation checks,
+handling errors, and returning structured results.
 
 ## Contents
 

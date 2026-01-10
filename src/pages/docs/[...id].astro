@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { getCollection, render } from 'astro:content';
 import { DocumentationLayout } from '@layouts';
-import { DocsHeader } from '@components';
+import { DocsHeader, Alert, Link } from '@components';
 
 export async function getStaticPaths() {
 	// documentation index.mdx files
@@ -122,7 +122,7 @@ function rewriteRelativeLinks(html, base) {
 <DocumentationLayout>
 	<div class="flex flex-col">
 		{headerEntry?.data?.env && <DocsHeader entry={headerEntry} />}
-		{currentEntry && Content && <Content />}
+		{currentEntry && Content && <Content components={{ Alert, Link }} />}
 		{!currentEntry && apiHtml && <div set:html={apiHtml} />}
 	</div>
 </DocumentationLayout>

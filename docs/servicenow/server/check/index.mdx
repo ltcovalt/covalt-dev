@@ -1,10 +1,4 @@
 ---
-description:
-    Input validation and error handling library that that uses a fluent,
-    chainable API. Leverages a standard JavaScript class and public factory
-    function rather than Prototype.js. Multiple validations can be chained
-    together and a validation chain can be configured to throw an error or
-    simply return a result object containing details on the checks performed.
 requires:
     - ServiceNow/Type
 env:
@@ -16,5 +10,49 @@ tags: [api, servicenow, server, type, input, validation, class, es6, es12]
 ---
 
 import Readme from '@components/TypeDocReadme.astro';
+
+# Check
+
+`Check` is a validation and error-handling utility for ServiceNow scripts that
+uses a fluent, chainable API to validate one or more inputs, aggregate results,
+and handle errors.
+
+Checks are evaluated as a chain of predicates against one or more values. The
+validation chain can be configured to throw on the first failure or to return a
+structured result object containing per-check details, which is useful for
+logging, debugging, and building custom error messages.
+
+A new validation chain can be instantiated by using the public `Check` factory.
+Additional inputs and checks can be appended to an existing chain as needed by
+using the `Checker.check` method. The example below shows a single validation
+chain validating three separate inputs.
+
+```js
+// prettier-ignore
+let result = 
+    Check('value1', 'label1').is.string()
+	.check({ key: 'value2' }, 'label2').is.an.object()
+    .check(3, 'label3').is.number().is.between(2, 4)
+	.result(); // or .guard() to throw an error containing failed check details
+
+/* OUTPUT
+{
+  "ok": true,
+  "checks": [
+    {
+      "name": "label1",
+      "pass": true,
+      "status": "pass",
+      "exception": false,
+      "invert": false,
+      "actual": "string",
+      "predicate": "type",
+      "expected": "string"
+    },
+    // additional checks omitted for brevity
+  "errors": []
+}
+ */
+```
 
 <Readme apiPath="/servicenow/server/check" />

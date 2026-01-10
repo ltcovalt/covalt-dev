@@ -1,0 +1,43 @@
+---
+description:
+    UI script wrapper for the QueryAjax/Query script includes. Provides a
+    simplified interface for interacting with the Query namespaces, response
+    parsing, and error handling.
+
+requires:
+    - ServiceNow/QueryAjax
+env:
+    api: Query
+    platform: ServiceNow
+    runtime: Client
+    resource: UI Script
+tags: [api, servicenow, server, query, ajax, ui script]
+---
+
+import Readme from '@components/TypeDocReadme.astro';
+
+# Query
+
+`Query` is a client-side utility that wraps the `GlideAjax` AJAX script include
+to provide clients with a convenient, safe, and consistent interface for
+retrieving server data. The client side `Query` namespace eliminates the need
+for consumers to work directly with the `GlideAjax` or create bespoke script
+includes to retrieve data from the server.
+
+`Query` delegates execution to the server-side `QueryAjax` implementation, which
+performs all queries using `GlideRecordSecure` under the context of the current
+user. This ensures all client queries are subject to the same security rules
+applied applied to UI transactions.
+
+<Alert>
+	This namespace is intended to be the primary entry point for client-side
+	data access. Users should rarely need to interact with the `QueryAjax` API
+	directly.
+</Alert>
+
+On the client, `Query` is responsible for request construction, response
+normalization, and error handling. Results are returned as plain JavaScript
+objects containing only the explicitly requested fields, making responses
+predictable and easy to consume in UI scripts and client-side logic.
+
+<Readme apiPath="/servicenow/client/query" />
