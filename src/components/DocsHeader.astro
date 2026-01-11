@@ -9,7 +9,7 @@ import LinkIcon from '@icons/link.svg';
 const { indexEntry, apiIdToNameMap } = Astro.props;
 const docsHref = `/docs/${indexEntry.id}`;
 const sourceHref = `${docsHref}/source`;
-const isSourceView = Astro.url.pathname.endsWith('/source');
+const isSourceView = Astro.url.pathname.endsWith('/source') || Astro.url.pathname.endsWith('/source/');
 const { platform, runtime, resource, api } = indexEntry.data.env;
 const { requires, description } = indexEntry.data;
 
