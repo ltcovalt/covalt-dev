@@ -9,6 +9,7 @@ const posts = defineCollection({
 const docs = defineCollection({
 	loader: glob({ pattern: '**/index.{md,mdx}', base: './docs' }),
 	schema: z.object({
+		description: z.string(),
 		env: z.object({
 			api: z.string(),
 			platform: z.string(),

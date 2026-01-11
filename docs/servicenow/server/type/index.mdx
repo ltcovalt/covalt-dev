@@ -1,4 +1,5 @@
 ---
+description: Server-side namespace containing type checking utilities
 env:
     api: Type
     platform: ServiceNow
@@ -20,13 +21,12 @@ tags:
 
 import Readme from '@components/TypeDocReadme.astro';
 
-# Type
-
 `Type` is a server-side utility that provides consistent, reusable type-checking
 helpers. In addition to basic type checks, like `isString`, `isNumber`, and
-`isNil`, the `Type` library includes methods for obtaining additional details on
-a value when a standard `typeof` check is not sufficient. For example, `Type`
-can be used to check if a number is a float or integer, identify an object's
-class/prototype, and even identify a limited subset of Glide Java classes.
+`isNil`, this library includes methods for obtaining additional details on a
+value when a standard `typeof` check is not sufficient. For example, `Type` can
+be used to check if a number is a float or integer, identify an object's
+class/prototype, and even identify a limited subset of common Glide Java
+classes.
 
 <Readme apiPath="/servicenow/server/type" />

@@ -1,38 +1,83 @@
 ---
-import { Link } from '@components';
 import CodeIcon from '@icons/code-bracket.svg';
-const { entry } = Astro.props;
-const sourceLink = Astro.url.pathname.replace('/source', '');
-const sourceView = Astro.url.pathname.endsWith('/source');
-const { platform, runtime, resource } = entry.data.env;
-const deps = entry.data?.requires?.map((v) => {
-	const [platform, api] = v.split('/');
-	return { platform: platform.toLowerCase(), api: api.toLowerCase(), label: api };
-});
+import UserIcon from '@icons/user-circle-solid.svg';
+import ServerIcon from '@icons/server-stack.svg';
+import ClientIcon from '@icons/computer-desktop.svg';
+import DocsIcon from '@icons/book-open.svg';
+import LinkIcon from '@icons/link.svg';
+
+const { indexEntry } = Astro.props;
+const docsHref = `/docs/${indexEntry.id}`;
+const sourceHref = `${docsHref}/source`;
+const isSourceView = Astro.url.pathname.endsWith('/source');
+const { platform, runtime, resource, api } = indexEntry.data.env;
+const { requires, description } = indexEntry.data;
+
+const iconMap = {
+	servicenow: UserIcon,
+	client: ClientIcon,
+	server: ServerIcon,
+};
+const PlatformIcon = iconMap[platform.toLowerCase()];
+const RuntimeIcon = iconMap[runtime.toLowerCase()];
 ---
 
-<div class="not-prose">
-	<ul class="m-0 mb-6 list-none p-0">
-		<li><span class="font-extrabold">Platform</span>: {platform}</li>
-		<li><span class="font-extrabold">Runtime</span>: {runtime}</li>
-		<li><span class="font-extrabold">Resource Type</span>: {resource}</li>
-		{
-			entry.data?.requires && (
-				<li>
-					<span class="font-extrabold">Requires</span>:{' '}
-					{deps && deps.map((e) => <a href={`/docs/${e.platform}/${e.api}`}>{e.label}</a>)}
-				</li>
-			)
-		}
-		{
-			!sourceView && (
-				<li>
-					<Link href={`${sourceLink}/source`} class="flex items-center">
-						<CodeIcon class="w-5" />
-						View Source
-					</Link>
-				</li>
-			)
-		}
-	</ul>
+<div class="hero bg-base-200 rounded-box mt-0 mb-8 pt-0">
+	<div class="hero-content mt-0 w-full items-start justify-start pt-0 text-left">
+		<div class="w-full">
+			<!-- main heading -->
+			<h1 class="text-5xl font-bold" style="margin-top: 1rem;">{api}</h1>
+
+			<!-- meta data badges -->
+			<div class="my-6 flex flex-wrap gap-2">
+				<div class="badge badge-soft badge-secondary">
+					{PlatformIcon && <PlatformIcon class="h-4 w-4" />}
+					{platform}
+				</div>
+				<div class="badge badge-soft badge-secondary">
+					{RuntimeIcon && <RuntimeIcon class="h-4 w-4" />}
+					{runtime}
+				</div>
+				<div class="badge badge-soft badge-secondary">
+					{resource}
+				</div>
+			</div>
+
+			<!-- short description -->
+			{description && <p class="text-base-content/70">{description}</p>}
+			<div class="divider opacity-40"></div>
+
+			<div class="flex gap-2">
+				{
+					!isSourceView && (
+						<a role="button" class="btn btn-soft" href={sourceHref}>
+							<CodeIcon class="h-5 w-5" />
+							Source
+						</a>
+					)
+				}
+				{
+					isSourceView && (
+						<a role="button" class="btn btn-soft" href={docsHref}>
+							<DocsIcon class="h-5 w-5" />
+							API Docs
+						</a>
+					)
+				}
+				{
+					Array.isArray(requires) && (
+						<div class="ml-12 flex flex-wrap items-center gap-2">
+							<span class="text-base-content/60 text-xs">Dependencies</span>
+							{requires.map((apiId) => (
+								<a class="badge badge-sm badge-soft" href={`/docs/${apiId}`}>
+									<LinkIcon class="h-3 w-3" />
+									{apiId.split('/').at(-1)}
+								</a>
+							))}
+						</div>
+					)
+				}
+			</div>
+		</div>
+	</div>
 </div>

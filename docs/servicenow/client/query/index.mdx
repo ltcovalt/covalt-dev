@@ -1,6 +1,10 @@
 ---
+description:
+    Client utility for securely retrieving server data, without requiring
+    bespoke AJAX scripts.
 requires:
-    - ServiceNow/QueryAjax
+    - servicenow/client/query-ajax
+    - servicenow/server/query
 env:
     api: Query
     platform: ServiceNow
@@ -10,8 +14,6 @@ tags: [api, servicenow, server, query, ajax, ui script]
 ---
 
 import Readme from '@components/TypeDocReadme.astro';
-
-# Query
 
 `Query` is a client-side utility that wraps the `GlideAjax` AJAX script include
 to provide clients with a convenient, safe, and consistent interface for
@@ -35,4 +37,4 @@ normalization, and error handling. Results are returned as plain JavaScript
 objects containing only the explicitly requested fields, making responses
 predictable and easy to consume in UI scripts and client-side logic.
 
-<Readme apiPath="/servicenow/client/query" />
+<Readme apiPath="servicenow/client/query" />

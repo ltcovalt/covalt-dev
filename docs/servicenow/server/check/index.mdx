@@ -1,6 +1,9 @@
 ---
+description:
+    Fluent validation builder for composing multiple validation checks, handling
+    errors, and returning structured results.
 requires:
-    - ServiceNow/Type
+    - servicenow/server/type
 env:
     api: Check
     platform: ServiceNow
@@ -10,8 +13,6 @@ tags: [api, servicenow, server, type, input, validation, class, es6, es12]
 ---
 
 import Readme from '@components/TypeDocReadme.astro';
-
-# Check
 
 `Check` is a validation and error-handling utility for ServiceNow scripts that
 uses a fluent, chainable API to validate one or more inputs, aggregate results,

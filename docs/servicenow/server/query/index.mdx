@@ -1,6 +1,10 @@
 ---
+description:
+    Server-side namespace containing methods to execute secure
+    `GlideRecordSecure` queries, returning a plain, sanitized JavaScript object
+    containing only the requested columns and values.
 requires:
-    - ServiceNow/Check
+    - servicenow/server/check
 env:
     api: Query
     platform: ServiceNow
@@ -10,8 +14,6 @@ tags: [api, servicenow, server, query]
 ---
 
 import Readme from '@components/TypeDocReadme.astro';
-
-# Query
 
 `Query` is a server-side namespace responsible for executing secure, read-only
 queries using `GlideRecordSecure`, reducing the need for bespoke AJAX scripts to

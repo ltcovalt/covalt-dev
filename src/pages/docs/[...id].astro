@@ -30,13 +30,24 @@ export async function getStaticPaths() {
 
 		return {
 			params: { id: entry.id },
-			props: { currentEntry: entry, docsEntry: indexEntry, sourceEntry },
+			props: { currentEntry: entry, indexEntry, sourceEntry },
 		};
 	});
 
 	// TypeDoc API pages (raw files under docs/**/typedoc/**/*.md)
 	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
 	const apiPaths = Object.keys(apiPages).flatMap((file) => {
+		/**
+		 * file example: /docs/servicenow/server/check/typedoc/classes/Checker.md
+		 * srip leading /docs/, as Astro route already includes /docs
+		 */
+		const withoutPrefix = file.replace(/^\/docs\//, ''); // servicenow/check/typedoc/classes/Checker.md
+
+		// root api id = servicenow/server/check
+		const rootApiId = withoutPrefix.split('/typedoc/')[0];
+
+		const indexEntry = docs.find((d) => d.id === rootApiId) ?? null;
+
 		/*
 		 * file example: /docs/servicenow/check/typedoc/classes/Checker.md
 		 * strip leading /docs/ (Astro route already has /docs)
@@ -52,11 +63,11 @@ export async function getStaticPaths() {
 			// return paths for with and without the extension
 			{
 				params: { id: apiId },
-				props: { apiPath: file },
+				props: { apiPath: file, indexEntry },
 			},
 			{
 				params: { id: apiId + '.md' },
-				props: { apiPath: file },
+				props: { apiPath: file, indexEntry },
 			},
 		];
 	});
@@ -64,37 +75,27 @@ export async function getStaticPaths() {
 	return [...contentPaths, ...apiPaths];
 }
 
-const { currentEntry, docsEntry, apiPath } = Astro.props;
+const { currentEntry, indexEntry, apiPath } = Astro.props;
 
 let Content;
 let apiHtml = null;
-let headerEntry = null;
 
 if (currentEntry) {
 	// render content from Astro collections (index or source wrapper)
 	const rendered = await render(currentEntry);
 	Content = rendered.Content;
-
-	// header meta always prefers the docs entry (index.mdx)
-	// fall back to currentEntry only if it has env
-	headerEntry = docsEntry ?? (currentEntry.data?.env ? currentEntry : null);
 } else if (apiPath) {
 	// render generated TypeDoc markdown
 	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
 	const loader = apiPages[apiPath];
 
-	if (!loader) {
-		throw new Error(`No TypeDoc page found for path: ${apiPath}`);
-	}
+	if (!loader) throw Error(`No TypeDoc page found for path: ${apiPath}`);
 
 	const mod = await loader();
-
 	// Get compiled HTML for the markdown file
 	const rawHtml = await mod.compiledContent?.();
 
-	if (!rawHtml) {
-		throw new Error(`No compiledContent() for TypeDoc page: ${apiPath}`);
-	}
+	if (!rawHtml) throw Error(`No compiledContent() for TypeDoc page: ${apiPath}`);
 
 	// base URL is the current request path without the file name
 	// i.e., /docs/servicenow/check/classes/Checker -> /docs/servicenow/check/classes
@@ -121,7 +122,7 @@ function rewriteRelativeLinks(html, base) {
 
 <DocumentationLayout>
 	<div class="flex flex-col">
-		{headerEntry?.data?.env && <DocsHeader entry={headerEntry} />}
+		<DocsHeader {indexEntry} />
 		{currentEntry && Content && <Content components={{ Alert, Link }} />}
 		{!currentEntry && apiHtml && <div set:html={apiHtml} />}
 	</div>

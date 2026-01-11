@@ -1,6 +1,9 @@
 ---
+description:
+    GlideAjax script include that enables clients to make secure queries to the
+    server without the need for bespoke AJAX script includes.
 requires:
-    - ServiceNow/Check
+    - servicenow/server/check
 env:
     api: QueryAjax
     platform: ServiceNow
@@ -10,8 +13,6 @@ tags: [api, servicenow, server, query]
 ---
 
 import Readme from '@components/TypeDocReadme.astro';
-
-# QueryAjax
 
 AJAX script-include for performing arbitrary GlideRecordSecure queries.
 QueryAjax is a thin wrapper for the
