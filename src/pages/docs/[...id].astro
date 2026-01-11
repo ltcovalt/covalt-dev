@@ -10,7 +10,8 @@ export async function getStaticPaths() {
 	// source.mdx wrappers for the raw .js files
 	const source = await getCollection('sourceCode');
 	const contentEntries = [...docs, ...source];
-
+	// map api id (i.e., servicenow/client/query-ajax) to display name (QueryAjax)
+	const apiIdToNameMap = Object.fromEntries(docs.map((e) => [e.id, e.data.env.api]));
 	// paths for astro content collections
 	const contentPaths = contentEntries.map((entry) => {
 		let indexEntry = null;
@@ -30,7 +31,7 @@ export async function getStaticPaths() {
 
 		return {
 			params: { id: entry.id },
-			props: { currentEntry: entry, indexEntry, sourceEntry },
+			props: { currentEntry: entry, indexEntry, sourceEntry, apiIdToNameMap },
 		};
 	});
 
@@ -63,11 +64,11 @@ export async function getStaticPaths() {
 			// return paths for with and without the extension
 			{
 				params: { id: apiId },
-				props: { apiPath: file, indexEntry },
+				props: { apiPath: file, indexEntry, apiIdToNameMap },
 			},
 			{
 				params: { id: apiId + '.md' },
-				props: { apiPath: file, indexEntry },
+				props: { apiPath: file, indexEntry, apiIdToNameMap },
 			},
 		];
 	});
@@ -75,7 +76,7 @@ export async function getStaticPaths() {
 	return [...contentPaths, ...apiPaths];
 }
 
-const { currentEntry, indexEntry, apiPath } = Astro.props;
+const { currentEntry, indexEntry, apiPath, apiIdToNameMap } = Astro.props;
 
 let Content;
 let apiHtml = null;
@@ -122,7 +123,7 @@ function rewriteRelativeLinks(html, base) {
 
 <DocumentationLayout>
 	<div class="flex flex-col">
-		<DocsHeader {indexEntry} />
+		<DocsHeader {indexEntry} {apiIdToNameMap} />
 		{currentEntry && Content && <Content components={{ Alert, Link }} />}
 		{!currentEntry && apiHtml && <div set:html={apiHtml} />}
 	</div>

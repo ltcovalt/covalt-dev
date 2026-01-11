@@ -6,7 +6,7 @@ import ClientIcon from '@icons/computer-desktop.svg';
 import DocsIcon from '@icons/book-open.svg';
 import LinkIcon from '@icons/link.svg';
 
-const { indexEntry } = Astro.props;
+const { indexEntry, apiIdToNameMap } = Astro.props;
 const docsHref = `/docs/${indexEntry.id}`;
 const sourceHref = `${docsHref}/source`;
 const isSourceView = Astro.url.pathname.endsWith('/source');
@@ -20,6 +20,15 @@ const iconMap = {
 };
 const PlatformIcon = iconMap[platform.toLowerCase()];
 const RuntimeIcon = iconMap[runtime.toLowerCase()];
+
+let deps = requires?.map((id: string) => {
+	const icon = (() => {
+		if (id.includes('server')) return ServerIcon;
+		if (id.includes('client')) return ClientIcon;
+		return LinkIcon;
+	})();
+	return { id: id, name: apiIdToNameMap[id], icon };
+});
 ---
 
 <div class="hero bg-base-200 rounded-box mt-0 mb-8 pt-0">
@@ -45,12 +54,31 @@ const RuntimeIcon = iconMap[runtime.toLowerCase()];
 
 			<!-- short description -->
 			{description && <p class="text-base-content/70">{description}</p>}
-			<div class="divider opacity-40"></div>
 
-			<div class="flex gap-2">
+			<!-- dependencies -->
+			{
+				Array.isArray(deps) && (
+					<div class="mt-8 flex flex-wrap items-center gap-2">
+						<span class="text-base-content/60 text-xs">Dependencies:</span>
+						{deps.map((dep) => {
+							const Icon = dep.icon;
+							return (
+								<a class="badge badge-sm badge-soft gap-1" href={`/docs/${dep.id}`}>
+									<Icon class="h-3 w-3" />
+									{dep.name}
+								</a>
+							);
+						})}
+					</div>
+				)
+			}
+			<div class="divider mt-2 opacity-40"></div>
+
+			<!-- action buttons -->
+			<div class="flex items-end gap-2">
 				{
 					!isSourceView && (
-						<a role="button" class="btn btn-soft" href={sourceHref}>
+						<a role="button" class="btn btn-sm btn-soft" href={sourceHref}>
 							<CodeIcon class="h-5 w-5" />
 							Source
 						</a>
@@ -58,23 +86,10 @@ const RuntimeIcon = iconMap[runtime.toLowerCase()];
 				}
 				{
 					isSourceView && (
-						<a role="button" class="btn btn-soft" href={docsHref}>
+						<a role="button" class="btn btn-sm btn-soft" href={docsHref}>
 							<DocsIcon class="h-5 w-5" />
 							API Docs
 						</a>
-					)
-				}
-				{
-					Array.isArray(requires) && (
-						<div class="ml-12 flex flex-wrap items-center gap-2">
-							<span class="text-base-content/60 text-xs">Dependencies</span>
-							{requires.map((apiId) => (
-								<a class="badge badge-sm badge-soft" href={`/docs/${apiId}`}>
-									<LinkIcon class="h-3 w-3" />
-									{apiId.split('/').at(-1)}
-								</a>
-							))}
-						</div>
 					)
 				}
 			</div>
