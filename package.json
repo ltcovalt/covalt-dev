@@ -16,6 +16,7 @@
 		"@tailwindcss/vite": "^4.1.12",
 		"astro": "^5.14.6",
 		"daisyui": "^5.0.50",
+		"linkedom": "^0.18.12",
 		"tailwindcss": "^4.1.12",
 		"unist-util-visit": "^5.0.0"
 	},
