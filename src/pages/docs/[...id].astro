@@ -123,7 +123,7 @@ function rewriteRelativeLinks(html, base) {
 ---
 
 <DocumentationLayout>
-	{breadcrumbHtml && <div slot="docs-header" class="breadcrumb pt-6 pl-8" set:html={breadcrumbHtml} />}
+	{breadcrumbHtml && <div slot="docs-header" class="breadcrumb" set:html={breadcrumbHtml} />}
 	<DocsHeader {indexEntry} {apiIdToNameMap} />
 	{contentEntry && Content && <Content components={{ Alert, Link }} />}
 	{!contentEntry && typedocContent && <div set:html={typedocContent} />}
