@@ -1,51 +1,57 @@
-/**
- * TypeDoc parsing and manipulation helper functions
- */
 import { parseHTML } from 'linkedom';
 
-/**
- * Extracts typedoc generated breadcrumbs
- */
 export function extractBreadcrumbs(html) {
-	const { document } = parseHTML(html);
-	const body = document.body ?? document;
-	const firstHeading = body.querySelector('h1');
+	// Wrap the incoming HTML as a fragment so linkedom can't invent <head>/<body> in our serialization target
+	const wrapped = `<div id="__typedoc_root__">${html}</div>`;
+	const { document } = parseHTML(wrapped);
 
-	if (!firstHeading) return { html: body.innerHTML, breadcrumbsHtml: null };
+	const root = document.getElementById('__typedoc_root__');
+	if (!root) return { html, breadcrumbHtml: null };
 
-	const prev = firstHeading.previousElementSibling;
-	if (!isBreadcrumbParagraph(prev)) return { html: body.innerHTML, breadcrumbsHtml: null };
+	const firstHeading = root.querySelector('h1');
+	if (!firstHeading) return { html: root.innerHTML, breadcrumbHtml: null };
 
-	const breadcrumbsHtml = prev.outerHTML;
-	prev.remove();
+	// Find breadcrumbs: scan backwards over previous *elements* looking for the first breadcrumb-like <p>
+	let el = firstHeading.previousElementSibling;
+	while (el) {
+		// stop if we hit another heading before breadcrumbs
+		if (/^H[1-6]$/.test(el.tagName)) break;
 
-	return { html: body.innerHTML, breadcrumbsHtml };
+		if (isBreadcrumbElement(el)) {
+			const breadcrumbHtml = el.outerHTML;
+			el.remove();
+			return { html: root.innerHTML, breadcrumbHtml };
+		}
+
+		// If we hit a substantial block before breadcrumbs, bail (prevents false positives)
+		if (el.tagName === 'HR' || el.tagName === 'UL' || el.tagName === 'OL' || el.tagName === 'TABLE') {
+			break;
+		}
+
+		el = el.previousElementSibling;
+	}
+
+	return { html: root.innerHTML, breadcrumbHtml: null };
 }
 
-/**
- * Check if a <p> element contains TypeDoc generated breadcrumb content
- * @param {string} p - html content to be checked, typically a <p> element
- * @returns {boolean} returns true if the element is TypeDoc breadcrumbs
- */
-function isBreadcrumbParagraph(p) {
-	if (!p || p.tagName !== 'P') return false;
+function isBreadcrumbElement(element) {
+	if (!element || element.tagName !== 'P') return false;
 
-	const links = p.querySelectorAll(':scope > a');
+	const links = element.querySelectorAll(':scope > a');
 	if (links.length < 1) return false;
 
-	const text = (p.textContent || '').trim();
+	const fullText = (element.textContent || '').trim();
+	if (!/[\/›»]/.test(fullText)) return false;
 
-	// Require at least one separator in the full text
-	if (!/[\/›»]/.test(text)) return false;
+	// Remove anchors and check the remaining separator/text
+	const clone = element.cloneNode(true);
+	clone.querySelectorAll('a').forEach((a) => a.remove());
 
-	// Remove the text contributed by links, then remove whitespace
-	const linkText = Array.from(links)
-		.map((a) => (a.textContent || '').trim())
-		.join('');
+	const leftover = (clone.textContent || '')
+		.replace(/\u00A0/g, ' ')
+		.replace(/\s+/g, '')
+		.trim();
 
-	const leftover = text.replace(linkText, '').replace(/\s+/g, '');
-
-	// Now leftover should be: separators + optional final segment
-	// Allow common "word" chars for the final crumb (supports long API names)
-	return /^[\/›»]+[A-Za-z0-9_.:-]*$/.test(leftover);
+	// allow functions like records() etc.
+	return /^[\/›»]+[\p{L}\p{N}_.:()-]*$/u.test(leftover);
 }

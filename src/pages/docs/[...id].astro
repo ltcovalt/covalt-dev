@@ -3,10 +3,11 @@
 import { getCollection, render } from 'astro:content';
 import { DocumentationLayout } from '@layouts';
 import { DocsHeader, Alert, Link } from '@components';
+import { extractBreadcrumbs } from '@utils/typedoc.js';
 
 export async function getStaticPaths() {
 	// documentation index.mdx files
-	const docs = await getCollection('docs');
+	const docs = await getCollection('apiIndexDocs');
 	// source.mdx wrappers for the raw .js files
 	const source = await getCollection('sourceCode');
 	const contentEntries = [...docs, ...source];
@@ -15,14 +16,9 @@ export async function getStaticPaths() {
 	// paths for astro content collections
 	const contentPaths = contentEntries.map((entry) => {
 		let indexEntry = null;
-		let sourceEntry = null;
-
-		if (entry.collection === 'docs') {
-			// index pages are the meta source
+		if (entry.collection === 'apiIndexDocs') {
 			indexEntry = entry;
 		} else if (entry.collection === 'sourceCode') {
-			sourceEntry = entry;
-
 			// source wrappers live next to index.mdx
 			// e.g. servicenow/type/source -> servicenow/type/index or servicenow/type
 			const indexPath = entry.id.replace(/\/source$/, '');
@@ -31,7 +27,7 @@ export async function getStaticPaths() {
 
 		return {
 			params: { id: entry.id },
-			props: { currentEntry: entry, indexEntry, sourceEntry, apiIdToNameMap },
+			props: { contentEntry: entry, indexEntry, apiIdToNameMap },
 		};
 	});
 
@@ -76,14 +72,15 @@ export async function getStaticPaths() {
 	return [...contentPaths, ...apiPaths];
 }
 
-const { currentEntry, indexEntry, apiPath, apiIdToNameMap } = Astro.props;
+const { contentEntry, indexEntry, apiPath, apiIdToNameMap } = Astro.props;
 
 let Content;
-let apiHtml = null;
+let typedocContent = null;
+let breadcrumbHtml = null;
 
-if (currentEntry) {
+if (contentEntry) {
 	// render content from Astro collections (index or source wrapper)
-	const rendered = await render(currentEntry);
+	const rendered = await render(contentEntry);
 	Content = rendered.Content;
 } else if (apiPath) {
 	// render generated TypeDoc markdown
@@ -103,7 +100,11 @@ if (currentEntry) {
 	const pathname = Astro.url.pathname.replace(/\/+$/, ''); // trim trailing slash
 	const baseUrl = pathname.replace(/\/[^/]*$/, '');
 
-	apiHtml = rewriteRelativeLinks(rawHtml, baseUrl);
+	typedocContent = rewriteRelativeLinks(rawHtml, baseUrl);
+
+	let extracted = extractBreadcrumbs(typedocContent);
+	typedocContent = extracted.html ?? typedocContent;
+	breadcrumbHtml = extracted.breadcrumbHtml;
 }
 
 /**
@@ -122,9 +123,8 @@ function rewriteRelativeLinks(html, base) {
 ---
 
 <DocumentationLayout>
-	<div class="flex flex-col">
-		<DocsHeader {indexEntry} {apiIdToNameMap} />
-		{currentEntry && Content && <Content components={{ Alert, Link }} />}
-		{!currentEntry && apiHtml && <div set:html={apiHtml} />}
-	</div>
+	{breadcrumbHtml && <div slot="docs-header" class="breadcrumb pt-6 pl-8" set:html={breadcrumbHtml} />}
+	<DocsHeader {indexEntry} {apiIdToNameMap} />
+	{contentEntry && Content && <Content components={{ Alert, Link }} />}
+	{!contentEntry && typedocContent && <div set:html={typedocContent} />}
 </DocumentationLayout>

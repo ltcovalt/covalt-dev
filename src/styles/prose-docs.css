@@ -1,4 +1,8 @@
 @layer utilities {
+	.breadcrumb a {
+		@apply text-accent hover:text-accent/80 link link-accent link-hover no-underline transition-all duration-200 hover:underline hover:underline-offset-2;
+	}
+
 	/*
    * prose styles for documentation pages
    */

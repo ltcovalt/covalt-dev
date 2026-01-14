@@ -6,7 +6,7 @@ const posts = defineCollection({
 	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
 });
 
-const docs = defineCollection({
+const apiIndexDocs = defineCollection({
 	loader: glob({ pattern: '**/index.{md,mdx}', base: './docs' }),
 	schema: z.object({
 		description: z.string(),
@@ -26,4 +26,4 @@ const sourceCode = defineCollection({
 });
 
 // export all collections as a single collections object
-export const collections = { docs, posts, sourceCode };
+export const collections = { apiIndexDocs, posts, sourceCode };

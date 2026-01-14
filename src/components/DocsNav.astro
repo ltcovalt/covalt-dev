@@ -8,7 +8,7 @@ import ServiceNowIcon from '@icons/user-circle-solid.svg';
 import MenuIcon from '@icons/book-open.svg'
 
 let {class: classes} = Astro.props;
-let docs = await getCollection('docs');
+let docs = await getCollection('apiIndexDocs');
 let menu = buildMenu(docs);
 
 const currentPage = Astro.url.pathname.replace(/\/+$/, '') || '/';
