@@ -30,7 +30,7 @@
 	}
 
 	.prose-docs h3 {
-		@apply text-accent mt-6 mb-2 text-2xl font-bold;
+		@apply text-info mt-6 mb-2 text-2xl font-bold;
 	}
 
 	.prose-docs h4,
@@ -157,7 +157,7 @@
    * Block quote styles - used for function/accessor signatures
    */
 	.prose-docs blockquote {
-		@apply border-info my-3 ml-0 border-l-2 py-0.5 pl-3 font-mono not-italic;
+		@apply border-warning/40 bg-base-200/50 my-3 ml-0 border-l-2 py-0.5 pl-3 font-mono not-italic;
 	}
 
 	.prose-docs blockquote p {

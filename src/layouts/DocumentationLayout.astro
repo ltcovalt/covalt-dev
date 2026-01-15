@@ -24,10 +24,12 @@ const entries = await getCollection('sourceCode');
 				</label>
 			</div>
 
-			<div class="mx-auto flex w-full max-w-[90ch] flex-1 flex-col p-4 gap-4">
-				<slot name="docs-header" />
+			<div class="mx-auto flex w-full max-w-[80ch] flex-1 flex-col gap-4 p-4">
+				<div class="prose-docs">
+					<slot name="docs-header" />
+				</div>
 				<!-- main content slot -->
-				<div class="prose xl:prose-lg prose-docs">
+				<div class="prose xl:prose-lg prose-docs max-w-[80ch]">
 					<slot />
 				</div>
 			</div>

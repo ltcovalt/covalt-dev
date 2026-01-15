@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import { DocumentationLayout } from '@layouts';
 import { DocsHeader, Alert, Link } from '@components';
 import { extractBreadcrumbs } from '@utils/typedoc.js';
+import { Fragment } from 'astro/jsx-runtime';
 
 export async function getStaticPaths() {
 	// documentation index.mdx files
@@ -123,8 +124,10 @@ function rewriteRelativeLinks(html, base) {
 ---
 
 <DocumentationLayout>
-	{breadcrumbHtml && <div slot="docs-header" class="breadcrumb" set:html={breadcrumbHtml} />}
-	<DocsHeader {indexEntry} {apiIdToNameMap} />
+	<Fragment slot="docs-header">
+		{breadcrumbHtml && <div class="breadcrumb px-4" set:html={breadcrumbHtml} />}
+		<DocsHeader class="docs-hero" {indexEntry} {apiIdToNameMap} />
+	</Fragment>
 	{contentEntry && Content && <Content components={{ Alert, Link }} />}
-	{!contentEntry && typedocContent && <div set:html={typedocContent} />}
+	{!contentEntry && typedocContent && <div class="px-4" set:html={typedocContent} />}
 </DocumentationLayout>
