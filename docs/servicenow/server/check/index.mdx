@@ -32,9 +32,9 @@ chain validating three separate inputs.
 // prettier-ignore
 let result = 
     Check('value1', 'label1').is.string()
-	.check({ key: 'value2' }, 'label2').is.an.object()
+    .check({ key: 'value2' }, 'label2').is.an.object()
     .check(3, 'label3').is.number().is.between(2, 4)
-	.result(); // or .guard() to throw an error containing failed check details
+    .result(); // or .guard() to throw an error containing failed check details
 
 /* OUTPUT
 {
