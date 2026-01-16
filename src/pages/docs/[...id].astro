@@ -5,6 +5,13 @@ import { DocumentationLayout } from '@layouts';
 import { DocsHeader, Alert, Link } from '@components';
 import { extractBreadcrumbs } from '@utils/typedoc.js';
 import { Fragment } from 'astro/jsx-runtime';
+import {
+	extractBreadcrumbs,
+	typedocDiskPathToRootApiId,
+	typedocDiskPathToPublicId,
+	pathnameToBaseUrl,
+	rewriteRelativeLinks,
+} from '@utils/typedoc.js';
 
 export async function getStaticPaths() {
 	// documentation index.mdx files
@@ -39,23 +46,15 @@ export async function getStaticPaths() {
 		 * file example: /docs/servicenow/server/check/typedoc/classes/Checker.md
 		 * srip leading /docs/, as Astro route already includes /docs
 		 */
-		const withoutPrefix = file.replace(/^\/docs\//, ''); // servicenow/check/typedoc/classes/Checker.md
-
-		// root api id = servicenow/server/check
-		const rootApiId = withoutPrefix.split('/typedoc/')[0];
-
+		const rootApiId = typedocDiskPathToRootApiId(file);
 		const indexEntry = docs.find((d) => d.id === rootApiId) ?? null;
 
 		/*
-		 * file example: /docs/servicenow/check/typedoc/classes/Checker.md
-		 * strip leading /docs/ (Astro route already has /docs)
-		 * strip /typedoc/ from the public url
-		 * strip .md for canonical, extensionless URLs
+		 * convert a typedoc file path as it exists on disk to a public ID
+		 * i.e., /docs/servicenow/check/typedoc/classes/Checker.md
+		 * becomes servicenow/check/classes/Checker
 		 */
-		const apiId = file
-			.replace(/^\/docs\//, '')
-			.replace('/typedoc/', '/')
-			.replace(/\.md$/, '');
+		const apiId = typedocDiskPathToPublicId(file);
 
 		return [
 			// return paths for with and without the extension
@@ -98,28 +97,12 @@ if (contentEntry) {
 
 	// base URL is the current request path without the file name
 	// i.e., /docs/servicenow/check/classes/Checker -> /docs/servicenow/check/classes
-	const pathname = Astro.url.pathname.replace(/\/+$/, ''); // trim trailing slash
-	const baseUrl = pathname.replace(/\/[^/]*$/, '');
-
-	typedocContent = rewriteRelativeLinks(rawHtml, baseUrl);
+	const baseUrl = pathnameToBaseUrl(Astro.url.pathname);
+	typedocContent = rewriteRelativeLinks(rawHtml, baseUrl, { stripMdExt: true });
 
 	let extracted = extractBreadcrumbs(typedocContent);
 	typedocContent = extracted.html ?? typedocContent;
 	breadcrumbHtml = extracted.breadcrumbHtml;
-}
-
-/**
- * Rewrite TypeDocs's relative links so they match Astro routes,
- * which does not include /typedoc/ in the path. Does not update non-relative routes.
- */
-function rewriteRelativeLinks(html, base) {
-	const regex = new RegExp('href="(?!https?:\/\/|/|#)([^"]+)"', 'g');
-	return html.replace(regex, (_match, rel) => {
-		// drop .md extension from targets to match extensionless routes
-		const cleanRel = rel.replace(/\.md$/, '');
-		const normalizedBase = base.replace(/\/+$/, '');
-		return `href="${normalizedBase}/${cleanRel}"`;
-	});
 }
 ---
 

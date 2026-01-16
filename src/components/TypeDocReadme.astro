@@ -1,6 +1,9 @@
 ---
+import { trimSlashes, rewriteRelativeLinks, stripFirstH1 } from '@utils/typedoc.js';
+
 const { apiPath } = Astro.props;
-const rel = String(apiPath).replace(/^\/+|\/+$/g, '');
+
+const rel = trimSlashes(apiPath);
 const modules = import.meta.glob('/docs/**/typedoc/README.md');
 const typedocPath = `/docs/${rel}/typedoc/README.md`;
 
@@ -12,17 +15,6 @@ const rawHtml = await mod.compiledContent?.();
 if (!rawHtml) throw new Error(`No compiledContent() for TypeDoc README: ${typedocPath}`);
 
 const baseUrl = `/docs/${rel}`;
-
-function rewriteRelativeLinks(html, base) {
-	// neovim highlighting doesn't play nice with regex literals containing "double quotes"
-	const regex = new RegExp(String.raw`href="(?!https?:\/\/|\/|#)([^"]+)"`, 'g');
-	return html.replace(regex, (_m, relHref) => `href="${base}/${relHref}"`);
-}
-
-function stripFirstH1(html) {
-	// removes the first <h1 ...>...</h1>, non-greedy
-	return html.replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/i, '');
-}
 
 let fixedHtml = rewriteRelativeLinks(rawHtml, baseUrl);
 fixedHtml = stripFirstH1(fixedHtml);
