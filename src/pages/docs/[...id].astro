@@ -3,7 +3,6 @@
 import { getCollection, render } from 'astro:content';
 import { DocumentationLayout } from '@layouts';
 import { DocsHeader, Alert, Link } from '@components';
-import { extractBreadcrumbs } from '@utils/typedoc.js';
 import { Fragment } from 'astro/jsx-runtime';
 import {
 	extractBreadcrumbs,
@@ -15,6 +14,24 @@ import {
 	rewriteRelativeLinks,
 } from '@utils/typedoc.js';
 
+/**
+ * getStaticPaths() defines all public /docs routes
+ *
+ * API index collection routes: /docs/<apiRootId>
+ * API source code collection routes: /docs/<apiRootId>/source
+ *
+ * TypeDoc disk path: /docs/<apiRootId>/typedoc/<restPath>.md
+ * TypeDoc public routes:
+ * - /docs/<apiRootId>/<restPath>.md
+ * - /docs/<apiRootId>/<restPath>
+ *
+ * Notes:
+ * - <apiRootId> is the content collection id for the API index (i.e., servicenow/server/check).
+ * - TypeDoc routes strip /typedoc/ from the public route and emit routes with and without extensions
+ * - TypeDoc generated subdirectories (classes, functions, etc.) are typically preserved,
+ *   except for namespaces which will collapse redundant API/module/namespace in the future
+ *   TODO: i.e., /docs/servicenow/server/query/typedoc/Query/namespaces/Query -> /docs/servicenow/server/query
+ */
 export async function getStaticPaths() {
 	// documentation index.mdx files
 	const docs = await getCollection('apiIndexDocs');
@@ -29,8 +46,10 @@ export async function getStaticPaths() {
 		if (entry.collection === 'apiIndexDocs') {
 			indexEntry = entry;
 		} else if (entry.collection === 'sourceCode') {
-			// source wrappers live next to index.mdx
-			// e.g. servicenow/type/source -> servicenow/type/index or servicenow/type
+			/*
+			 * source wrappers live next to index.mdx
+			 * i.e. servicenow/server/type/source -> servicenow/server/type (index.mdx)
+			 */
 			const indexPath = entry.id.replace(/\/source$/, '');
 			indexEntry = docs.find((d) => d.id === indexPath) ?? null;
 		}
@@ -45,8 +64,9 @@ export async function getStaticPaths() {
 	const apiPages = getTypedocPageMap();
 	const apiPaths = Object.keys(apiPages).flatMap((file) => {
 		/**
-		 * file example: /docs/servicenow/server/check/typedoc/classes/Checker.md
-		 * srip leading /docs/, as Astro route already includes /docs
+		 * rootApiId is the directory immediately above /typedoc
+		 * file example: /servicenow/server/check/typedoc/classes/Checker.md
+		 * rootApiId: servicenow/server/check
 		 */
 		const rootApiId = typedocDiskPathToRootApiId(file);
 		const indexEntry = docs.find((d) => d.id === rootApiId) ?? null;
@@ -89,8 +109,10 @@ if (contentEntry) {
 	const apiPages = getTypedocPageMap();
 	const rawHtml = await loadCompiledHtmlFromGlob(apiPages, apiPath, 'TypeDoc page');
 
-	// base URL is the current request path without the file name
-	// i.e., /docs/servicenow/check/classes/Checker -> /docs/servicenow/check/classes
+	/*
+	 * Base URL is the current request path without the file name
+	 * i.e., /docs/servicenow/check/classes/Checker -> /docs/servicenow/check/classes
+	 */
 	const baseUrl = pathnameToBaseUrl(Astro.url.pathname);
 	typedocContent = rewriteRelativeLinks(rawHtml, baseUrl, { stripMdExt: true });
 
