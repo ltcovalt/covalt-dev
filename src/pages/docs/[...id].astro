@@ -7,6 +7,8 @@ import { extractBreadcrumbs } from '@utils/typedoc.js';
 import { Fragment } from 'astro/jsx-runtime';
 import {
 	extractBreadcrumbs,
+	getTypedocPageMap,
+	loadCompiledHtmlFromGlob,
 	typedocDiskPathToRootApiId,
 	typedocDiskPathToPublicId,
 	pathnameToBaseUrl,
@@ -40,7 +42,7 @@ export async function getStaticPaths() {
 	});
 
 	// TypeDoc API pages (raw files under docs/**/typedoc/**/*.md)
-	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
+	const apiPages = getTypedocPageMap();
 	const apiPaths = Object.keys(apiPages).flatMap((file) => {
 		/**
 		 * file example: /docs/servicenow/server/check/typedoc/classes/Checker.md
@@ -84,16 +86,8 @@ if (contentEntry) {
 	Content = rendered.Content;
 } else if (apiPath) {
 	// render generated TypeDoc markdown
-	const apiPages = import.meta.glob('/docs/**/typedoc/**/*.md');
-	const loader = apiPages[apiPath];
-
-	if (!loader) throw Error(`No TypeDoc page found for path: ${apiPath}`);
-
-	const mod = await loader();
-	// Get compiled HTML for the markdown file
-	const rawHtml = await mod.compiledContent?.();
-
-	if (!rawHtml) throw Error(`No compiledContent() for TypeDoc page: ${apiPath}`);
+	const apiPages = getTypedocPageMap();
+	const rawHtml = await loadCompiledHtmlFromGlob(apiPages, apiPath, 'TypeDoc page');
 
 	// base URL is the current request path without the file name
 	// i.e., /docs/servicenow/check/classes/Checker -> /docs/servicenow/check/classes

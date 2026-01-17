@@ -1,19 +1,17 @@
 ---
-import { trimSlashes, rewriteRelativeLinks, stripFirstH1 } from '@utils/typedoc.js';
+import {
+	getTypedocReadmeMap,
+	trimSlashes,
+	rewriteRelativeLinks,
+	stripFirstH1,
+	loadCompiledHtmlFromGlob,
+} from '@utils/typedoc.js';
 
 const { apiPath } = Astro.props;
-
 const rel = trimSlashes(apiPath);
-const modules = import.meta.glob('/docs/**/typedoc/README.md');
+const readmeMap = getTypedocReadmeMap();
 const typedocPath = `/docs/${rel}/typedoc/README.md`;
-
-const loader = modules[typedocPath];
-if (!loader) throw new Error(`No TypeDoc README found at: ${typedocPath}`);
-
-const mod = await loader();
-const rawHtml = await mod.compiledContent?.();
-if (!rawHtml) throw new Error(`No compiledContent() for TypeDoc README: ${typedocPath}`);
-
+const rawHtml = await loadCompiledHtmlFromGlob(readmeMap, typedocPath, 'TypeDoc README');
 const baseUrl = `/docs/${rel}`;
 
 let fixedHtml = rewriteRelativeLinks(rawHtml, baseUrl);
