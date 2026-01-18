@@ -37,7 +37,9 @@ let { class: classes } = Astro.props;
 	</div>
 
 	<!-- center navbar, hidden for small screens -->
-	<div class="navbar-center lg: hidden lg:flex lg:items-end">
+	<div
+		class={`navbar-center hidden lg:flex lg:items-end ${isCurrentPage('/docs') ? 'lg:translate-x-32' : ''}`}
+	>
 		<ul class="menu menu-horizontal px-1 text-lg">
 			{
 				headerLinks.map((link) => (
