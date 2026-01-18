@@ -42,3 +42,4 @@
 - Do not ask for a separate confirmation after the rationale; proceed directly to the edit.
 - Do not start an edit until the rationale has been stated.
 - Do not request written confirmation; trigger the CLI approval prompt immediately after the rationale.
+- Warn if the current Git branch is `main` before making any changes; only proceed after the user confirms to switch branches.

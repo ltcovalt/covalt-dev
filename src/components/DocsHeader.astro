@@ -5,6 +5,8 @@ import ServerIcon from '@icons/server-stack.svg';
 import ClientIcon from '@icons/computer-desktop.svg';
 import DocsIcon from '@icons/book-open.svg';
 import LinkIcon from '@icons/link.svg';
+import ScriptFileIcon from '@icons/script-file.svg';
+import ScriptClientIcon from '@icons/script-client.svg';
 
 const { indexEntry, apiIdToNameMap } = Astro.props;
 const docsHref = `/docs/${indexEntry.id}`;
@@ -17,9 +19,13 @@ const iconMap = {
 	servicenow: UserIcon,
 	client: ClientIcon,
 	server: ServerIcon,
+	'script include': ScriptFileIcon,
+	'client script': ScriptClientIcon,
+	'ui script': ScriptClientIcon,
 };
 const PlatformIcon = iconMap[platform.toLowerCase()];
 const RuntimeIcon = iconMap[runtime.toLowerCase()];
+const ResourceIcon = iconMap[resource.toLowerCase()];
 
 let deps = requires?.map((id: string) => {
 	const icon = (() => {
@@ -48,6 +54,7 @@ let deps = requires?.map((id: string) => {
 					{runtime}
 				</div>
 				<div class="badge badge-soft badge-secondary">
+					{ResourceIcon && <ResourceIcon class="h-4 w-4" />}
 					{resource}
 				</div>
 			</div>
