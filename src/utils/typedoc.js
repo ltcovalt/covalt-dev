@@ -85,11 +85,18 @@ export function typedocDiskPathToRootApiId(typedocDiskPath) {
  * @param {string} typedocDiskPath
  * @returns {string}
  */
-export function typedocDiskPathToPublicId(typedocDiskPath) {
-	return String(typedocDiskPath ?? '')
-		.replace(/^\/docs\//, '')
-		.replace('/typedoc/', '/')
-		.replace(/\.md$/, '');
+export function typedocDiskPathToPublicId(typedocDiskPath, typedocPageMap = null) {
+	const apiRootId = typedocDiskPathToRootApiId(typedocDiskPath);
+	const restPath = stripDocsPrefix(typedocDiskPath).split('/typedoc/')[1] ?? '';
+	const singleNamespaceNormalized = typedocPageMap
+		? getSingleTopLevelNamespaceNormalized(typedocPageMap, apiRootId)
+		: null;
+	const normalized = normalizeTypedocRestPath(restPath, apiRootId, { singleNamespaceNormalized });
+	const cleaned = String(normalized.restPath ?? '').replace(/\.md$/i, '');
+
+	if (!cleaned) return trimSlashes(apiRootId);
+
+	return `${trimSlashes(apiRootId)}/${cleaned}`;
 }
 
 /**
@@ -127,7 +134,8 @@ export function rewriteRelativeLinks(html, baseUrl, opts = {}) {
 		if (rewritten) return `href="${rewritten}"`;
 
 		const cleanRel = stripMdExt ? String(relHref).replace(/\.md$/, '') : String(relHref);
-		return `href="${normalizedBase}/${cleanRel}"`;
+		const resolved = resolveRelativeHref(normalizedBase, cleanRel);
+		return `href="${resolved}"`;
 	});
 }
 
@@ -191,6 +199,61 @@ export function rewriteNamespaceReadmeHref(relHref, apiRootId) {
 }
 
 /**
+ * Rewrite TypeDoc relative hrefs to canonical public paths.
+ *
+ * @param {string} relHref
+ * @param {string} apiRootId
+ * @returns {string | null}
+ */
+export function rewriteTypedocRelativeHref(relHref, apiRootId, typedocPageMap = null) {
+	if (!relHref || !apiRootId) return null;
+
+	const href = String(relHref);
+	const [pathPart, hash] = href.split('#');
+	const stripped = pathPart.replace(/^(\.\.\/|\.\/)+/, '').replace(/\/+$/, '');
+	if (!stripped) return null;
+
+	const singleNamespaceNormalized = typedocPageMap
+		? getSingleTopLevelNamespaceNormalized(typedocPageMap, apiRootId)
+		: null;
+	const normalized = normalizeTypedocRestPath(stripped, apiRootId, { singleNamespaceNormalized });
+	if (!normalized.restPath) {
+		if (normalized.removedReadme || normalized.collapsedTopNamespace) {
+			return `/docs/${trimSlashes(apiRootId)}${hash ? `#${hash}` : ''}`;
+		}
+
+		return null;
+	}
+
+	if (!normalized.changed) return null;
+
+	const cleaned = String(normalized.restPath).replace(/\.md$/i, '');
+	return `/docs/${trimSlashes(apiRootId)}/${cleaned}${hash ? `#${hash}` : ''}`;
+}
+
+/**
+ * @param {string} relHref
+ * @param {string} apiRootId
+ * @returns {string | null}
+ */
+export function rewriteTypedocSectionHref(relHref, apiRootId) {
+	if (!relHref || !apiRootId) return null;
+
+	const href = String(relHref);
+	const [pathPart, hash] = href.split('#');
+	const stripped = pathPart.replace(/^(\.\.\/|\.\/)+/, '').replace(/\/+$/, '');
+	if (!stripped) return null;
+
+	const match = stripped.match(
+		/^(classes|functions|interfaces|namespaces|types|variables|enumerations|modules|type-aliases|classes\/index|functions\/index|interfaces\/index|types\/index|variables\/index|enumerations\/index|modules\/index)(?:\/|$)/i,
+	);
+	if (!match) return null;
+
+	const cleaned = stripped.replace(/\.md$/i, '');
+	return `/docs/${trimSlashes(apiRootId)}/${cleaned}${hash ? `#${hash}` : ''}`;
+}
+
+/**
  * Removes the first <h1 ...>...</h1> (non-greedy).
  * @param {string} html
  * @returns {string}
@@ -225,6 +288,7 @@ export function extractBreadcrumbs(html) {
 		if (/^H[1-6]$/.test(el.tagName)) break;
 
 		if (isBreadcrumbElement(el)) {
+			dedupeBreadcrumbLinks(el);
 			const breadcrumbHtml = el.outerHTML;
 			el.remove();
 			return { html: root.innerHTML, breadcrumbHtml };
@@ -266,4 +330,152 @@ function isBreadcrumbElement(element) {
 
 	// Allow trailing symbols like records(), dotted names, etc.
 	return /^[\/›»]+[\p{L}\p{N}_.:()-]*$/u.test(leftover);
+}
+
+/**
+ * @param {string} apiRootId
+ * @returns {boolean}
+ */
+function isServiceNowApiRoot(apiRootId) {
+	return trimSlashes(apiRootId).startsWith('servicenow/');
+}
+
+/**
+ * @param {string} apiRootId
+ * @returns {string}
+ */
+function getApiName(apiRootId) {
+	const parts = trimSlashes(apiRootId).split('/');
+	return parts[parts.length - 1] ?? '';
+}
+
+/**
+ * Normalize a TypeDoc rest path (segment after /typedoc/) to a canonical public path.
+ *
+ * @param {string} restPath
+ * @param {string} apiRootId
+ * @returns {{ restPath: string, changed: boolean, removedReadme: boolean, collapsedTopNamespace: boolean }}
+ */
+function normalizeTypedocRestPath(restPath, apiRootId, opts = {}) {
+	const original = String(restPath ?? '').replace(/^\/+/, '');
+	const apiName = getApiName(apiRootId);
+	const isServiceNow = isServiceNowApiRoot(apiRootId);
+	const { singleNamespaceNormalized } = opts;
+
+	let cleaned = original;
+	let collapsedTopNamespace = false;
+
+	if (apiName) {
+		const parts = cleaned.split('/');
+		const first = parts[0] ?? '';
+		const second = parts[1] ?? '';
+		const third = parts[2] ?? '';
+		const matchesApi = normalizeSegment(first) === normalizeSegment(apiName);
+		const matchesNamespace = normalizeSegment(third) === normalizeSegment(apiName);
+
+		if (isServiceNow) {
+			if (matchesApi && second === 'namespaces' && matchesNamespace) {
+				parts.splice(0, 3);
+				cleaned = parts.join('/');
+				collapsedTopNamespace = true;
+			} else if (matchesApi && second === 'namespaces' && singleNamespaceNormalized) {
+				const normalizedNamespace = normalizeSegment(third);
+				if (normalizedNamespace === singleNamespaceNormalized) {
+					parts.splice(0, 3);
+					cleaned = parts.join('/');
+					collapsedTopNamespace = true;
+				}
+			}
+		} else {
+			if (matchesApi && second === 'namespaces') {
+				parts.shift();
+				cleaned = parts.join('/');
+			}
+		}
+	}
+
+	let removedReadme = false;
+	if (/\/README\.md$/i.test(cleaned)) {
+		cleaned = cleaned.replace(/\/README\.md$/i, '');
+		removedReadme = true;
+	} else if (/^README\.md$/i.test(cleaned)) {
+		cleaned = '';
+		removedReadme = true;
+	}
+
+	const changed = cleaned !== original || removedReadme || collapsedTopNamespace;
+	return { restPath: cleaned, changed, removedReadme, collapsedTopNamespace };
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function normalizeSegment(value) {
+	return String(value ?? '')
+		.toLowerCase()
+		.replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * Resolve a relative href against a base path and normalize ".." segments.
+ * @param {string} basePath
+ * @param {string} relHref
+ * @returns {string}
+ */
+function resolveRelativeHref(basePath, relHref) {
+	const normalizedBase = String(basePath ?? '').replace(/\/+$/, '') + '/';
+	const url = new URL(relHref, `https://local${normalizedBase}`);
+	return `${url.pathname}${url.search}${url.hash}`;
+}
+
+/**
+ * @param {Record<string, () => Promise<any>>} typedocPageMap
+ * @param {string} apiRootId
+ * @returns {string | null}
+ */
+function getSingleTopLevelNamespaceNormalized(typedocPageMap, apiRootId) {
+	const namespaces = new Set();
+
+	for (const file of Object.keys(typedocPageMap ?? {})) {
+		if (typedocDiskPathToRootApiId(file) !== trimSlashes(apiRootId)) continue;
+
+		const restPath = stripDocsPrefix(file).split('/typedoc/')[1] ?? '';
+		const parts = restPath.replace(/^\/+/, '').split('/');
+		if (parts.length < 3) continue;
+		if (parts[1] !== 'namespaces') continue;
+
+		const normalized = normalizeSegment(parts[2]);
+		if (normalized) namespaces.add(normalized);
+	}
+
+	if (namespaces.size === 1) return Array.from(namespaces)[0];
+
+	return null;
+}
+
+/**
+ * Remove duplicate breadcrumb links that point to the same target.
+ * @param {Element} element
+ */
+function dedupeBreadcrumbLinks(element) {
+	if (!element) return;
+
+	let lastHref = null;
+	const links = Array.from(element.querySelectorAll('a'));
+
+	for (const link of links) {
+		const href = link.getAttribute('href') ?? '';
+		if (!href || href !== lastHref) {
+			lastHref = href;
+			continue;
+		}
+
+		const prev = link.previousSibling;
+		if (prev && prev.nodeType === 3 && /^[\s\/›»]+$/.test(prev.textContent ?? '')) {
+			prev.remove();
+		}
+
+		link.remove();
+	}
 }

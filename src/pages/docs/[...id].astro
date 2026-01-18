@@ -8,7 +8,8 @@ import {
 	extractBreadcrumbs,
 	getTypedocPageMap,
 	loadCompiledHtmlFromGlob,
-	rewriteNamespaceReadmeHref,
+	rewriteTypedocSectionHref,
+	rewriteTypedocRelativeHref,
 	typedocDiskPathToRootApiId,
 	typedocDiskPathToPublicId,
 	pathnameToBaseUrl,
@@ -29,9 +30,11 @@ import {
  * Notes:
  * - <apiRootId> is the content collection id for the API index (i.e., servicenow/server/check).
  * - TypeDoc routes strip /typedoc/ from the public route and emit routes with and without extensions
- * - TypeDoc generated subdirectories (classes, functions, etc.) are typically preserved,
- *   except for namespaces which will collapse redundant API/module/namespace in the future
- *   TODO: i.e., /docs/servicenow/server/query/typedoc/Query/namespaces/Query -> /docs/servicenow/server/query
+ * - TypeDoc generated subdirectories (classes, functions, etc.) are typically preserved.
+ * - ServiceNow public namespaces collapse redundant segments (TypeDoc disk path -> public route):
+ *   /docs/servicenow/server/query/typedoc/Query/namespaces/Query -> /docs/servicenow/server/query
+ * - Other platforms keep namespace segments, but drop redundant API-name prefixes:
+ *   /docs/x/y/z/typedoc/Z/namespaces/Z -> /docs/x/y/z/namespaces/Z
  */
 export async function getStaticPaths() {
 	// documentation index.mdx files
@@ -77,7 +80,8 @@ export async function getStaticPaths() {
 		 * i.e., /docs/servicenow/check/typedoc/classes/Checker.md
 		 * becomes servicenow/check/classes/Checker
 		 */
-		const apiId = typedocDiskPathToPublicId(file);
+		const apiId = typedocDiskPathToPublicId(file, apiPages);
+		if (apiId === rootApiId && indexEntry) return [];
 
 		return [
 			// return paths for with and without the extension
@@ -118,7 +122,12 @@ if (contentEntry) {
 	const baseUrl = pathnameToBaseUrl(Astro.url.pathname);
 	typedocContent = rewriteRelativeLinks(rawHtml, baseUrl, {
 		stripMdExt: true,
-		rewriteRelativeHref: (href) => rewriteNamespaceReadmeHref(href, apiRootId),
+		rewriteRelativeHref: (href) => {
+			return (
+				rewriteTypedocRelativeHref(href, apiRootId, apiPages) ??
+				rewriteTypedocSectionHref(href, apiRootId)
+			);
+		},
 	});
 
 	let extracted = extractBreadcrumbs(typedocContent);

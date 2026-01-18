@@ -70,7 +70,7 @@ decided to take a different approach.
 Since ServiceNow finally supports modern JavaScript, I leveraged a standard
 JavaScript class. As long as the class name matches the script include name,
 it's accessible like any other script include. I created the
-[Checker](/docs/servicenow/check) class to store the type validation, assertion,
+[Checker](/docs/servicenow/server/check) class to store the type validation, assertion,
 and error handling logic.
 
 This brings a couple benefits I wanted to leverage - it doesn't depend on
@@ -98,17 +98,17 @@ are often misused or used when a simple collection of standalone functions would
 suffice. It's a minor thing, but especially when a class is instantiated over
 and over (as will be the case when validating many input parameters), the need
 to call `new` repeatedly drives me crazy. Because of this, I also created a
-server-side namespace named [Type](/docs/servicenow/type). The `Type` namespace
+server-side namespace named [Type](/docs/servicenow/server/type). The `Type` namespace
 contains some standalone methods, like retrieving additional details on an
 object type, but importantly exposes a factory function called `check` which
 instantiates the TypeChecker behind the scenes.
 
 <Alert type="note">
-	I originally exposed a factory in the [Type](/docs/servicenow/type) utility
+	I originally exposed a factory in the [Type](/docs/servicenow/server/type) utility
 	as described above, but as I shifted from simple type checking to more
 	general validation, it no longer made sense. Now, the `Check` factory
 	function and the `Checker` class both live in the same
-	[Check](/docs/servicenow/check) script include, but I think the original
+	[Check](/docs/servicenow/server/check) script include, but I think the original
 	pattern was interesting enough to leave as a reference.
 </Alert>
 
@@ -151,12 +151,12 @@ let result = Check({ value }).is.type('string').matches(/regex/)
 
 ## Final Structure
 
-In the end, we have a [Type](/docs/servicenow/type) namespace that includes
+In the end, we have a [Type](/docs/servicenow/server/type) namespace that includes
 simple type check aliases, methods to get the internal `@@toStringTag` (formerly
 the `[[class]]` property), and other complex type checks, like checking if an
 object is a plain vanilla object or an instance of another object type.
 
-Next, we have the [Check](/docs/servicenow/check) namespace that defines the
+Next, we have the [Check](/docs/servicenow/server/check) namespace that defines the
 `Checker` class and does the heavy lifting of input validation, message
 templating, and error handling, but it also makes use of the `Type` methods for
 some of the basic type checks.

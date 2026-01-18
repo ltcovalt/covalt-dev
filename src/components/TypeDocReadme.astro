@@ -5,7 +5,8 @@ import {
 	getTypedocPageMap,
 	getTypedocReadmeMap,
 	trimSlashes,
-	rewriteNamespaceReadmeHref,
+	rewriteTypedocSectionHref,
+	rewriteTypedocRelativeHref,
 	rewriteRelativeLinks,
 	stripFirstH1,
 	pathnameToBaseUrl,
@@ -15,22 +16,29 @@ import {
 
 const { apiPath, variant = 'root' } = Astro.props;
 const rel = trimSlashes(apiPath);
+const pageMap = getTypedocPageMap();
 const apiRootPath = `/docs/${rel}`;
 let rawHtml = null;
 let baseUrl = null;
 let rewriteOpts = {};
 
 if (variant === 'namespace') {
-	const pageMap = getTypedocPageMap();
 	const namespaceReadmePath = findNamespaceReadmePath(pageMap, rel);
 
 	if (namespaceReadmePath) {
 		rawHtml = await loadCompiledHtmlFromGlob(pageMap, namespaceReadmePath, 'TypeDoc namespace README');
-		const namespacePublicId = typedocDiskPathToPublicId(namespaceReadmePath);
-		baseUrl = pathnameToBaseUrl(`/docs/${namespacePublicId}`);
+		const namespacePublicId = typedocDiskPathToPublicId(namespaceReadmePath, pageMap);
+		baseUrl = namespacePublicId === rel
+			? `/docs/${rel}`
+			: pathnameToBaseUrl(`/docs/${namespacePublicId}`);
 		rewriteOpts = {
 			stripMdExt: true,
-			rewriteRelativeHref: (href) => rewriteNamespaceReadmeHref(href, rel),
+			rewriteRelativeHref: (href) => {
+				return (
+					rewriteTypedocRelativeHref(href, rel, pageMap) ??
+					rewriteTypedocSectionHref(href, rel)
+				);
+			},
 		};
 	}
 } else {
@@ -38,6 +46,15 @@ if (variant === 'namespace') {
 	const typedocPath = `/docs/${rel}/typedoc/README.md`;
 	rawHtml = await loadCompiledHtmlFromGlob(readmeMap, typedocPath, 'TypeDoc README');
 	baseUrl = apiRootPath;
+	rewriteOpts = {
+		stripMdExt: true,
+		rewriteRelativeHref: (href) => {
+			return (
+				rewriteTypedocRelativeHref(href, rel, pageMap) ??
+				rewriteTypedocSectionHref(href, rel)
+			);
+		},
+	};
 }
 
 let fixedHtml = null;
