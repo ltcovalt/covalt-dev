@@ -1,21 +1,54 @@
 ---
 import {
+	extractBreadcrumbs,
+	findNamespaceReadmePath,
+	getTypedocPageMap,
 	getTypedocReadmeMap,
 	trimSlashes,
+	rewriteNamespaceReadmeHref,
 	rewriteRelativeLinks,
 	stripFirstH1,
+	pathnameToBaseUrl,
+	typedocDiskPathToPublicId,
 	loadCompiledHtmlFromGlob,
 } from '@utils/typedoc.js';
 
-const { apiPath } = Astro.props;
+const { apiPath, variant = 'root' } = Astro.props;
 const rel = trimSlashes(apiPath);
-const readmeMap = getTypedocReadmeMap();
-const typedocPath = `/docs/${rel}/typedoc/README.md`;
-const rawHtml = await loadCompiledHtmlFromGlob(readmeMap, typedocPath, 'TypeDoc README');
-const baseUrl = `/docs/${rel}`;
+const apiRootPath = `/docs/${rel}`;
+let rawHtml = null;
+let baseUrl = null;
+let rewriteOpts = {};
 
-let fixedHtml = rewriteRelativeLinks(rawHtml, baseUrl);
-fixedHtml = stripFirstH1(fixedHtml);
+if (variant === 'namespace') {
+	const pageMap = getTypedocPageMap();
+	const namespaceReadmePath = findNamespaceReadmePath(pageMap, rel);
+
+	if (namespaceReadmePath) {
+		rawHtml = await loadCompiledHtmlFromGlob(pageMap, namespaceReadmePath, 'TypeDoc namespace README');
+		const namespacePublicId = typedocDiskPathToPublicId(namespaceReadmePath);
+		baseUrl = pathnameToBaseUrl(`/docs/${namespacePublicId}`);
+		rewriteOpts = {
+			stripMdExt: true,
+			rewriteRelativeHref: (href) => rewriteNamespaceReadmeHref(href, rel),
+		};
+	}
+} else {
+	const readmeMap = getTypedocReadmeMap();
+	const typedocPath = `/docs/${rel}/typedoc/README.md`;
+	rawHtml = await loadCompiledHtmlFromGlob(readmeMap, typedocPath, 'TypeDoc README');
+	baseUrl = apiRootPath;
+}
+
+let fixedHtml = null;
+if (rawHtml && baseUrl) {
+	fixedHtml = rewriteRelativeLinks(rawHtml, baseUrl, rewriteOpts);
+	if (variant === 'namespace') {
+		const extracted = extractBreadcrumbs(fixedHtml);
+		fixedHtml = extracted.html ?? fixedHtml;
+	}
+	fixedHtml = stripFirstH1(fixedHtml);
+}
 ---
 
-<div set:html={fixedHtml} />
+{fixedHtml && <div set:html={fixedHtml} />}

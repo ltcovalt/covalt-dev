@@ -112,20 +112,82 @@ export function pathnameToBaseUrl(pathname) {
  *
  * @param {string} html
  * @param {string} baseUrl
- * @param {{ stripMdExt?: boolean }} [opts]
+ * @param {{ stripMdExt?: boolean, rewriteRelativeHref?: (relHref: string) => string | null }} [opts]
  * @returns {string}
  */
 export function rewriteRelativeLinks(html, baseUrl, opts = {}) {
-	const { stripMdExt = false } = opts;
+	const { stripMdExt = false, rewriteRelativeHref } = opts;
 
 	// keep regex form consistent; avoids editor highlighting quirks with regex literals
 	const regex = new RegExp(String.raw`href="(?!https?:\/\/|\/|#)([^"]+)"`, 'g');
 
 	const normalizedBase = String(baseUrl ?? '').replace(/\/+$/, '');
 	return String(html ?? '').replace(regex, (_match, relHref) => {
+		const rewritten = rewriteRelativeHref?.(relHref);
+		if (rewritten) return `href="${rewritten}"`;
+
 		const cleanRel = stripMdExt ? String(relHref).replace(/\.md$/, '') : String(relHref);
 		return `href="${normalizedBase}/${cleanRel}"`;
 	});
+}
+
+/**
+ * Find the first namespace README path for a given API root.
+ *
+ * @param {Record<string, () => Promise<any>>} typedocPageMap
+ * @param {string} apiRootId
+ * @returns {string | null}
+ */
+export function findNamespaceReadmePath(typedocPageMap, apiRootId) {
+	const normalizedRoot = trimSlashes(apiRootId);
+	const prefix = `/docs/${normalizedRoot}/typedoc/`;
+
+	const candidates = Object.keys(typedocPageMap ?? {}).filter((path) => {
+		return path.startsWith(prefix) && /\/namespaces\/[^/]+\/README\.md$/i.test(path);
+	});
+
+	if (!candidates.length) return null;
+
+	candidates.sort((a, b) => {
+		const depthA = a.split('/').length;
+		const depthB = b.split('/').length;
+		if (depthA !== depthB) return depthA - depthB;
+		if (a.length !== b.length) return a.length - b.length;
+		return a.localeCompare(b);
+	});
+
+	return candidates[0];
+}
+
+/**
+ * Rewrite namespace README/root links to the API root URL.
+ *
+ * @param {string} relHref
+ * @param {string} apiRootId
+ * @returns {string | null}
+ */
+export function rewriteNamespaceReadmeHref(relHref, apiRootId) {
+	if (!relHref || !apiRootId) return null;
+
+	const href = String(relHref);
+	const [pathPart, hash] = href.split('#');
+	const stripped = pathPart.replace(/^(\.\.\/|\.\/)+/, '').replace(/\/+$/, '');
+	const normalizedRoot = trimSlashes(apiRootId);
+	const hashSuffix = hash ? `#${hash}` : '';
+
+	if (stripped === 'README' || stripped === 'README.md') {
+		return `/docs/${normalizedRoot}${hashSuffix}`;
+	}
+
+	if (/\/namespaces\/[^/]+\/README(?:\.md)?$/i.test(stripped)) {
+		return `/docs/${normalizedRoot}${hashSuffix}`;
+	}
+
+	if (/\/namespaces\/[^/]+$/i.test(stripped)) {
+		return `/docs/${normalizedRoot}${hashSuffix}`;
+	}
+
+	return null;
 }
 
 /**

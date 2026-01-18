@@ -8,6 +8,7 @@ import {
 	extractBreadcrumbs,
 	getTypedocPageMap,
 	loadCompiledHtmlFromGlob,
+	rewriteNamespaceReadmeHref,
 	typedocDiskPathToRootApiId,
 	typedocDiskPathToPublicId,
 	pathnameToBaseUrl,
@@ -108,13 +109,17 @@ if (contentEntry) {
 	// render generated TypeDoc markdown
 	const apiPages = getTypedocPageMap();
 	const rawHtml = await loadCompiledHtmlFromGlob(apiPages, apiPath, 'TypeDoc page');
+	const apiRootId = typedocDiskPathToRootApiId(apiPath);
 
 	/*
 	 * Base URL is the current request path without the file name
 	 * i.e., /docs/servicenow/check/classes/Checker -> /docs/servicenow/check/classes
 	 */
 	const baseUrl = pathnameToBaseUrl(Astro.url.pathname);
-	typedocContent = rewriteRelativeLinks(rawHtml, baseUrl, { stripMdExt: true });
+	typedocContent = rewriteRelativeLinks(rawHtml, baseUrl, {
+		stripMdExt: true,
+		rewriteRelativeHref: (href) => rewriteNamespaceReadmeHref(href, apiRootId),
+	});
 
 	let extracted = extractBreadcrumbs(typedocContent);
 	typedocContent = extracted.html ?? typedocContent;
