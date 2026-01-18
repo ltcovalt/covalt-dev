@@ -14,6 +14,12 @@
 export function buildMenu(entries) {
 	const platforms = new Map();
 
+	const titleCase = (value) =>
+		value
+			.split(/\s+/)
+			.map((part) => (part ? part[0].toUpperCase() + part.slice(1) : ''))
+			.join(' ');
+
 	for (const entry of entries) {
 		const id = entry.id;
 		const href = `/docs/${id.replace('/source', '')}`;
@@ -54,7 +60,7 @@ export function buildMenu(entries) {
 			items.sort((a, b) => a.label.localeCompare(b.label));
 
 			const runtimeNode = {
-				label: runtime,
+				label: titleCase(runtime),
 				children: items.map((item) => ({
 					label: item.label,
 					href: item.href,

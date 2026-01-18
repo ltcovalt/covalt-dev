@@ -7,25 +7,36 @@ import DocsIcon from '@icons/book-open.svg';
 import LinkIcon from '@icons/link.svg';
 import ScriptFileIcon from '@icons/script-file.svg';
 import ScriptClientIcon from '@icons/script-client.svg';
+import NamespaceIcon from '@icons/code-braces.svg';
+import ClassIcon from '@icons/cube.svg';
 
 const { indexEntry, apiIdToNameMap } = Astro.props;
 const docsHref = `/docs/${indexEntry.id}`;
 const sourceHref = `${docsHref}/source`;
 const isSourceView = Astro.url.pathname.endsWith('/source') || Astro.url.pathname.endsWith('/source/');
-const { platform, runtime, resource, api } = indexEntry.data.env;
+const { platform, runtime, artifact, api, 'api-type': apiType } = indexEntry.data.env;
 const { requires, description } = indexEntry.data;
 
 const iconMap = {
 	servicenow: UserIcon,
+	class: ClassIcon,
 	client: ClientIcon,
-	server: ServerIcon,
-	'script include': ScriptFileIcon,
 	'client script': ScriptClientIcon,
+	namespace: NamespaceIcon,
+	'script include': ScriptFileIcon,
+	server: ServerIcon,
 	'ui script': ScriptClientIcon,
 };
 const PlatformIcon = iconMap[platform.toLowerCase()];
 const RuntimeIcon = iconMap[runtime.toLowerCase()];
-const ResourceIcon = iconMap[resource.toLowerCase()];
+const ArtifactIcon = iconMap[artifact.toLowerCase()];
+const ApiTypeIcon = iconMap[apiType.toLowerCase()];
+
+const titleCase = (value) =>
+	value
+		.split(/\s+/)
+		.map((part) => (part ? part[0].toUpperCase() + part.slice(1) : ''))
+		.join(' ');
 
 let deps = requires?.map((id: string) => {
 	const icon = (() => {
@@ -45,18 +56,38 @@ let deps = requires?.map((id: string) => {
 
 			<!-- meta data badges -->
 			<div class="my-6 flex flex-wrap gap-2">
-				<div class="badge badge-soft badge-secondary">
-					{PlatformIcon && <PlatformIcon class="h-4 w-4" />}
-					{platform}
-				</div>
-				<div class="badge badge-soft badge-secondary">
-					{RuntimeIcon && <RuntimeIcon class="h-4 w-4" />}
-					{runtime}
-				</div>
-				<div class="badge badge-soft badge-secondary">
-					{ResourceIcon && <ResourceIcon class="h-4 w-4" />}
-					{resource}
-				</div>
+				{
+					platform && (
+						<div class="badge badge-soft badge-secondary gap-1 px-2">
+							{PlatformIcon && <PlatformIcon class="h-4 w-4" />}
+							{platform}
+						</div>
+					)
+				}
+				{
+					runtime && (
+						<div class="badge badge-soft badge-secondary gap-1 px-2">
+							{RuntimeIcon && <RuntimeIcon class="h-4 w-4" />}
+							{titleCase(runtime)}
+						</div>
+					)
+				}
+				{
+					artifact && (
+						<div class="badge badge-soft badge-secondary gap-1 px-2">
+							{ArtifactIcon && <ArtifactIcon class="h-4 w-4" />}
+							{titleCase(artifact)}
+						</div>
+					)
+				}
+				{
+					apiType && (
+						<div class="badge badge-soft badge-secondary gap-1 px-2">
+							{ApiTypeIcon && <ApiTypeIcon class="h-4 w-4" />}
+							{titleCase(apiType)}
+						</div>
+					)
+				}
 			</div>
 
 			<!-- short description -->
@@ -70,7 +101,7 @@ let deps = requires?.map((id: string) => {
 						{deps.map((dep) => {
 							const Icon = dep.icon;
 							return (
-								<a class="badge badge-sm badge-soft gap-1" href={`/docs/${dep.id}`}>
+								<a class="badge badge-sm badge-soft gap-1 px-2" href={`/docs/${dep.id}`}>
 									<Icon class="h-3 w-3" />
 									{dep.name}
 								</a>
