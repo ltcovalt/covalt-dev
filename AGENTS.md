@@ -36,10 +36,3 @@
 ## Configuration & Deployment Notes
 - Astro and MDX settings live in `astro.config.mjs`.
 - Cloudflare Worker settings are in `wrangler.jsonc`; keep deploy-specific edits minimal.
-
-## Agent Workflow
-- Provide a brief rationale before triggering the CLI approval prompt for any file edits.
-- Do not ask for a separate confirmation after the rationale; proceed directly to the edit.
-- Do not start an edit until the rationale has been stated.
-- Do not request written confirmation; trigger the CLI approval prompt immediately after the rationale.
-- Warn if the current Git branch is `main` before making any changes; only proceed after the user confirms to switch branches.
