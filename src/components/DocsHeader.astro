@@ -32,11 +32,18 @@ const RuntimeIcon = iconMap[runtime.toLowerCase()];
 const ArtifactIcon = iconMap[artifact.toLowerCase()];
 const ApiTypeIcon = iconMap[apiType.toLowerCase()];
 
-const titleCase = (value) =>
-	value
+const labelMap = {
+	servicenow: 'ServiceNow',
+	'ui script': 'UI Script',
+};
+const formatLabel = (value) => {
+	const normalized = value.toLowerCase();
+	if (labelMap[normalized]) return labelMap[normalized];
+	return normalized
 		.split(/\s+/)
 		.map((part) => (part ? part[0].toUpperCase() + part.slice(1) : ''))
 		.join(' ');
+};
 
 let deps = requires?.map((id: string) => {
 	const icon = (() => {
@@ -60,7 +67,7 @@ let deps = requires?.map((id: string) => {
 					platform && (
 						<div class="badge badge-soft badge-secondary gap-1 px-2">
 							{PlatformIcon && <PlatformIcon class="h-4 w-4" />}
-							{platform}
+							{formatLabel(platform)}
 						</div>
 					)
 				}
@@ -68,7 +75,7 @@ let deps = requires?.map((id: string) => {
 					runtime && (
 						<div class="badge badge-soft badge-secondary gap-1 px-2">
 							{RuntimeIcon && <RuntimeIcon class="h-4 w-4" />}
-							{titleCase(runtime)}
+							{formatLabel(runtime)}
 						</div>
 					)
 				}
@@ -76,7 +83,7 @@ let deps = requires?.map((id: string) => {
 					artifact && (
 						<div class="badge badge-soft badge-secondary gap-1 px-2">
 							{ArtifactIcon && <ArtifactIcon class="h-4 w-4" />}
-							{titleCase(artifact)}
+							{formatLabel(artifact)}
 						</div>
 					)
 				}
@@ -84,7 +91,7 @@ let deps = requires?.map((id: string) => {
 					apiType && (
 						<div class="badge badge-soft badge-secondary gap-1 px-2">
 							{ApiTypeIcon && <ApiTypeIcon class="h-4 w-4" />}
-							{titleCase(apiType)}
+							{formatLabel(apiType)}
 						</div>
 					)
 				}

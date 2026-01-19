@@ -14,22 +14,31 @@
 export function buildMenu(entries) {
 	const platforms = new Map();
 
-	const titleCase = (value) =>
-		value
+	const labelMap = {
+		servicenow: 'ServiceNow',
+		'ui script': 'UI Script',
+	};
+	const formatLabel = (value) => {
+		const normalized = value.toLowerCase();
+		if (labelMap[normalized]) return labelMap[normalized];
+		return normalized
 			.split(/\s+/)
 			.map((part) => (part ? part[0].toUpperCase() + part.slice(1) : ''))
 			.join(' ');
+	};
 
 	for (const entry of entries) {
 		const id = entry.id;
 		const href = `/docs/${id.replace('/source', '')}`;
 		const { api, platform, runtime } = entry.data.env;
 
+		const normalizedPlatform = platform.toLowerCase();
+
 		// Update platforms Map with runtimes
-		let runtimeMap = platforms.get(platform);
+		let runtimeMap = platforms.get(normalizedPlatform);
 		if (!runtimeMap) {
 			runtimeMap = new Map();
-			platforms.set(platform, runtimeMap);
+			platforms.set(normalizedPlatform, runtimeMap);
 		}
 
 		// Update runtimes Map with leaf items
@@ -51,7 +60,7 @@ export function buildMenu(entries) {
 	const menu = [];
 	for (const [platform, runtimeMap] of platforms) {
 		/** @type {MenuNode} */
-		const platformNode = { label: platform, children: [] };
+		const platformNode = { label: formatLabel(platform), children: [] };
 
 		const runtimeEntries = Array.from(runtimeMap.entries());
 		runtimeEntries.sort(([a], [b]) => a.localeCompare(b));
@@ -60,7 +69,7 @@ export function buildMenu(entries) {
 			items.sort((a, b) => a.label.localeCompare(b.label));
 
 			const runtimeNode = {
-				label: titleCase(runtime),
+				label: formatLabel(runtime),
 				children: items.map((item) => ({
 					label: item.label,
 					href: item.href,

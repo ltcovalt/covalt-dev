@@ -263,6 +263,29 @@ export function stripFirstH1(html) {
 }
 
 /**
+ * Removes the paragraph immediately following the first H1.
+ * @param {string} html
+ * @returns {string}
+ */
+export function stripFirstH1Paragraph(html) {
+	if (!html) return html;
+	const wrapped = `<div id="__typedoc_root__">${html}</div>`;
+	const { document } = parseHTML(wrapped);
+	const root = document.getElementById('__typedoc_root__');
+	if (!root) return String(html ?? '');
+
+	const firstHeading = root.querySelector('h1');
+	if (!firstHeading) return root.innerHTML;
+
+	const next = firstHeading.nextElementSibling;
+	if (next?.tagName === 'P') {
+		next.remove();
+	}
+
+	return root.innerHTML;
+}
+
+/**
  * Extract TypeDoc breadcrumbs if present (HTML <p> containing anchors + separators),
  * remove that breadcrumb element from the content, and return both the cleaned HTML
  * and the breadcrumb HTML.

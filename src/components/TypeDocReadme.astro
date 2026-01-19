@@ -9,6 +9,7 @@ import {
 	rewriteTypedocRelativeHref,
 	rewriteRelativeLinks,
 	stripFirstH1,
+	stripFirstH1Paragraph,
 	pathnameToBaseUrl,
 	typedocDiskPathToPublicId,
 	loadCompiledHtmlFromGlob,
@@ -63,6 +64,9 @@ if (rawHtml && baseUrl) {
 	if (variant === 'namespace') {
 		const extracted = extractBreadcrumbs(fixedHtml);
 		fixedHtml = extracted.html ?? fixedHtml;
+	}
+	if (variant === 'namespace') {
+		fixedHtml = stripFirstH1Paragraph(fixedHtml);
 	}
 	fixedHtml = stripFirstH1(fixedHtml);
 }
