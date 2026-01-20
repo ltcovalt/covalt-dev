@@ -56,12 +56,19 @@ const QueryAjaxAPI = {
 	 * //   ]
 	 * // }
 	 */
-	records(params) {
-		params = params ?? this.getParameter('sysparm_params');
-		params = JSON.parse(params);
+	records() {
+		let params = this.getParameter('sysparm_params');
+		try {
+			params = JSON.parse(params);
+		} catch (ex) {
+			return JSON.stringify({
+				status: 'fail',
+				message: 'invalid JSON payload',
+			});
+		}
+
 		let result = Query.records(params);
-		let response = JSON.stringify(result);
-		return response;
+		return JSON.stringify(result);
 	},
 };
 

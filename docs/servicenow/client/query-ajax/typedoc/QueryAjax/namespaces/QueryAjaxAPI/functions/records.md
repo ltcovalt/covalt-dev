@@ -2,17 +2,11 @@
 
 # Function: records()
 
-> **records**(`params`): `string`
+> **records**(): `string`
 
 Executes a query for records matching the encoded query. Provides a simple
 interface for clients to query arbitrary records from the server, while
 ensuring access policy and permissions are applied.
-
-## Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `params` | [`QueryParams`](../../../../interfaces/QueryParams.md) | JSON payload carried in 'sysparm\_params' that define the query.<br /> Object shape: `{ table, query, columns, limit?, orderBy?, orderByDesc? }` <br /> See [QueryParams](../../../../interfaces/QueryParams.md) interface for details. |
 
 ## Returns
 

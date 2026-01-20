@@ -11,4 +11,4 @@ by reducing boilerplate, performing response parsing, and error handling.
 
 | Function | Description |
 | ------ | ------ |
-| [records](functions/records.md) | - |
+| [records](functions/records.md) | Executes a query for records matching an encoded query. Queries are executed under the context of the current record, ensuring standard access policies and permissions are applied. |

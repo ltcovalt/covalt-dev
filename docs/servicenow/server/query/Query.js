@@ -57,9 +57,14 @@ const Query = {
 			.check({orderBy}).is.an.optional().string().is.oneOf(columns)
 			.check({orderByDesc}).optional().string().is.oneOf(columns)
 			.result();
-		if (!validation.ok) throw TypeError(validation.errors.join('\n'));
+		if (!validation.ok) {
+			return {
+				status: 'fail',
+				data: validation.errors,
+			};
+		}
 
-		let result = { table, query, status: 'success', records: [] };
+		let records = [];
 		let gr = new GlideRecordSecure(table);
 		if (limit) gr.setLimit(limit);
 		if (orderBy) gr.orderBy(orderBy);
@@ -83,25 +88,35 @@ const Query = {
 					// set value for the final dotwalk segment
 					if (i === parts.length - 1) {
 						if (current[key] && typeof current[key] === 'object') {
-							throw Error(
-								`Column collision occurred - "${element}" attempts to assign a scalar value to an object created by another dotwalked column. To fix, request ${dotwalkPath}.sys_id directly and remove the conflicting column.`,
-							);
+							return {
+								status: 'fail',
+								data: {
+									[element]: `Column collision occurred - "${element}" attempts to assign a scalar value to an object created by another dotwalked column. To fix, request ${dotwalkPath}.sys_id directly and remove the conflicting column.`,
+								},
+							};
 						}
 						current[key] = value;
 					} else {
 						// ensure intermediate objects exist for the dotwalk path
 						if (current[key] != null && typeof current[key] !== 'object') {
-							throw new Error(
-								`Column collision occurred - "${element}" attempted to dotwalk through ${dotwalkPath}, but the path was previously assigned a scalar value by another column. To fix, request ${dotwalkPath}.sys_id directly and remove the conflicting column.`,
-							);
+							return {
+								status: 'fail',
+								data: {
+									[element]: `Column collision occurred - "${element}" attempted to dotwalk through ${dotwalkPath}, but the path was previously assigned a scalar value by another column. To fix, request ${dotwalkPath}.sys_id directly and remove the conflicting column.`,
+								},
+							};
 						}
 						if (!current[key]) current[key] = {};
 						current = current[key];
 					}
 				}
 			}
-			result.records.push(record);
+			records.push(record);
 		}
-		return result;
+
+		return {
+			status: 'success',
+			data: records.length > 0 ? records : null,
+		};
 	},
 };
