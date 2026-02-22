@@ -32,14 +32,13 @@ ga.getXMLAnswer((result) => {
 
 // OUTPUT:
 // {
-//   "table": "sys_user",
-//   "query": "active=true^manager!=null",
 //   "status": "success",
-//   "records": [
+//   "data": [
 //     {
 //       "user_name": "melinda.carleton",
 //       "manager": {
 //         "user_name": "lucius.bagnoli"
+//       }
 //     }
 //   ]
 // }

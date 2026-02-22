@@ -23,8 +23,8 @@ const QueryAjaxAPI = {
 	 * ensuring access policy and permissions are applied.
 	 *
 	 * @param {QueryParams} params - JSON payload carried in 'sysparm_params' that define the query.<br />
-	 * Object shape: `{ table, query, columns, limit?, orderBy?, orderByDesc? }` <br />
-	 * See {@link QueryParams} interface for details.
+	 *   Object shape: `{ table, query, columns, limit?, orderBy?, orderByDesc? }` <br />
+	 *   See {@link QueryParams} interface for details.
 	 *
 	 * @returns {string} JSON string containing the queried records
 	 *
@@ -44,14 +44,13 @@ const QueryAjaxAPI = {
 	 *
 	 * // OUTPUT:
 	 * // {
-	 * //   "table": "sys_user",
-	 * //   "query": "active=true^manager!=null",
 	 * //   "status": "success",
-	 * //   "records": [
+	 * //   "data": [
 	 * //     {
 	 * //       "user_name": "melinda.carleton",
 	 * //       "manager": {
 	 * //         "user_name": "lucius.bagnoli"
+	 * //       }
 	 * //     }
 	 * //   ]
 	 * // }

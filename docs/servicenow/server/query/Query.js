@@ -1,4 +1,21 @@
 /**
+ * @typedef {'success' | 'fail' | 'error'} JsendStatus - JSEND formatted response status
+ *  - `'success'` — request completed successfully
+ *  - `'fail'` — an expected client-side validation error
+ *  - `'error'` — unexpected server-side failure
+ */
+
+/**
+ * @typedef {object} QueryResponse - response object containing requested data
+ * @property {JsendStatus} status - overall status of the response
+ * @property {string} [message] - message describing the response result - required when status is 'fail' or 'error'
+ * @property {object} [data] - wrapper for data returned by the API call
+ *  - if the call returns no data, data will be `null`
+ *  - if status is 'fail', data contains info on failed validations
+ *  - if status is 'error', data is omitted
+ */
+
+/**
  * Server-side namespace containing methods to execute secure `GlideRecordSecure` queries,
  * returning a plain, sanitized JavaScript object containing only the requested columns and values.
  * @namespace
@@ -15,7 +32,7 @@ const Query = {
 	 * @param {number} [params.limit=100] - number of records to return, default is 100
 	 * @param {string} [params.orderBy] - column used to sort results in ascending order
 	 * @param {string} [params.orderByDesc] - column used to sort results in descending order
-	 * @returns {object} result object containing records and related metadata
+	 * @returns {QueryResponse} result object containing records and related metadata
 	 *
 	 * @example
 	 * let result = Query.records({
@@ -28,9 +45,8 @@ const Query = {
 	 *
 	 * // OUTPUT
 	 * // {
-	 * //   "table": "sys_user",
-	 * //   "query": "active=true^manager!=null",
-	 * //   "records": [
+	 * //   "status": "success",
+	 * //   "data": [
 	 * //     {
 	 * //       "user_name": "melinda.carleton",
 	 * //       "manager": {

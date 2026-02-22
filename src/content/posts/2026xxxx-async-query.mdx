@@ -3,35 +3,28 @@ title: Asynchronous server data fetching
 slug: async-server-data-fetching
 description: Fetch server data asynchronously and pass it to front end clients
 author: 'Luke Covalt'
-date: 2025-12-31
-updated: 2025-12-31
-draft: true
+date: 2026-02-06
+updated: 2026-02-06
+draft: false
 tags: [blog, ajax, async, fetch, query, GlideRecordSecure]
 ---
 
-One of the first things I like to implement in a new ServiceNow environment is a
-utility to assist with fetching arbitrary data from the backend. Best practice
-is to query data asynchronously, so the client isn't blocked while it waits for
-a response from the server. Async queries can be performed using the
-`GlideRecord - Client` API, but this API returns the entire record. Again, best
-practice would be to return just the data that you need.
+In this post, I'm going to review how to create a client-side utility for
+retrieving arbitrary values from the server, without the need to create a
+bespoke AJAX script include for each query.
 
-To fully follow these recommendations you would need to create a client-callable
-script include to return only the needed data and use `GlideAjax` on the client
-side to call the script include. This works fine, but it adds a substantial
-amount of boilerplate to the client-side script and results in many bespoke
-script include being created, increasing maintenance and the surface area for
-bugs. This is where a reusable utility can help us.
-
-This is something I've built a couple times now, but not since ServiceNow rolled
-out support for ES12. Rather than stealing my own code and updating it for the
-modern world, I'm going to write a new utility from scratch for this post. I'm
-interested to see if I end up taking a similar approach and if the utility can
-be made substantially more concise and user friendly without being bound to ES5.
+ServiceNow best practice is to perform queries asynchronously and only retrieve
+required values. The `GlideRecord - Client` API supports async queries, but it
+returns the full record. To follow the ServiceNow recommendation, you would need
+to create a client-callable script include to return only the needed data for
+each query and use `GlideAjax` on the client side to call the script include.
+This adds a substantial amount of boilerplate to the client-side script and
+results in many bespoke script include being created, increasing maintenance and
+the surface area for bugs. This is where a reusable utility can help.
 
 ## Basic Structure
 
-Like I mentioned previously, to invoke a server-side script from a traditional
+As mentioned previously, to invoke a server-side script from a traditional
 client script, we need to use an AJAX script include. The script include is what
 will actually query the server, format the response, and return it to the
 client. We could stop here, and it would solve one of our main problems -
@@ -51,8 +44,8 @@ API over the standard `GlideAjax` API.
 	this as a matter of standard, utility code that will be used across many
 	client scripts is the perfect use case for global scripts and is exactly how
 	global scripts should be used. Don't let overly-dogmatic statements scare
-	you away from the right solution - just be ready to explain and defend your
-	reasoning.
+	you away from the right solution - just be sure to understand when it is the
+	right tool to use.
 </Alert>
 
 Something I've been doing more recently is only including AJAX specific logic in
@@ -67,6 +60,165 @@ solution will require three files.
 - QueryAjax (AJAX Script Include)
 - Query (UI Script)
 
-## Script Include
+## Server logic
 
-The first step is to build the server-side logic
+The first step is to build the server-side logic in the `Query` script include.
+For brevity, I cut out comments and optional validation from the examples. Check
+the full [source code](/docs/servicenow/server/query/source) if you want the
+complete, more robust script to copy/paste to your environment.
+
+### Function setup
+
+I'll initially only be building one method - `Query.records()`. More will come
+later, but this single method solves 90% of the client-side data retrieval
+boiler plate. We'll scaffold the `Query` namespace and the `records` method.
+
+```js
+const Query = {
+	records({ table, query, columns, limit, orderBy, orderByDesc }) {
+		// todo
+	},
+};
+```
+
+I set up the records method to take a single parameter object and destructure to
+named variables. This allows additional parameters to be added to method later,
+without changing the function signature and possibly breaking existing calls to
+the method. We'll use these parameters to craft the `GlideRecordSecure` query.
+
+```js
+const Query = {
+	records({ table, query, columns, limit, orderBy, orderByDesc }) {
+		const DEFAULT_ROWS = 100;
+		const MAX_ROWS = 1000;
+		const MAX_COLS = 20;
+		const MAX_DOTWALK_DEPTH = 2;
+		limit = limit ?? DEFAULT_ROWS;
+
+		let records = []; // will be used to store the query result
+		let gr = new GlideRecordSecure(table);
+		if (limit) gr.setLimit(limit);
+		if (orderBy) gr.orderBy(orderBy);
+		if (orderByDesc) gr.orderByDesc(orderByDesc);
+		gr.addEncodedQuery(query);
+		gr.query();
+		while (gr.next()) {
+			// todo - process each record
+		}
+	},
+};
+```
+
+Pretty straight forward so far - but take note of the use of `GlideRecordSecure`
+here - this ensures that ACLs are applied to the query, so users are only able
+to retrieve records and columns they would typically have access to.
+
+<Alert type="critical">
+	It is critical to use `GlideRecordSecure` when creating a generic,
+	client-accessible interface like this. If not, you run the risk of directly
+	exposing an interface that could allow clients to query all data from the
+	server. Your information security team will not be pleased.
+</Alert>
+
+### Iterate each record
+
+With the function and query setup, we can iterate over each record and push a
+plain object per record to our records array. The code below goes inside of the
+`while` loop that iterates over the `GlideRecordSecure`.
+
+```js
+let record = {};
+
+for (let element of columns) {
+	let gElement = gr.getElement(element);
+	if (!gElement) continue;
+	let value = gElement.getValue() ?? null;
+	let current = record;
+
+	// split dotwalked elements and add them to the returned object
+	let parts = element.split('.');
+	for (let i = 0; i < parts.length; i++) {
+		let key = parts[i];
+		let dotwalkPath = parts.slice(0, i + 1);
+		// set value for the final dotwalk segment
+		if (i === parts.length - 1) {
+			current[key] = value;
+		} else {
+			// ensure intermediate objects exist for the dotwalk path
+			if (!current[key]) current[key] = {};
+			current = current[key];
+		}
+	}
+}
+records.push(record);
+```
+
+This is where things get a bit more interesting.
+`GlideRecord.getElement(element)` supports retrieving dotwalked elements, so our
+API can easily support deeply nested values like `user.manager.email`. The final
+returned record will represent dotwalked values as nested properties. This means
+we only want to assign a value on the final segment (`email` in the above
+example), but we need to ensure the intermediate object (`manager = {}`) so that
+accessing the nested property doesn't throw an exception.
+
+<Alert>
+	Some error handling was stripped for brevity, but the full source code
+	handles cases when a scalar value would overwrite an intermediate object or
+	when an intermediate object would overwrite a previously assigned scalar
+	value.
+</Alert>
+
+### Input validation
+
+You can handle (or not) input validation however you like, but I am using my own
+[Check](/docs/servicenow/server/check) library. This block can be added just
+below the `const` and default value declarations.
+
+```js
+// prettier-ignore
+let validation = 
+    Check({table}).is.string().is.validTable()
+	.check({query}).is.string()
+	.check({columns}).is.array().has.lengthBetween(1, MAX_COLS)
+	.check({limit}).is.a.number().between(0, MAX_ROWS)
+	.check({orderBy}).is.an.optional().string().is.oneOf(columns)
+	.check({orderByDesc}).optional().string().is.oneOf(columns)
+	.result();
+if (!validation.ok) {
+	return {
+		status: 'fail',
+		data: validation.errors,
+	};
+}
+```
+
+## Response construction
+
+We could simply return our records array and call it a day, if that's what you
+prefer. But as the above input validation section likely gave away, I'm loosely
+following the JSend specification for response formatting, as the intent is for
+this payload to be passed back to the client. Instead of just returning the
+data, or null if none exists or an error occurs, the response is wrapped in a
+minimal envelope containing a high-level status, message (if one exists), and
+data. See the official [JSend](https://github.com/omniti-labs/jsend) spec for
+details.
+
+After the `GlideRecordSecure` while loop, we can return our array of records in
+the JSend envelope.
+
+```js
+return {
+	status: 'success',
+	data: records.length > 0 ? records : null,
+};
+```
+
+## Next up - client logic
+
+That wraps the bulk of the server logic for now. Again, this post only covered
+the main points, so be sure to check out the full
+[source code](/docs/servicenow/server/query/source) if you're looking for the
+full script to use in your environment.
+
+Next, I'll create the AJAX script include and the user facing API UI script that
+leverages the server method that was just built.

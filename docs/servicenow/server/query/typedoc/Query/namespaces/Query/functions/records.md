@@ -2,7 +2,7 @@
 
 # Function: records()
 
-> **records**(`params`): `any`
+> **records**(`params`): [`QueryResponse`](../../../../interfaces/QueryResponse.md)
 
 Executes a GlideRecord query and returns an array of objects containing only
 the requested columns. Can also be used to retrieve dotwalked values.
@@ -21,7 +21,7 @@ the requested columns. Can also be used to retrieve dotwalked values.
 
 ## Returns
 
-`any`
+[`QueryResponse`](../../../../interfaces/QueryResponse.md)
 
 result object containing records and related metadata
 
@@ -38,9 +38,8 @@ gs.info(JSON.stringify(result, null, 2));
 
 // OUTPUT
 // {
-//   "table": "sys_user",
-//   "query": "active=true^manager!=null",
-//   "records": [
+//   "status": "success",
+//   "data": [
 //     {
 //       "user_name": "melinda.carleton",
 //       "manager": {

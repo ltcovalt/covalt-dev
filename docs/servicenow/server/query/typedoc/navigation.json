@@ -22,5 +22,27 @@
         ]
       }
     ]
+  },
+  {
+    "title": "Interfaces",
+    "children": [
+      {
+        "title": "QueryResponse",
+        "kind": 256,
+        "path": "interfaces/QueryResponse.md",
+        "isDeprecated": false
+      }
+    ]
+  },
+  {
+    "title": "Type Aliases",
+    "children": [
+      {
+        "title": "JsendStatus",
+        "kind": 2097152,
+        "path": "type-aliases/JsendStatus.md",
+        "isDeprecated": false
+      }
+    ]
   }
 ]
