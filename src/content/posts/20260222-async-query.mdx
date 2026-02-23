@@ -1,5 +1,5 @@
 ---
-title: Asynchronous server data fetching
+title: Fetch server data asynchonously with the Query API
 slug: async-server-data-fetching
 description:
     Fetch server data asynchronously and pass it to front end clients, without
@@ -15,9 +15,9 @@ draft: false
 tags: [blog, ajax, async, fetch, query, GlideRecordSecure]
 ---
 
-In this post, I'm going to review how to create a client-side utility for
-retrieving arbitrary values from the server, without the need to create a
-bespoke AJAX script include for each query.
+For my next series of posts, I'm going to review how to create a client-side
+utility for retrieving arbitrary values from the server, without the need to
+create a bespoke AJAX script include for each query.
 
 ServiceNow best practice is to perform queries asynchronously and only retrieve
 required values. The `GlideRecord - Client` API supports async queries, but it
