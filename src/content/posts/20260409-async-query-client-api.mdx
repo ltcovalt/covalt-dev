@@ -1,0 +1,173 @@
+---
+title: Fetch server data asynchonously with the client Query API
+slug: async-query-client-api
+description:
+    Fetch server data asynchronously and pass it to front end clients, without
+    needing to create bespoke AJAX script includes, using the Query client &
+    server APIs. The Query APIs expose methods for clients to asynchronously
+    retrieve data from the server through a simplified interface, reducing
+    boilerplate code while also ensuring security rules are applied to all
+    queries.
+author: 'Luke Covalt'
+date: 2026-04-09
+updated: 2026-04-09
+draft: false
+tags: [blog, ajax, async, fetch, query, GlideRecordSecure]
+---
+
+In the last post, I covered the server-side logic for a generic async query
+utility. Today I want to review the client side logic that will actually make
+the utility useful. It's taken me much longer to get around to making this post
+for a few reasons. I started a new a little over month ago, and while it's been
+going well, there was a lot of change and adjustment I needed to focus on.
+Spring brought about kid's sports, activities, and yard work. And finally, what
+is likely the biggest factor, is the fact that the hard (fun) part has been done
+for well over a month. The utility was fully completed and working back when I
+wrote about the server-side logic, I just needed to take the time to document
+and write about the client logic and never did. Alas, let's change that now.
+
+## QueryAjax Script Include
+
+The first step to exposing our Query API to client users is to create a client
+callable script include. This is the least interesting part of the setup, as it
+is just acting as a simple interface between the client UI Script we will create
+later and the server script include. Because it is such a simple implementation,
+you should just review the
+[source code](https://covalt.dev/docs/servicenow/client/query-ajax/source/)
+directly, and I'll move straight to the UI Script that greatly simplifies the
+usage of the utility.
+
+<Alert>
+	The QueryAjax logic is very simple, but you may have noticed a small oddity
+	where I do not define the `QueryAjax` type property and methods directly on
+	the prototype, but instead declare a separate `QueryAjaxAPI` object with the
+	needed properties and pass it into the `Prototype.js` constructor. This was
+	simply to get the API to play nice with the tool I use to auto-generate my
+	documentation pages. Otherwise, you could define the properties directly on
+	the prototype as usual.
+</Alert>
+
+## Query UI Script
+
+Next, I created a UI script to make invoking the utility much simpler. Invoking
+AJAX scripts can be very verbose, requiring the `GlideAjax` class and multiple
+method calls to set parameters. Then you need still need to mess with data
+serialization and de-serialization, error handling, etc. While a UI Script isn't
+strictly necessary for a generic query utility, it certainly make life easier
+and increases the likelihood of other devs actually using the utility.
+
+For brevity's sake, we'll just discuss the `Query.records` method. This method
+exposes a simple interface for read-only, asynchronous queries. There are also
+synchronous methods, and I plan to add methods for properties and single
+records, which you can find more details about on the
+[docs](https://covalt.dev/docs/servicenow/client/query) page or by viewing the
+full [source code](https://covalt.dev/docs/servicenow/client/query/source/).
+
+### Query.records
+
+```js
+records(params, callback) {
+    if (typeof params !== 'object') throw TypeError('params must be an object');
+    if (!callback || typeof callback !== 'function') throw TypeError('callback parameter must be a function');
+
+    let ga = new GlideAjax('QueryAjax');
+    ga.addParam('sysparm_name', 'records');
+    ga.addParam('sysparm_params', JSON.stringify(params));
+    ga.getXMLAnswer((res) => {
+        try {
+            res = JSON.parse(res);
+        } catch (ex) {
+            res = { status: 'error', message: 'GlideQuery returned invalid JSON' };
+        }
+
+        if (res.status !== 'success') {
+            console.error(JSON.stringify(res, null, 2));
+        }
+        callback(res);
+    });
+}
+```
+
+Again, there's not too much going on here - but this little bit of code
+drastically improves the developer experience. This method automatically
+serializes params, parses the response JSON to an object, performs basic error
+handling and logging, and finally, executes a callback on the response. It is
+important to note that the callback is always invoked, even when there is an
+error. We should always let the client know that the operation was completed so
+there isn't any client side code left hanging waiting for a callback that never
+comes.
+
+## Using the Query Utility
+
+To start using the utility, first make sure that script is set to global. Ignore
+the naysayers - it is true that scripts should only be global when absolutely
+necessary, but generic utility code like this is the ideal use case for a global
+script.
+
+Let's take a look at the actual usage of the utility. The first example below
+shows what it would look like to invoke the AJAX utility directly. The following
+example will show how much cleaner the UI Script makes our code.
+
+### Invoking the QueryAjax API
+
+```js
+let params = {
+	table: 'sys_user',
+	query: 'active=true^manager!=null',
+	columns: ['user_name', 'manager.user_name'],
+};
+
+let ga = new GlideAjax('QueryAjax');
+ga.addParam('sysparm_name', 'records');
+ga.addParam('sysparm_params', JSON.stringify(params));
+ga.getXMLAnswer((result) => {
+	console.log(result); // logs the returned JSON
+});
+```
+
+### Invoking the Query client API
+
+```js
+let params = {
+	table: 'sys_user',
+	query: 'active=true^manager!=null',
+	columns: ['user_name', 'manager.user_name'],
+};
+Query.records(params, (res) => console.log(res)); // logs the actual object
+```
+
+The above examples are obviously simplified, but it's clear to see the Query
+client API is much cleaner and simpler to read. Both APIs provide the same basic
+functionality and return the same data, but the Query client API has the added
+benefit of built in error handling and response parsing.
+
+### Output
+
+```js
+// OUTPUT:
+// {
+//   "status": "success",
+//   "data": [
+//     {
+//       "user_name": "melinda.carleton",
+//       "manager": {
+//         "user_name": "lucius.bagnoli"
+//       }
+//     }
+//   ]
+// }
+```
+
+## Closing Thoughts
+
+This is one of my most used utilities and a favorite to implement when working
+in a new instance. It's relatively easy to implement and provides immediate
+benefits by simplifying code, greatly reducing the number of required custom
+script includes, and preventing accidental data leakage by enforcing ACLs. I
+should also note that while I likely could have built the API to support
+`async/await` syntax, I intentionally chose to use a callback since this is more
+familiar to most ServiceNow devs and the client-script syntax checker still
+doesn't properly support modern JS. As I previously mentioned, I only covered
+one example method here and I plan to add more in the future, so be sure to
+watch the [docs](https://covalt.dev/docs/servicenow/client/query) page for new
+updates and usage examples.

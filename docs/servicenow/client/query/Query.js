@@ -26,7 +26,7 @@
  */
 
 /**
- * Client-side namespace for performing arbitrary GlideRecordSecure queries
+ * Client-side namespace for performing arbitrary read-only GlideRecordSecure queries
  * without needing a bespoke AJAX script include for each query. The client-side
  * Query namespace is a wrapper around the QueryAjax utility to improve ease of use
  * by reducing boilerplate, performing response parsing, and error handling.
@@ -39,47 +39,62 @@ const Query = {
 	 * ensuring standard access policies and permissions are applied.
 	 *
 	 * @param {QueryParams} params - parameters defining the query
-	 * @param {function} [callback] - optional callback function - query is executed asynchronously if provided
-	 * @returns {(QueryResponse|null)} returns the parsed JSON payload or null when ran asynchronously
+	 * @param {function} callback - callback function to invoke after a response is received
+	 *
+	 * @example
+	 * let params = {
+	 *   table: 'sys_user',
+	 *   query: 'active=true^manager!=null',
+	 *   columns: ['user_name', 'manager.user_name'],
+	 * };
+	 * Query.records(params, (res) => console.log(res));
 	 */
 	records(params, callback) {
 		if (typeof params !== 'object') throw TypeError('params must be an object');
-		if (callback && typeof callback !== 'function') throw TypeError('callback parameter must be a function');
+		if (!callback || typeof callback !== 'function') throw TypeError('callback parameter must be a function');
 
 		let ga = new GlideAjax('QueryAjax');
 		ga.addParam('sysparm_name', 'records');
 		ga.addParam('sysparm_params', JSON.stringify(params));
-
-		if (callback) {
-			// run asynchronously if a callback is given
-			ga.getXMLAnswer((res) => {
-				try {
-					res = JSON.parse(res);
-				} catch (ex) {
-					res = { status: 'error', message: 'GlideQuery returned invalid JSON' };
-					console.error(JSON.stringify(res, null, 2));
-					return;
-				}
-				if (res.status !== 'success') {
-					console.error(JSON.stringify(res, null, 2));
-				}
-				callback(res);
-			});
-		} else {
-			// run syncrhonously and return the result if no callback is given
-			ga.getXMLWait();
-			let res = ga.getAnswer();
+		ga.getXMLAnswer((res) => {
 			try {
 				res = JSON.parse(res);
 			} catch (ex) {
 				res = { status: 'error', message: 'GlideQuery returned invalid JSON' };
-				console.error(JSON.stringify(res, null, 2));
-				return res;
 			}
+
 			if (res.status !== 'success') {
 				console.error(JSON.stringify(res, null, 2));
 			}
-			return res;
+			callback(res);
+		});
+	},
+
+	/**
+	 * Executes a synchronous query for records matching an encoded query.
+	 * Queries are executed under the context of the current record,
+	 * ensuring standard access policies and permissions are applied.
+	 *
+	 * @param {QueryParams} params - parameters defining the query
+	 * @returns {QueryResponse} returns the parsed JSON payload
+	 */
+	recordsSync(params) {
+		if (typeof params !== 'object') throw TypeError('params must be an object');
+
+		let ga = new GlideAjax('QueryAjax');
+		ga.addParam('sysparm_name', 'records');
+		ga.addParam('sysparm_params', JSON.stringify(params));
+		ga.getXMLWait();
+		let res = ga.getAnswer();
+		try {
+			res = JSON.parse(res);
+		} catch (ex) {
+			res = { status: 'error', message: 'GlideQuery returned invalid JSON' };
 		}
+
+		if (res.status !== 'success') {
+			console.error(JSON.stringify(res, null, 2));
+		}
+		return res;
 	},
 };

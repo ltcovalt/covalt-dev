@@ -16,6 +16,12 @@
                 "kind": 64,
                 "path": "Query/namespaces/Query/functions/records.md",
                 "isDeprecated": false
+              },
+              {
+                "title": "recordsSync",
+                "kind": 64,
+                "path": "Query/namespaces/Query/functions/recordsSync.md",
+                "isDeprecated": false
               }
             ]
           }

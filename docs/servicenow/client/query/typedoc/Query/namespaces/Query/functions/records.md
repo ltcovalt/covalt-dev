@@ -2,7 +2,7 @@
 
 # Function: records()
 
-> **records**(`params`, `callback?`): [`QueryResponse`](../../../../interfaces/QueryResponse.md)
+> **records**(`params`, `callback`): `void`
 
 Executes a query for records matching an encoded query.
 Queries are executed under the context of the current record,
@@ -13,10 +13,19 @@ ensuring standard access policies and permissions are applied.
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `params` | [`QueryParams`](../../../../interfaces/QueryParams.md) | parameters defining the query |
-| `callback?` | `Function` | optional callback function - query is executed asynchronously if provided |
+| `callback` | `Function` | callback function to invoke after a response is received |
 
 ## Returns
 
-[`QueryResponse`](../../../../interfaces/QueryResponse.md)
+`void`
 
-returns the parsed JSON payload or null when ran asynchronously
+## Example
+
+```ts
+let params = {
+  table: 'sys_user',
+  query: 'active=true^manager!=null',
+  columns: ['user_name', 'manager.user_name'],
+};
+Query.records(params, (res) => console.log(res));
+```
