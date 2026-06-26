@@ -2,7 +2,7 @@
 
 # Function: getJavaObjectName()
 
-> **getJavaObjectName**(`obj`): `string`
+> **getJavaObjectName**(`obj`): `"GlideDate"` | `"GlideDateTime"` | `"GlideDuration"` | `"GlideSchedule"` | `"GlideSession"` | `"GlideUser"` | `"JavaObject"`
 
 Attempts to identify the specific Glide class an object is an instance of
 
@@ -16,4 +16,4 @@ Most GlideClasses are of type \[object JavaObject]
 
 ## Returns
 
-`string`
+`"GlideDate"` | `"GlideDateTime"` | `"GlideDuration"` | `"GlideSchedule"` | `"GlideSession"` | `"GlideUser"` | `"JavaObject"`

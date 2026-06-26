@@ -203,7 +203,7 @@ const Type = {
 	 */
 	getJavaObjectName(obj) {
 		let typeTag = Type.getToStringTag(obj);
-		if (!obj || typeTag === 'JavaObject') throw TypeErorr('obj must be a JavaObject');
+		if (!obj || typeTag !== 'JavaObject') throw TypeError('obj must be a JavaObject');
 		/**
 		 * NOTE: Only a limited subset of Glide classes return a useful
 		 * prototype name, some are listed below, but most return "JavaObject"

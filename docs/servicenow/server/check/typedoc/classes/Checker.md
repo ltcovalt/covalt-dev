@@ -25,16 +25,27 @@ handling errors, and returning structured results.
   * [array()](#array)
   * [between()](#between)
   * [bigint()](#bigint)
+  * [blank()](#blank)
   * [boolean()](#boolean)
   * [check()](#check)
+  * [contains()](#contains)
   * [date()](#date)
+  * [empty()](#empty)
+  * [endsWith()](#endswith)
   * [equal()](#equal)
   * [equals()](#equals)
+  * [false()](#false)
   * [falsy()](#falsy)
   * [finite()](#finite)
   * [float()](#float)
   * [formatError()](#formaterror)
   * [function()](#function)
+  * [glideDate()](#glidedate)
+  * [glideDateTime()](#glidedatetime)
+  * [glideDuration()](#glideduration)
+  * [glideSchedule()](#glideschedule)
+  * [glideSession()](#glidesession)
+  * [glideUser()](#glideuser)
   * [greater()](#greater)
   * [greaterOrEqual()](#greaterorequal)
   * [greaterThan()](#greaterthan)
@@ -42,7 +53,10 @@ handling errors, and returning structured results.
   * [gt()](#gt)
   * [gte()](#gte)
   * [guard()](#guard)
+  * [hasProperty()](#hasproperty)
+  * [includes()](#includes)
   * [infinity()](#infinity)
+  * [instanceOf()](#instanceof)
   * [integer()](#integer)
   * [length()](#length)
   * [lengthBetween()](#lengthbetween)
@@ -52,8 +66,12 @@ handling errors, and returning structured results.
   * [lessThanOrEqual()](#lessthanorequal)
   * [lt()](#lt)
   * [lte()](#lte)
+  * [match()](#match)
+  * [matches()](#matches)
   * [maxLength()](#maxlength)
+  * [message()](#message)
   * [minLength()](#minlength)
+  * [msg()](#msg)
   * [multipleOf()](#multipleof)
   * [nan()](#nan)
   * [negative()](#negative)
@@ -68,12 +86,16 @@ handling errors, and returning structured results.
   * [optional()](#optional)
   * [plainObject()](#plainobject)
   * [positive()](#positive)
+  * [property()](#property)
   * [regex()](#regex)
   * [required()](#required)
   * [result()](#result)
   * [run()](#run)
+  * [satisfies()](#satisfies)
+  * [startsWith()](#startswith)
   * [string()](#string)
   * [symbol()](#symbol)
+  * [true()](#true)
   * [truthy()](#truthy)
   * [type()](#type)
   * [typeDetail()](#typedetail)
@@ -85,7 +107,7 @@ handling errors, and returning structured results.
 
 ### Constructor
 
-> **new Checker**(`value`, `name`): `Checker`
+> **new Checker**(`value`, `name?`): `Checker`
 
 Creates a new Checker object instance
 
@@ -94,7 +116,7 @@ Creates a new Checker object instance
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `value` | `any` | the value to be checked |
-| `name` | `string` | the name or label of the value being checked |
+| `name?` | `string` | the name or label of the value being checked |
 
 #### Returns
 
@@ -107,7 +129,7 @@ Creates a new Checker object instance
 | <a id="abort"></a> `abort` | `boolean` | - |
 | <a id="checkcount"></a> `checkCount` | `number` | - |
 | <a id="checks"></a> `checks` | [`CheckDetail`](../interfaces/CheckDetail.md)\[] | array of objects detailing each check that was performed |
-| <a id="errors"></a> `errors` | `string`\[] | array of objects detailing validation errors |
+| <a id="errors"></a> `errors` | `string`\[] | array of strings detailing validation errors |
 | <a id="invert"></a> `invert` | `boolean` | controls if the result should be inverted, used when "not" is included in the call chain |
 | <a id="name"></a> `name` | `string` | name or label of the current value being processed |
 | <a id="typeof"></a> `typeof` | `string` | type of the current value |
@@ -124,6 +146,12 @@ Creates a new Checker object instance
 
 No-op helper used solely to make fluent chaining more readable
 
+##### Example
+
+```ts
+Check('hello', 'val').is.a.string().ok(); // true
+```
+
 ##### Returns
 
 `this`
@@ -137,6 +165,12 @@ No-op helper used solely to make fluent chaining more readable
 > **get** **an**(): `this`
 
 No-op helper used solely to make fluent chaining more readable
+
+##### Example
+
+```ts
+Check([], 'val').is.an.array().ok(); // true
+```
 
 ##### Returns
 
@@ -152,6 +186,12 @@ No-op helper used solely to make fluent chaining more readable
 
 No-op helper used solely to make fluent chaining more readable
 
+##### Example
+
+```ts
+Check(5, 'num').is.greaterThan(3).and.lessThan(10).ok(); // true
+```
+
 ##### Returns
 
 `this`
@@ -165,6 +205,12 @@ No-op helper used solely to make fluent chaining more readable
 > **get** **are**(): `this`
 
 No-op helper used solely to make fluent chaining more readable
+
+##### Example
+
+```ts
+Check([1, 2, 3], 'values').are.array().ok(); // true
+```
 
 ##### Returns
 
@@ -180,6 +226,12 @@ No-op helper used solely to make fluent chaining more readable
 
 No-op helper used solely to make fluent chaining more readable
 
+##### Example
+
+```ts
+Check(5, 'num').to.be.positive().ok(); // true
+```
+
 ##### Returns
 
 `this`
@@ -193,6 +245,12 @@ No-op helper used solely to make fluent chaining more readable
 > **get** **has**(): `this`
 
 No-op helper used solely to make fluent chaining more readable
+
+##### Example
+
+```ts
+Check('hello', 'val').has.length(5).ok(); // true
+```
 
 ##### Returns
 
@@ -208,6 +266,12 @@ No-op helper used solely to make fluent chaining more readable
 
 No-op helper used solely to make fluent chaining more readable
 
+##### Example
+
+```ts
+Check('hello', 'val').to.have.length(5).ok(); // true
+```
+
 ##### Returns
 
 `this`
@@ -221,6 +285,12 @@ No-op helper used solely to make fluent chaining more readable
 > **get** **is**(): `this`
 
 No-op helper used solely to make fluent chaining more readable
+
+##### Example
+
+```ts
+Check(5, 'num').is.positive().ok(); // true
+```
 
 ##### Returns
 
@@ -236,6 +306,13 @@ No-op helper used solely to make fluent chaining more readable
 
 Inverts the result when the next set of validations is evaluated
 
+##### Example
+
+```ts
+Check(3, 'num').not.equal(5).ok(); // true
+Check('hello', 'val').not.string().ok(); // false
+```
+
 ##### Returns
 
 `this`
@@ -249,6 +326,12 @@ Inverts the result when the next set of validations is evaluated
 > **get** **to**(): `this`
 
 No-op helper used solely to make fluent chaining more readable
+
+##### Example
+
+```ts
+Check(5, 'num').to.be.positive().ok(); // true
+```
 
 ##### Returns
 
@@ -266,6 +349,13 @@ Checks if a value is an Array
 
 `Checker`
 
+#### Example
+
+```ts
+Check([1, 2, 3], 'val').is.array().ok(); // true
+Check({}, 'val').is.array().ok(); // false
+```
+
 ***
 
 ### between()
@@ -276,10 +366,10 @@ Checks if a value is between or equal to a min and max value
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `min` | `any` |
-| `max` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `min` | `number` | the minimum value |
+| `max` | `number` | the maximum value |
 
 #### Returns
 
@@ -288,9 +378,9 @@ Checks if a value is between or equal to a min and max value
 #### Example
 
 ```ts
-Check(3, 'Positive').is.between(0, 5); // true
-Check(-3, 'Negative').is.between(0, 5); // false
-Check(0, 'Zero').is.between(0, 5); // true
+Check(3, 'Positive').is.between(0, 5).ok(); // true
+Check(-3, 'Negative').is.between(0, 5).ok(); // false
+Check(0, 'Zero').is.between(0, 5).ok(); // true
 ```
 
 ***
@@ -305,6 +395,32 @@ Checks if a value is a bigint
 
 `Checker`
 
+#### Example
+
+```ts
+Check(10n, 'val').is.bigint().ok(); // true
+Check(10, 'val').is.bigint().ok(); // false
+```
+
+***
+
+### blank()
+
+> **blank**(): `Checker`
+
+Checks if the current value is empty.
+Alias for [empty](#empty).
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('', 'val').is.blank().ok(); // true
+```
+
 ***
 
 ### boolean()
@@ -317,11 +433,18 @@ Checks if a value is a boolean
 
 `Checker`
 
+#### Example
+
+```ts
+Check(true, 'val').is.boolean().ok(); // true
+Check(0, 'val').is.boolean().ok(); // false
+```
+
 ***
 
 ### check()
 
-> **check**(`value`, `name`): `Checker`
+> **check**(`value`, `name?`): `Checker`
 
 Used to append additional checks to an existing Checker
 
@@ -330,13 +453,47 @@ Used to append additional checks to an existing Checker
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `value` | `any` | the value to be checked |
-| `name` | `string` | name or label of the value being checked |
+| `name?` | `string` | name or label of the value being checked |
 
 #### Returns
 
 `Checker`
 
 the current Checker instance
+
+#### Example
+
+```ts
+let checker = Check(5, 'num').is.positive();
+checker.check('hello', 'str').is.string();
+checker.ok(); // true (both checks passed)
+```
+
+***
+
+### contains()
+
+> **contains**(`element`): `Checker`
+
+Checks if the current value includes the expected substring (for strings) or element (for arrays).
+Alias for [includes](#includes).
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `element` | `any` | the substring or array element to search for |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('hello world', 'val').contains('world').ok(); // true
+Check([1, 2, 3], 'val').contains(2).ok(); // true
+```
 
 ***
 
@@ -352,6 +509,59 @@ It does not check if a value is a `GlideDate` or `GlideDateTime` instance
 
 `Checker`
 
+#### Example
+
+```ts
+Check(new Date(), 'val').is.date().ok(); // true
+Check('2026-06-25', 'val').is.date().ok(); // false
+```
+
+***
+
+### empty()
+
+> **empty**(): `Checker`
+
+Checks if the current value is empty.
+A value is empty if it is nil (null/undefined), an empty string, an empty array,
+or an object with no enumerable properties.
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('', 'val').is.empty().ok(); // true
+Check([], 'val').is.empty().ok(); // true
+Check('hello', 'val').not.empty().ok(); // true
+```
+
+***
+
+### endsWith()
+
+> **endsWith**(`suffix`): `Checker`
+
+Checks if the current value ends with the expected suffix.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `suffix` | `string` | the suffix to check |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('hello world', 'val').is.endsWith('world').ok(); // true
+```
+
 ***
 
 ### equal()
@@ -362,9 +572,9 @@ Performs a strict equality (===) check on a value
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `any` | the expected value |
 
 #### Returns
 
@@ -388,9 +598,9 @@ Alias for the [equal](#equal) method.
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `any` | the expected value |
 
 #### Returns
 
@@ -405,12 +615,11 @@ Check('1', 'number').equals(1).ok(); // false
 
 ***
 
-### falsy()
+### false()
 
-> **falsy**(): `Checker`
+> **false**(): `Checker`
 
-Coerces a value to a boolean and checks if it is a falsy value
-returns {this}
+Checks if the current value is strictly false.
 
 #### Returns
 
@@ -419,13 +628,32 @@ returns {this}
 #### Example
 
 ```ts
-Check('string', name).is.falsy().ok(); // false
-Check(true, name).is.falsy().ok(); // false
-Check({}, name).is.falsy().ok(); // false
-Check(0, name).is.falsy().ok(); // true
-Check('', name).is.falsy().ok(); // true
-Check(NaN, name).is.falsy().ok(); // true
-Check(null, name).is.falsy().ok() // true
+Check(false, 'val').is.false().ok(); // true
+Check(0, 'val').is.false().ok(); // false
+```
+
+***
+
+### falsy()
+
+> **falsy**(): `Checker`
+
+Coerces a value to a boolean and checks if it is a falsy value
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('string', 'val').is.falsy().ok(); // false
+Check(true, 'val').is.falsy().ok(); // false
+Check({}, 'val').is.falsy().ok(); // false
+Check(0, 'val').is.falsy().ok(); // true
+Check('', 'val').is.falsy().ok(); // true
+Check(NaN, 'val').is.falsy().ok(); // true
+Check(null, 'val').is.falsy().ok(); // true
 ```
 
 ***
@@ -451,6 +679,13 @@ Checks if a value is a float/decimal number
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(12.3, 'val').is.float().ok(); // true
+Check(123, 'val').is.float().ok(); // false
+```
 
 ***
 
@@ -484,6 +719,121 @@ Checks if a value is a function
 
 `Checker`
 
+#### Example
+
+```ts
+Check(() => {}, 'val').is.function().ok(); // true
+Check({}, 'val').is.function().ok(); // false
+```
+
+***
+
+### glideDate()
+
+> **glideDate**(): `Checker`
+
+Checks if the current value is a GlideDate instance.
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(new GlideDate(), 'date').is.glideDate().ok(); // true
+```
+
+***
+
+### glideDateTime()
+
+> **glideDateTime**(): `Checker`
+
+Checks if the current value is a GlideDateTime instance.
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(new GlideDateTime(), 'dateTime').is.glideDateTime().ok(); // true
+```
+
+***
+
+### glideDuration()
+
+> **glideDuration**(): `Checker`
+
+Checks if the current value is a GlideDuration instance.
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(new GlideDuration(), 'duration').is.glideDuration().ok(); // true
+```
+
+***
+
+### glideSchedule()
+
+> **glideSchedule**(): `Checker`
+
+Checks if the current value is a GlideSchedule instance.
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(new GlideSchedule(), 'schedule').is.glideSchedule().ok(); // true
+```
+
+***
+
+### glideSession()
+
+> **glideSession**(): `Checker`
+
+Checks if the current value is a GlideSession instance.
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(gs.getSession(), 'session').is.glideSession().ok(); // true
+```
+
+***
+
+### glideUser()
+
+> **glideUser**(): `Checker`
+
+Checks if the current value is a GlideUser instance.
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(gs.getUser(), 'user').is.glideUser().ok(); // true
+```
+
 ***
 
 ### greater()
@@ -502,6 +852,12 @@ Alias for [greaterThan](#greaterthan).
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(5, 'val').greater(3).ok(); // true
+```
 
 ***
 
@@ -522,6 +878,12 @@ Alias for [greaterThanOrEqual](#greaterthanorequal).
 
 `Checker`
 
+#### Example
+
+```ts
+Check(5, 'val').greaterOrEqual(5).ok(); // true
+```
+
 ***
 
 ### greaterThan()
@@ -540,6 +902,13 @@ Checks if a value is greater than the expected value.
 
 `Checker`
 
+#### Example
+
+```ts
+Check(5, 'val').is.greaterThan(3).ok(); // true
+Check(3, 'val').is.greaterThan(3).ok(); // false
+```
+
 ***
 
 ### greaterThanOrEqual()
@@ -557,6 +926,13 @@ Checks if a value is greater than or equal to the expected value.
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(5, 'val').is.greaterThanOrEqual(5).ok(); // true
+Check(4, 'val').is.greaterThanOrEqual(5).ok(); // false
+```
 
 ***
 
@@ -577,6 +953,12 @@ Alias for [greaterThan](#greaterthan).
 
 `Checker`
 
+#### Example
+
+```ts
+Check(5, 'val').gt(3).ok(); // true
+```
+
 ***
 
 ### gte()
@@ -596,6 +978,12 @@ Alias for [greaterThanOrEqual](#greaterthanorequal).
 
 `Checker`
 
+#### Example
+
+```ts
+Check(5, 'val').gte(5).ok(); // true
+```
+
 ***
 
 ### guard()
@@ -610,6 +998,66 @@ Checks the current validation status and throws a TypeError if not ok
 
 the current Checker instance
 
+#### Throws
+
+if any validation checks failed
+
+#### Example
+
+```ts
+Check('hello', 'val').is.number().guard(); // throws TypeError
+```
+
+***
+
+### hasProperty()
+
+> **hasProperty**(`key`): `Checker`
+
+Checks if the current value is an object and contains the specified property key.
+Alias for [property](#property).
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `key` | `string` | `symbol` | the property key to check for |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check({ id: 123 }, 'val').hasProperty('id').ok(); // true
+```
+
+***
+
+### includes()
+
+> **includes**(`element`): `Checker`
+
+Checks if the current value includes the expected substring (for strings) or element (for arrays).
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `element` | `any` | the substring or array element to search for |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('hello world', 'val').is.includes('world').ok(); // true
+Check([1, 2, 3], 'val').is.includes(2).ok(); // true
+```
+
 ***
 
 ### infinity()
@@ -622,6 +1070,39 @@ Checks if a value is Infinity
 
 `Checker`
 
+#### Example
+
+```ts
+Check(Infinity, 'val').is.infinity().ok(); // true
+Check(123, 'val').is.infinity().ok(); // false
+```
+
+***
+
+### instanceOf()
+
+> **instanceOf**(`constructor`): `Checker`
+
+Checks if the current value is an instance of the specified constructor/class.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `constructor` | `Function` | the constructor function or class to check against |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+class MyClass {}
+let obj = new MyClass();
+Check(obj, 'instance').is.instanceOf(MyClass).ok(); // true
+```
+
 ***
 
 ### integer()
@@ -633,6 +1114,13 @@ Checks if a value is an integer
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(123, 'val').is.integer().ok(); // true
+Check(12.3, 'val').is.integer().ok(); // false
+```
 
 ***
 
@@ -652,6 +1140,13 @@ Intended for use with Arrays and strings, but works with any object containing a
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check([1, 2, 3], 'val').is.length(3).ok(); // true
+Check('hello', 'val').is.length(5).ok(); // true
+```
 
 ***
 
@@ -673,6 +1168,13 @@ Intended for use with Arrays and strings, but works with any object containing a
 
 `Checker`
 
+#### Example
+
+```ts
+Check([1, 2, 3], 'val').is.lengthBetween(1, 5).ok(); // true
+Check('hello', 'val').is.lengthBetween(6, 10).ok(); // false
+```
+
 ***
 
 ### less()
@@ -691,6 +1193,12 @@ Alias for [lessThan](#lessthan).
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(3, 'val').less(5).ok(); // true
+```
 
 ***
 
@@ -711,6 +1219,12 @@ Alias for [lessThanOrEqual](#lessthanorequal).
 
 `Checker`
 
+#### Example
+
+```ts
+Check(5, 'val').lessOrEqual(5).ok(); // true
+```
+
 ***
 
 ### lessThan()
@@ -729,6 +1243,13 @@ Checks if a value is less than the expected value
 
 `Checker`
 
+#### Example
+
+```ts
+Check(3, 'val').is.lessThan(5).ok(); // true
+Check(5, 'val').is.lessThan(5).ok(); // false
+```
+
 ***
 
 ### lessThanOrEqual()
@@ -746,6 +1267,13 @@ Checks if a value is less than or equal to the expected value.
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(5, 'val').is.lessThanOrEqual(5).ok(); // true
+Check(6, 'val').is.lessThanOrEqual(5).ok(); // false
+```
 
 ***
 
@@ -766,6 +1294,12 @@ Alias for [lessThan](#lessthan).
 
 `Checker`
 
+#### Example
+
+```ts
+Check(3, 'val').lt(5).ok(); // true
+```
+
 ***
 
 ### lte()
@@ -784,6 +1318,61 @@ Alias for [lessThanOrEqual](#lessthanorequal).
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(5, 'val').lte(5).ok(); // true
+```
+
+***
+
+### match()
+
+> **match**(`regex`): `Checker`
+
+Checks if the current value matches a regular expression pattern.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `regex` | `RegExp` | the regular expression to test against |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('hello', 'val').is.match(/^h/).ok(); // true
+```
+
+***
+
+### matches()
+
+> **matches**(`regex`): `Checker`
+
+Checks if the current value matches a regular expression pattern.
+Alias for [match](#match).
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `regex` | `RegExp` | the regular expression to test against |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('hello', 'val').matches(/^h/).ok(); // true
+```
 
 ***
 
@@ -804,6 +1393,37 @@ Intended for use with Arrays and strings, but works with any object containing a
 
 `Checker`
 
+#### Example
+
+```ts
+Check([1, 2, 3], 'val').is.maxLength(5).ok(); // true
+Check('hello world', 'val').is.maxLength(5).ok(); // false
+```
+
+***
+
+### message()
+
+> **message**(`msg`): `Checker`
+
+Overrides the error message for the most recently evaluated check in the chain.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `msg` | `string` | (`arg0`) => `string` | custom error message string or function |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(password).is.minLength(8).message('Password is too short.').guard();
+```
+
 ***
 
 ### minLength()
@@ -823,13 +1443,45 @@ Intended for use with Arrays and strings, but works with any object containing a
 
 `Checker`
 
+#### Example
+
+```ts
+Check([1, 2, 3], 'val').is.minLength(2).ok(); // true
+Check('a', 'val').is.minLength(2).ok(); // false
+```
+
+***
+
+### msg()
+
+> **msg**(`msg`): `Checker`
+
+Overrides the error message for the most recently evaluated check in the chain.
+Alias for [message](#message).
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `msg` | `string` | (`arg0`) => `string` | custom error message string or function |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(password).is.minLength(8).msg('Password is too short.').guard();
+```
+
 ***
 
 ### multipleOf()
 
 > **multipleOf**(`expected`): `Checker`
 
-Checks if a values is a multiple of the expected value.
+Checks if a value is a multiple of the expected value.
 
 #### Parameters
 
@@ -840,6 +1492,13 @@ Checks if a values is a multiple of the expected value.
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(10, 'val').is.multipleOf(5).ok(); // true
+Check(12, 'val').is.multipleOf(5).ok(); // false
+```
 
 ***
 
@@ -852,6 +1511,13 @@ Checks if a value is Not-a-Number (NaN)
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(NaN, 'val').is.nan().ok(); // true
+Check(123, 'val').is.nan().ok(); // false
+```
 
 ***
 
@@ -868,9 +1534,9 @@ Checks if a value is a negative number
 #### Example
 
 ```ts
-Check(3, 'Positive').is.negative(); // false
-Check(-3, 'Negative').is.negative(); // true
-Check(0, 'Zero').is.negative(); // false
+Check(3, 'Positive').is.negative().ok(); // false
+Check(-3, 'Negative').is.negative().ok(); // true
+Check(0, 'Zero').is.negative().ok(); // false
 ```
 
 ***
@@ -885,6 +1551,14 @@ Checks if a value is null or undefined
 
 `Checker`
 
+#### Example
+
+```ts
+Check(null, 'val').is.nil().ok(); // true
+Check(undefined, 'val').is.nil().ok(); // true
+Check(0, 'val').is.nil().ok(); // false
+```
+
 ***
 
 ### noneOf()
@@ -897,7 +1571,7 @@ Checks if a value is not present in an array of values
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `array` | `any`\[] | of values |
+| `array` | `any`\[] | array of values |
 
 #### Returns
 
@@ -922,6 +1596,13 @@ Checks if a value is null
 
 `Checker`
 
+#### Example
+
+```ts
+Check(null, 'val').is.null().ok(); // true
+Check(undefined, 'val').is.null().ok(); // false
+```
+
 ***
 
 ### number()
@@ -934,6 +1615,13 @@ Checks if a value is a number
 
 `Checker`
 
+#### Example
+
+```ts
+Check(123, 'val').is.number().ok(); // true
+Check('123', 'val').is.number().ok(); // false
+```
+
 ***
 
 ### object()
@@ -945,6 +1633,13 @@ Checks if a value is an object
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check({}, 'val').is.object().ok(); // true
+Check(null, 'val').is.object().ok(); // true (typeof null is 'object')
+```
 
 ***
 
@@ -959,6 +1654,12 @@ Checks the entire validation chain for errors
 `boolean`
 
 true if there were no validation errors
+
+#### Example
+
+```ts
+let pass = Check(10, 'num').is.number().ok(); // true
+```
 
 ***
 
@@ -998,6 +1699,12 @@ Alias for [optional](#optional)
 
 `Checker`
 
+#### Example
+
+```ts
+Check(null, 'val').opt().string().ok(); // true
+```
+
 ***
 
 ### optional()
@@ -1010,6 +1717,14 @@ If invoked as `not.optional()`, delegates to [required()](#required).
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check(null, 'val').optional().string().ok(); // true (aborts/skips subsequent checks when nil)
+Check('hello', 'val').optional().string().ok(); // true (performs checks when not nil)
+Check(123, 'val').optional().string().ok(); // false (fails checks when not nil and not string)
+```
 
 ***
 
@@ -1046,9 +1761,34 @@ Checks if a value is a positive number
 #### Example
 
 ```ts
-Check(3, 'Positive').is.positive(); // true
-Check(-3, 'Negative').is.positive(); // false
-Check(0, 'Zero').is.positive(); // false
+Check(3, 'Positive').is.positive().ok(); // true
+Check(-3, 'Negative').is.positive().ok(); // false
+Check(0, 'Zero').is.positive().ok(); // false
+```
+
+***
+
+### property()
+
+> **property**(`key`): `Checker`
+
+Checks if the current value is an object and contains the specified property key.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `key` | `string` | `symbol` | the property key to check for |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check({ id: 123 }, 'val').has.property('id').ok(); // true
+Check({}, 'val').has.property('id').ok(); // false
 ```
 
 ***
@@ -1063,6 +1803,13 @@ Checks if a value is a Regular Expression
 
 `Checker`
 
+#### Example
+
+```ts
+Check(/abc/, 'val').is.regex().ok(); // true
+Check('abc', 'val').is.regex().ok(); // false
+```
+
 ***
 
 ### required()
@@ -1076,19 +1823,39 @@ If invoked as not.required(), delegates to [optional()](#optional).
 
 `Checker`
 
+#### Example
+
+```ts
+Check('hello', 'val').required().ok(); // true
+Check(null, 'val').required().ok(); // false
+```
+
 ***
 
 ### result()
 
-> **result**(): `any`
+> **result**(): `object`
 
-Returns the type validation result
+Returns the validation result summary
 
 #### Returns
 
-`any`
+`object`
 
-result summary
+result summary containing ok status, list of checks, and errors
+
+| Name | Type |
+| ------ | ------ |
+| `checks` | [`CheckDetail`](../interfaces/CheckDetail.md)\[] |
+| `errors` | `string`\[] |
+| `ok` | `boolean` |
+
+#### Example
+
+```ts
+let res = Check('hello', 'val').is.string().result();
+// res.ok -> true
+```
 
 ***
 
@@ -1096,20 +1863,70 @@ result summary
 
 > **run**(`detail`, `predicate`): `Checker`
 
-evaluates a Type.check() call chain, finalizes pass/fail,
-records full check details, and logs/throws errors,
-and resets the inversion flag for the next check
+Evaluates a validation predicate, finalizes pass/fail status,
+records check details, appends errors if failed, and resets the inversion flag.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `detail` | `any` | object containing details on the current check chain |
-| `predicate` | `Function` | callback function to determine if a check passed - must return a Boolean |
+| `detail` | `Partial`<[`CheckDetail`](../interfaces/CheckDetail.md)> | object containing details on the current check |
+| `predicate` | () => `boolean` | callback function that must return a boolean indicating if the check passed |
 
 #### Returns
 
 `Checker`
+
+the current Checker instance
+
+***
+
+### satisfies()
+
+> **satisfies**(`predicateFn`, `expectedDescription?`): `Checker`
+
+Asserts that the current value satisfies a custom predicate function.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `predicateFn` | (`arg0`) => `boolean` | function that takes the current value and returns a boolean |
+| `expectedDescription?` | `string` | description of the custom check for error messaging |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check(4, 'num').is.satisfies((val) => val % 2 === 0, 'an even number').ok(); // true
+```
+
+***
+
+### startsWith()
+
+> **startsWith**(`prefix`): `Checker`
+
+Checks if the current value starts with the expected prefix.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `prefix` | `string` | the prefix to check |
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('hello world', 'val').is.startsWith('hello').ok(); // true
+```
 
 ***
 
@@ -1123,6 +1940,13 @@ Checks if a value is a string
 
 `Checker`
 
+#### Example
+
+```ts
+Check('hello', 'val').is.string().ok(); // true
+Check(123, 'val').is.string().ok(); // false
+```
+
 ***
 
 ### symbol()
@@ -1135,14 +1959,20 @@ Checks if a value is a symbol
 
 `Checker`
 
+#### Example
+
+```ts
+Check(Symbol('foo'), 'val').is.symbol().ok(); // true
+Check('foo', 'val').is.symbol().ok(); // false
+```
+
 ***
 
-### truthy()
+### true()
 
-> **truthy**(): `Checker`
+> **true**(): `Checker`
 
-Coerces a value to a boolean and checks if it is a truthy value
-returns {this}
+Checks if the current value is strictly true.
 
 #### Returns
 
@@ -1151,11 +1981,30 @@ returns {this}
 #### Example
 
 ```ts
-Check('string', name).is.truthy().ok(); // true
-Check(true, name).is.truthy().ok(); // true
-Check({}, name).is.truthy().ok(); // true
-Check(0, name).is.truthy().ok(); // false
-Check(null, name).is.truthy().ok() // false
+Check(true, 'val').is.true().ok(); // true
+Check('true', 'val').is.true().ok(); // false
+```
+
+***
+
+### truthy()
+
+> **truthy**(): `Checker`
+
+Coerces a value to a boolean and checks if it is a truthy value
+
+#### Returns
+
+`Checker`
+
+#### Example
+
+```ts
+Check('string', 'val').is.truthy().ok(); // true
+Check(true, 'val').is.truthy().ok(); // true
+Check({}, 'val').is.truthy().ok(); // true
+Check(0, 'val').is.truthy().ok(); // false
+Check(null, 'val').is.truthy().ok(); // false
 ```
 
 ***
@@ -1168,9 +2017,9 @@ Checks if the current value is the expected type
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `string` | the expected type (e.g., 'string', 'number', 'boolean', 'object', 'undefined', 'function', 'symbol', 'bigint') |
 
 #### Returns
 
@@ -1193,9 +2042,9 @@ Checks if the detailed type of the current value is the expected type
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `expected` | `any` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `expected` | `string` | the expected detailed type |
 
 #### Returns
 
@@ -1205,12 +2054,12 @@ Checks if the detailed type of the current value is the expected type
 
 ```ts
 let testValue = new GlideRecord('sys_user');
-let pass = Check({ testValue }).is.typeDetail('object (GlideRecord)'); // true
+let pass = Check({ testValue }).is.typeDetail('object (GlideRecord)').ok(); // true
 ```
 
 ```ts
 let testValue = {};
-let pass = Check({ testValue }).is.typeDetail('object (Object)'); // true
+let pass = Check({ testValue }).is.typeDetail('object (Object)').ok(); // true
 ```
 
 ***
@@ -1225,15 +2074,31 @@ Checks if a value is undefined
 
 `Checker`
 
+#### Example
+
+```ts
+Check(undefined, 'val').is.undefined().ok(); // true
+Check(null, 'val').is.undefined().ok(); // false
+```
+
 ***
 
 ### validRecord()
 
 > **validRecord**(): `Checker`
 
+Checks if the current value is a valid GlideRecord or GlideRecordSecure instance.
+
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+let gr = new GlideRecord('sys_user');
+Check(gr, 'val').is.validRecord().ok(); // true
+```
 
 ***
 
@@ -1241,6 +2106,14 @@ Checks if a value is undefined
 
 > **validTable**(): `Checker`
 
+Checks if the current value is a valid ServiceNow table name.
+
 #### Returns
 
 `Checker`
+
+#### Example
+
+```ts
+Check('sys_user', 'val').is.validTable().ok(); // true
+```

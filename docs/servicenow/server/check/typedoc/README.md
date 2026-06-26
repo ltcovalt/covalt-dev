@@ -16,4 +16,4 @@
 
 | Function | Description |
 | ------ | ------ |
-| [Check](functions/Check.md) | Factory function for the Checker class |
+| [Check](functions/Check.md) | Factory function for the Checker class. If a name is not provided, it accepts an object containing a single name-value pair to extract and use as both the name and the value for the Checker instance. |
