@@ -1,0 +1,140 @@
+---
+title: Check.js - New Predicates & Features
+slug: check-libary-updates
+description:
+    The Check.js library has been updated to include additional predicates,
+    general usability enhancements, a full suite of test cases, and JSDOC
+    examples for all predicates. This post will take a quick look at the notable
+    features of the update, with a brief detour to discuss where and how I use
+    AI tooling in my content, and where I refuse to use it.
+author: 'Luke Covalt'
+date: 2026-06-26
+updated: 2026-06-26
+draft: false
+tags: [blog, Check, Check.js, assert, input, validation]
+---
+
+The [Check.js](/docs/servicenow/server/check) library has received a pretty
+major update, introducing several new predicates as well as improving general
+usability of the utility. Like usual, I also discovered that past me made some
+bonehead decisions, so I did some general cleanup too.
+
+## New Predicates
+
+It's not too exciting or flashy, but several new predicates have been added.
+Some of which I thought I already created - because who would create a `falsy`
+and `truthy` predicate but not a strict `true` and `false` predicate - but I
+digress. The complete list of new predicates can be found below.
+
+### Emptiness & Truthiness Checks
+
+- `empty()` - checks if a value is nil (null/undefined), an empty string `""`,
+  an empty array `[]`, or an object without enumerable properties
+- `blank()` - alias for `empty()`
+- `true()` - asserts value is strictly boolean true
+- `false()` - asserts value is strictly boolean false
+
+### Content & Structure Checks
+
+- `property()` - checks if the value is an object and contains the specified key
+- `hasProperty()` - alias for `property()`
+- `includes()`
+    - if the checked value is a string, check to see if it contains a substring
+    - if the checked value is an Array, check to see if it contains an element
+- `contains()` - alias for `includes()`
+- `startsWith()` - checks if a string starts with the given substring
+- `endsWith()` - checks if a string ends with the given substring
+- `match()` - matches string values against a RegExp pattern
+- `matches()` - alias for `match()`
+
+### Custom Assertions & Constructors:
+
+- `instanceOf()` - checks if the value is an instance of a specified
+  constructor/class
+- `satisfies()` - asserts that the current value satisfies a custom predicate
+  `callback (val) => boolean`, allowing users to implement their own custom
+  checks inline
+
+### ServiceNow Glide API Checks:
+
+- `validTable()` - asserts that a value is a valid ServiceNow table
+- `validRecord()` - asserts that a value is a valid `GlideRecord` or
+  `GlideRecordSecure`
+- `glideDate()` - asserts that a value is a `GlideDate`
+- `glideDateTime()` - asserts that a value is a `GlideDateTime`
+- `glideDuration()` - asserts that a value is a `GlideDuration`
+- `glideSchedule()` - asserts that a value is a `GlideSchedule`
+- `glideSession()` - asserts that a value is a `GlideSession`
+- `glideUser()` - asserts than a value is a `GlideUser`
+
+Nearly all of these predicates are self-explanatory. The utility of
+`match`/`matches` and `satisfies` deserve to be called out though. By adding
+support for user provided RegExp patterns and validator functions, the library
+should be able to cover just about any use case.
+
+## Error Message Override
+
+Up until now, I had an embarrassingly bad, but mainly functional way of handling
+message templates for when checks failed. The templates were too rigid in some
+cases and they lived on an object defined at the top of the file, meaning I had
+to jump between the predicate definition and the template definition to make
+sense of what the output would be. It worked, so I ignored it, but as the number
+of messages/templates grew, it became more annoying.
+
+This update scraps that terrible implementation and replaces it with a much more
+flexible solution that supports a standard string or a callback function to
+define the message. This keeps the message definition local to the predicate
+while also allowing the message to access the full `CheckDetail` object.
+Additionally, since the predicates that had identical messages primarily
+delegate to the same methods (i.e., `string`, `number`, and `boolean` all call
+`type` under the hood), I only need to define the message once on the `type`
+predicate, still giving me the main benefit of my old templating solution. This
+solution should serve me well, even as the number of predicates & custom
+messages grow.
+
+Finally, the rework enabled me to expose a new method appropriately named
+`message`, allowing arbitrary error messages to be defined by users and applied
+to a check chain if it fails.
+
+```js
+Check(password).is.minLength(8).message('Password is too short.').guard();
+```
+
+## Documentation & Test Cases
+
+Finally, the part that nobody but an AI agent loves, writing documentation and
+test cases. All methods in the Check.js libary should have JSDOC examples as
+well as accompanying test cases in `Check.test.js`. The tests can be ran locally
+via Node.JS, or as on an actual ServiceNow instance in a background script.
+
+## AI Usage
+
+I don't typically use AI for coding tasks, apart from occasionally using it to
+skim my files for bugs, provide suggestions, or sometimes to bounce ideas off
+of. When it comes to the actual writing - both in my code, and for this blog - I
+like to do it myself. Since I already had such a well defined API interface
+though, every method was fully documented with JSDoc, and half of them had JSDoc
+examples, I was able to use Antigravity to easily generate the missing examples.
+It did a great job matching the format and style of the rest of my code base
+too.
+
+It also generated the full suite of tests. I certainly don't trust the tests
+yet - having an AI create tests and simultaneously say they all pass doesn't
+mean much to me - but as I quickly reviewed each test, they seem accurate. Time
+will tell, but it's certainly going to be better than no tests. I wasn't able to
+fully test in my PDI yet due to ServiceNow issues, but that will be my next
+step.
+
+For me, this was a perfect use case for AI. I don't want to automate away design
+and programming - that's the part I enjoy. Even though I enjoy it less than
+programming, I also don't want to use it for content generation (like this post)
+as that feels horribly inauthentic and disingenuous. For tedious, repetitive
+work I don't enjoy, easy to miss bugs/typos, or things that I would likely skip
+altogether, it's a perfect fit.
+
+<Alert>
+	I feel obligated to call out that when I mention skipping tests or
+	documentation, I am only referring to this site for my personal/hobby
+	projects. I have limited time and I prefer to spend it building rather than
+	testing and documenting.
+</Alert>
