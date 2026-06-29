@@ -88,7 +88,7 @@ while also allowing the message to access the full `CheckDetail` object.
 Additionally, since the predicates that had identical messages primarily
 delegate to the same methods (i.e., `string`, `number`, and `boolean` all call
 `type` under the hood), I only need to define the message once on the `type`
-predicate, still giving me the main benefit of my old templating solution. This
+predicate, still giving me the main benefit of my old template solution. This
 solution should serve me well, even as the number of predicates & custom
 messages grow.
 
@@ -103,9 +103,9 @@ Check(password).is.minLength(8).message('Password is too short.').guard();
 ## Documentation & Test Cases
 
 Finally, the part that nobody but an AI agent loves, writing documentation and
-test cases. All methods in the Check.js libary should have JSDOC examples as
+test cases. All methods in the Check.js library should have JSDoc examples as
 well as accompanying test cases in `Check.test.js`. The tests can be ran locally
-via Node.JS, or as on an actual ServiceNow instance in a background script.
+via Node.JS, or on an actual ServiceNow instance in a background script.
 
 ## AI Usage
 
