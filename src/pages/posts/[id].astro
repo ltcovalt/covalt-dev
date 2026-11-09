@@ -25,7 +25,7 @@ const prev = i > 0 ? allPosts[i - 1] : null; // older
 const next = i < allPosts.length - 1 ? allPosts[i + 1] : null; // newer
 ---
 
-<ArticleLayout title={'covalt.dev - ' + post.data.title}>
+<ArticleLayout title={'lukecovalt.com - ' + post.data.title}>
 	<h1>{post.data.title}</h1>
 	<Content components={{ Alert, Link }} />
 	<PostFooter {prev} {next} />

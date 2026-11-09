@@ -16,14 +16,14 @@ tags: [blog, docs, documentation, api, astro, routing, typedoc, jsdoc, tsdoc]
 Near the end of last month, I set an entirely arbitrary and self-imposed
 deadline to have a solution for publishing documentation pages on my site.
 Today, I'm happy to announce that my documentation site is live! It can be
-accessed at [covalt.dev/docs](https://covalt.dev/docs). There's still a few
-issues, there are several features I still want to implement, and it's a bit
-sparse on content - but my utilities and scripts have found their forever home
-for documentation and source code. Even though there's a lot to do, I hope to
-spend more time building and sharing utilities, now that I actually have a way
-to share them. It's a busy time of year, so I won't be doing a deep dive on the
-technical implementation right now, but I'll discuss some of the highlights and
-major issues I encountered.
+accessed at [covalt.dev/docs](/docs). There's still a few issues, there are
+several features I still want to implement, and it's a bit sparse on content -
+but my utilities and scripts have found their forever home for documentation and
+source code. Even though there's a lot to do, I hope to spend more time building
+and sharing utilities, now that I actually have a way to share them. It's a busy
+time of year, so I won't be doing a deep dive on the technical implementation
+right now, but I'll discuss some of the highlights and major issues I
+encountered.
 
 ## Implementation overview
 
@@ -109,11 +109,11 @@ expected - until you try to follow a from the generated files...
 I ran into two main challenges when getting TypeDoc links to work with my
 routing setup. By default, TypeDoc links point to the file's disk location. For
 example, the path to the `Check` API readme is
-[/docs/servicenow/server/check](/docs/servicenow/server/check).
-Following this link will serve the raw markdown via the static file handler. Not
-at all what I want, and is another benefit of setting up routing to handle
-routes without `/typedoc` in the path - since there isn't a static file there,
-the Astro router can be configured to handle those requests however we want.
+[/docs/servicenow/server/check](/docs/servicenow/server/check). Following this
+link will serve the raw markdown via the static file handler. Not at all what I
+want, and is another benefit of setting up routing to handle routes without
+`/typedoc` in the path - since there isn't a static file there, the Astro router
+can be configured to handle those requests however we want.
 
 TypeDoc allows you to set the public path for your docs, which will change the
 way it generates links. This would be a simple, sane way to get my links working
@@ -144,4 +144,4 @@ made things more difficult on myself in some ways, but I think the end result
 was worth it. I'll continue to refine and the solution and make smaller
 enhancements over time, but now that I have a working solution in place, I'm
 going to shift my focus back to building and sharing new solutions. Be sure to
-keep an eye on the [docs site](https://covalt.dev/docs) if your interested.
+keep an eye on the [docs site](/docs) if your interested.

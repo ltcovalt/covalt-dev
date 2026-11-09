@@ -33,13 +33,11 @@ let { class: classes } = Astro.props;
 		}
 	</NavMenuDropdown>
 	<div class="navbar-start">
-		<a href="/" class="text-3xl opacity-40">covalt.dev</a>
+		<a href="/" class="text-3xl opacity-40">lukecovalt.com</a>
 	</div>
 
 	<!-- center navbar, hidden for small screens -->
-	<div
-		class={`navbar-center hidden lg:flex lg:items-end ${isCurrentPage('/docs') ? 'lg:translate-x-32' : ''}`}
-	>
+	<div class={`navbar-center hidden lg:flex lg:items-end ${isCurrentPage('/docs') ? 'lg:translate-x-32' : ''}`}>
 		<ul class="menu menu-horizontal px-1 text-lg">
 			{
 				headerLinks.map((link) => (

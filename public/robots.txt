@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://covalt.dev/sitemap-index.xml
+Sitemap: https://lukecovalt.com/sitemap-index.xml

@@ -1,6 +1,7 @@
-# covalt.dev
+# lukecovalt.com
 
-This is the repo for my personal website, [covalt.dev](https://covalt.dev).
+This is the repo for my personal website,
+[lukecovalt.com](https://lukecovalt.com).
 
 ## Tech Stack
 

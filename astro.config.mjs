@@ -13,7 +13,7 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
 
 export default defineConfig({
-	site: 'https://covalt.dev',
+	site: 'https://lukecovalt.com',
 	integrations: [
 		mdx({
 			remarkPlugins: [remarkCodeImport, remarkCodeLang, remarkCodeStripPrettierIgnore, remarkLinkComponent],
