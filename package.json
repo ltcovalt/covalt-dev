@@ -6,7 +6,9 @@
 		"dev": "astro dev",
 		"build": "astro build",
 		"preview": "astro preview",
-		"deploy": "npx wrangler deploy",
+		"deploy": "echo \"Specify target: npm run deploy:staging or npm run deploy:prod\" && exit 1",
+		"deploy:staging": "npm run build && npx wrangler deploy --env staging",
+		"deploy:prod": "npm run build && npx wrangler deploy",
 		"astro": "astro",
 		"docs:update": "node scripts/generate-api-docs.cjs"
 	},
